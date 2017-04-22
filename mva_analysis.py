@@ -6,6 +6,17 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 from root_pandas import read_root
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+
+def smart_save_fig(fig, path):
+    """Saves fig to path, creating required directories if they do not exist"""
+    try:
+        os.makedirs(os.path.dirname(path))
+    except OSError:  # directory already exists
+        pass
+
+    fig.savefig(path)
 
 
 def read_trees(signals, channel, mz, mw):
@@ -51,6 +62,8 @@ def make_variable_histograms(sig_df, bkg_df, filename="vars.pdf"):
         return df.hist(bins=100, ax=ax, alpha=0.5, weights=df.EvtWeight,
                        normed=True)
 
+    plt.style.use("ggplot")
+
     fig_size = (50, 31)
 
     fig, ax = plt.subplots()
@@ -59,28 +72,54 @@ def make_variable_histograms(sig_df, bkg_df, filename="vars.pdf"):
     ax = plot_histograms(sig_df, ax).flatten()[:len(sig_df.columns)]
     plot_histograms(bkg_df, ax)
 
-    # Save figure
-    try:
-        os.makedirs(os.path.dirname(filename))
-    except OSError:  # directory already exists
-        pass
+    smart_save_fig(fig, filename)
 
-    fig.savefig(filename)
+
+def make_corelation_plot(df, filename="corr.pdf"):
+    """Produce 2D histogram representing the correlation matrix of dataframe
+    df. Written to filename."""
+
+    plt.style.use("ggplot")
+
+    corr = df.corr()
+    nvars = len(corr.columns)
+
+    fig, ax = plt.subplots()
+    ms = ax.matshow(corr)
+
+    fig.set_size_inches(1 + nvars / 1.5, 1 + nvars / 1.5)
+    plt.xticks(xrange(nvars), corr.columns, rotation=90)
+    plt.yticks(xrange(nvars), corr.columns)
+    ax.tick_params(axis='both', which='both', length=0)  # hide ticks
+    ax.grid(False)
+
+    # Workaround for using colorbars with tight_layout
+    # https://matplotlib.org/users/tight_layout_guide.html#colorbar
+    divider = make_axes_locatable(plt.gca())
+    cax = divider.append_axes("right", "5%", pad="3%")
+    plt.colorbar(ms, cax=cax)
+
+    plt.tight_layout()
+
+    smart_save_fig(plt, filename)
 
 
 def main():
-    plt.style.use("ggplot")
-
     # Configuration
     mz = 50
     mw = 50
     channel = 1  # 0 -> mumu, 1 -> ee
     channel_str = {0: "mumu", 1: "ee"}[channel]
     signals = ["tZq"]
+    plot_dir = "plots/"
 
     sig_df, bkg_df = read_trees(signals, channel, mz, mw)
     make_variable_histograms(sig_df, bkg_df,
-                             "plots/vars_{}.pdf".format(channel_str))
+                             "{}vars_{}.pdf".format(plot_dir, channel_str))
+    make_corelation_plot(sig_df,
+                         "{}corr_sig_{}.pdf".format(plot_dir, channel_str))
+    make_corelation_plot(bkg_df,
+                         "{}corr_bkg_{}.pdf".format(plot_dir, channel_str))
 
 
 if __name__ == "__main__":
