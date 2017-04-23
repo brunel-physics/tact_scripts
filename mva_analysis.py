@@ -85,7 +85,7 @@ def make_corelation_plot(df, filename="corr.pdf"):
     nvars = len(corr.columns)
 
     fig, ax = plt.subplots()
-    ms = ax.matshow(corr)
+    ms = ax.matshow(corr, vmin=-1, vmax=1)
 
     fig.set_size_inches(1 + nvars / 1.5, 1 + nvars / 1.5)
     plt.xticks(xrange(nvars), corr.columns, rotation=90)
