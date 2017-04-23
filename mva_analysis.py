@@ -51,7 +51,14 @@ def read_trees(signals, channel, mz, mw):
         else:
             bkg_dfs.append(df)
 
-    return pd.concat(sig_dfs), pd.concat(bkg_dfs)
+    sig_df = pd.concat(sig_dfs)
+    bkg_df = pd.concat(bkg_dfs)
+
+    # Label signal and background
+    sig_df["Signal"] = 1
+    bkg_df["Signal"] = 0
+
+    return pd.concat([sig_df, bkg_df])
 
 
 def make_variable_histograms(sig_df, bkg_df, filename="vars.pdf"):
@@ -115,8 +122,10 @@ def main():
     plot_dir = "plots/"
     test_fraction = 0.25
 
-    # Read and split samples
-    sig_df, bkg_df = read_trees(signals, channel, mz, mw)
+    # Read samples
+    df = read_trees(signals, channel, mz, mw)
+    sig_df = df[df.Signal == 1]
+    bkg_df = df[df.Signal == 0]
 
     # Make plots
     make_variable_histograms(sig_df, bkg_df,
@@ -126,11 +135,9 @@ def main():
     make_corelation_plot(bkg_df,
                          "{}corr_bkg_{}.pdf".format(plot_dir, channel_str))
 
-    # Split samples
-    sig_df_train, sig_df_test = train_test_split(
-            sig_df, test_size=test_fraction,  random_state=42)
-    bkg_df_train, bkg_df_test = train_test_split(
-            bkg_df, test_size=test_fraction,  random_state=42)
+    # Split sample
+    df_train, df_test = train_test_split(df, test_size=test_fraction,
+                                         random_state=42)
 
 
 if __name__ == "__main__":
