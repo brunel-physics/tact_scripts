@@ -7,6 +7,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from root_pandas import read_root
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from sklearn.model_selection import train_test_split
 
 
 def smart_save_fig(fig, path):
@@ -112,14 +113,24 @@ def main():
     channel_str = {0: "mumu", 1: "ee"}[channel]
     signals = ["tZq"]
     plot_dir = "plots/"
+    test_fraction = 0.25
 
+    # Read and split samples
     sig_df, bkg_df = read_trees(signals, channel, mz, mw)
+
+    # Make plots
     make_variable_histograms(sig_df, bkg_df,
                              "{}vars_{}.pdf".format(plot_dir, channel_str))
     make_corelation_plot(sig_df,
                          "{}corr_sig_{}.pdf".format(plot_dir, channel_str))
     make_corelation_plot(bkg_df,
                          "{}corr_bkg_{}.pdf".format(plot_dir, channel_str))
+
+    # Split samples
+    sig_df_train, sig_df_test = train_test_split(
+            sig_df, test_size=test_fraction,  random_state=42)
+    bkg_df_train, bkg_df_test = train_test_split(
+            bkg_df, test_size=test_fraction,  random_state=42)
 
 
 if __name__ == "__main__":
