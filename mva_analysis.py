@@ -3,11 +3,13 @@
 import glob
 import re
 import os
+import classifiers
 import pandas as pd
 import matplotlib.pyplot as plt
 from root_pandas import read_root
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report, confusion_matrix
 
 
 def smart_save_fig(fig, path):
@@ -112,6 +114,27 @@ def make_corelation_plot(df, filename="corr.pdf"):
     smart_save_fig(plt, filename)
 
 
+def print_metrics(df_train, df_test, training_vars, mva):
+    """Print some basic metrics for the trained mva"""
+
+    test_prediction = mva.predict(df_test[training_vars])
+    train_prediction = mva.predict(df_train[training_vars])
+
+    print "Classification Reports"
+    print "Test sample:"
+    print classification_report(df_test.Signal, test_prediction,
+                                target_names=["background", "signal"])
+    print "Training sample:"
+    print classification_report(df_train.Signal, train_prediction,
+                                target_names=["background", "signal"])
+
+    print "Confusion matrix:"
+    print "Test sample:"
+    print confusion_matrix(df_test.Signal, test_prediction)
+    print "Training sample:"
+    print confusion_matrix(df_train.Signal, train_prediction)
+
+
 def main():
     # Configuration
     mz = 50
@@ -121,6 +144,12 @@ def main():
     signals = ["tZq"]
     plot_dir = "plots/"
     test_fraction = 0.25
+    training_vars = ["zMass",
+                     "jjdelR",
+                     "totVecM",
+                     "leadJetEta",
+                     "zlb1DelR",
+                     "totPt"]
 
     # Read samples
     df = read_trees(signals, channel, mz, mw)
@@ -138,6 +167,12 @@ def main():
     # Split sample
     df_train, df_test = train_test_split(df, test_size=test_fraction,
                                          random_state=42)
+
+    # Classify
+    bdt_xgb = classifiers.bdt_xgb(df_train, df_test, training_vars)
+
+    # Metrics
+    print_metrics(df_train, df_test, training_vars, bdt_xgb)
 
 
 if __name__ == "__main__":
