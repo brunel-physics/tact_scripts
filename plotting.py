@@ -1,0 +1,66 @@
+import os
+import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+
+def smart_save_fig(fig, path):
+    """Saves fig to path, creating required directories if they do not exist"""
+    try:
+        os.makedirs(os.path.dirname(path))
+    except OSError:  # directory already exists
+        pass
+
+    fig.savefig(path)
+
+
+def make_variable_histograms(sig_df, bkg_df, filename="vars.pdf"):
+    """Produce histograms comparing the signal and background distribution
+    of availible variables and write them to filename"""
+
+    def plot_histograms(df, ax):
+        """Plot histograms for every column in df"""
+        return df.hist(bins=100, ax=ax, alpha=0.5, weights=df.EvtWeight,
+                       normed=True)
+
+    plt.style.use("ggplot")
+
+    fig_size = (50, 31)
+
+    fig, ax = plt.subplots()
+    fig.set_size_inches(fig_size)
+
+    ax = plot_histograms(sig_df, ax).flatten()[:len(sig_df.columns)]
+    plot_histograms(bkg_df, ax)
+
+    smart_save_fig(fig, filename)
+
+
+def make_corelation_plot(df, filename="corr.pdf"):
+    """Produce 2D histogram representing the correlation matrix of dataframe
+    df. Written to filename."""
+
+    plt.style.use("ggplot")
+
+    corr = df.corr()
+    nvars = len(corr.columns)
+
+    fig, ax = plt.subplots()
+    ms = ax.matshow(corr, vmin=-1, vmax=1)
+
+    fig.set_size_inches(1 + nvars / 1.5, 1 + nvars / 1.5)
+    plt.xticks(xrange(nvars), corr.columns, rotation=90)
+    plt.yticks(xrange(nvars), corr.columns)
+    ax.tick_params(axis='both', which='both', length=0)  # hide ticks
+    ax.grid(False)
+
+    # Workaround for using colorbars with tight_layout
+    # https://matplotlib.org/users/tight_layout_guide.html#colorbar
+    divider = make_axes_locatable(plt.gca())
+    cax = divider.append_axes("right", "5%", pad="3%")
+    plt.colorbar(ms, cax=cax)
+
+    plt.tight_layout()
+
+    smart_save_fig(plt, filename)
+
+
