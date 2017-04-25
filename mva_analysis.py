@@ -10,7 +10,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix
 
 
-def read_trees(signals, channel, mz, mw):
+def read_trees(signals, channel, mz, mw, blacklist=()):
     """Read in TTrees with Z mass cut mw and W mass cut mw"""
 
     def get_process_name(path):
@@ -26,6 +26,10 @@ def read_trees(signals, channel, mz, mw):
 
     for root_file in root_files:
         process = get_process_name(root_file)
+
+        # Ignore any samples matching any pattern in blacklist
+        if any(re.match(pattern, process) for pattern in blacklist):
+            continue
 
         # Read ROOT files into data frames
         try:
@@ -74,6 +78,7 @@ def print_metrics(df_train, df_test, training_vars, mva):
 
 def main():
     # Configuration
+    blacklist = ("^Data.*",)
     mz = 50
     mw = 50
     channel = 1  # 0 -> mumu, 1 -> ee
@@ -89,7 +94,7 @@ def main():
                      "totPt"]
 
     # Read samples
-    df = read_trees(signals, channel, mz, mw)
+    df = read_trees(signals, channel, mz, mw, blacklist=blacklist)
     sig_df = df[df.Signal == 1]
     bkg_df = df[df.Signal == 0]
 
