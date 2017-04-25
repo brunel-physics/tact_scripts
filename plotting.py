@@ -1,6 +1,9 @@
+from __future__ import division
 import os
 import matplotlib.pyplot as plt
+import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from operator import sub
 
 
 def smart_save_fig(fig, path):
@@ -64,3 +67,32 @@ def make_corelation_plot(df, filename="corr.pdf"):
     smart_save_fig(plt, filename)
 
 
+def make_response_plot(sig_df_train, sig_df_test, bkg_df_train, bkg_df_test,
+                       mva, filename="overtrain.pdf", bins=50):
+    """Produce MVA response plot, comparing testing and training samples"""
+
+    plt.style.use("ggplot")
+
+    x_range = (0, 1)
+
+    fig, ax = plt.subplots()
+
+    # Plot histograms of test samples
+    for df in (sig_df_test, bkg_df_test):
+        ax = df.MVA.plot.hist(bins=bins, ax=ax, weights=df.EvtWeight,
+                              normed=True, range=x_range, alpha=0.5)
+
+    plt.gca().set_prop_cycle(None)  # use the same colours again
+
+    # Plot error bar plots of training samples
+    for df in (sig_df_train, bkg_df_train):
+        hist, bin_edges = np.histogram(df.MVA, bins=bins, range=x_range,
+                                       weights=df.EvtWeight, density=True)
+        scale = len(sig_df_test.index) / hist.sum()
+        yerr = np.sqrt(hist * scale) / scale
+        bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+
+        ax.errorbar(bin_centers, hist, fmt=",",
+                    yerr=yerr, xerr=(-sub(*x_range) / bins / 2))
+
+    smart_save_fig(fig, filename)

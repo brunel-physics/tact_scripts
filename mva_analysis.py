@@ -106,10 +106,19 @@ def main():
                                          random_state=42)
 
     # Classify
-    bdt_xgb = classifiers.bdt_xgb(df_train, df_test, training_vars)
+    mva = classifiers.bdt_xgb(df_train, df_test, training_vars)
+    for df in [df_train, df_test]:
+        df = classifiers.evaluate_mva(df, mva, training_vars)
 
     # Metrics
-    print_metrics(df_train, df_test, training_vars, bdt_xgb)
+    print_metrics(df_train, df_test, training_vars, mva)
+
+    pt.make_response_plot(df_train[df_train.Signal == 1],
+                          df_test[df_test.Signal == 1],
+                          df_train[df_train.Signal == 0],
+                          df_test[df_test.Signal == 0],
+                          mva,
+                          "{}response_{}.pdf".format(plot_dir, channel_str))
 
 
 if __name__ == "__main__":
