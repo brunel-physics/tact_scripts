@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import glob
 import re
 import classifiers
@@ -61,19 +62,19 @@ def print_metrics(df_train, df_test, training_vars, mva):
     test_prediction = mva.predict(df_test[training_vars])
     train_prediction = mva.predict(df_train[training_vars])
 
-    print "Classification Reports"
-    print "Test sample:"
-    print classification_report(df_test.Signal, test_prediction,
-                                target_names=["background", "signal"])
-    print "Training sample:"
-    print classification_report(df_train.Signal, train_prediction,
-                                target_names=["background", "signal"])
+    print("Classification Reports")
+    print("Test sample:")
+    print(classification_report(df_test.Signal, test_prediction,
+                                target_names=["background", "signal"]))
+    print("Training sample:")
+    print(classification_report(df_train.Signal, train_prediction,
+                                target_names=["background", "signal"]))
 
-    print "Confusion matrix:"
-    print "Test sample:"
-    print confusion_matrix(df_test.Signal, test_prediction)
-    print "Training sample:"
-    print confusion_matrix(df_train.Signal, train_prediction)
+    print("Confusion matrix:")
+    print("Test sample:")
+    print(confusion_matrix(df_test.Signal, test_prediction))
+    print("Training sample:")
+    print(confusion_matrix(df_train.Signal, train_prediction))
 
 
 def main():
