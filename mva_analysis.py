@@ -116,7 +116,8 @@ def main():
                                          random_state=42)
 
     # Classify
-    mva = classifiers.bdt_xgb(df_train, df_test, training_vars)
+    mva = classifiers.bdt_ada(df_train, df_test, training_vars)
+    # mva = classifiers.bdt_xgb(df_train, df_test, training_vars)
     # mva = classifiers.bdt_grad(df_train, df_test, training_vars)
     # mva = classifiers.mlp(df_train, df_test, training_vars)
     # mva = classifiers.random_forest(df_train, df_test, training_vars)

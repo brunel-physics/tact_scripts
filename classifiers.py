@@ -1,6 +1,8 @@
 from xgboost import XGBClassifier
-from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
+from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier, \
+                             RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
+from sklearn.tree import DecisionTreeClassifier
 
 
 def evaluate_mva(df, mva, training_vars):
@@ -18,6 +20,16 @@ def mlp(df_train, df_test, training_vars):
     mlp.fit(df_train[training_vars], df_train.Signal)
 
     return mlp
+
+
+def bdt_ada(df_train, df_test, training_vars):
+    """Train using an AdaBoosted Decision Tree"""
+
+    dt = DecisionTreeClassifier()
+    bdt = AdaBoostClassifier()
+    bdt.fit(df_train[training_vars], df_train.Signal)
+
+    return bdt
 
 
 def bdt_grad(df_train, df_test, training_vars):
