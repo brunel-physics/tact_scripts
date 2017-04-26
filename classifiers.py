@@ -1,5 +1,5 @@
 from xgboost import XGBClassifier
-from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 
 
@@ -36,3 +36,12 @@ def bdt_xgb(df_train, df_test, training_vars):
     bdt.fit(df_train[training_vars], df_train.Signal)
 
     return bdt
+
+
+def random_forest(df_train, df_test, training_vars):
+    """Train using a Random Forest"""
+
+    rf = RandomForestClassifier(n_jobs=-1)
+    rf.fit(df_train[training_vars], df_train.Signal)
+
+    return rf
