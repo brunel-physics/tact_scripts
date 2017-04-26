@@ -35,10 +35,14 @@ def read_trees(signals, channel, mz, mw, blacklist=()):
         # Read ROOT files into data frames
         try:
             df = read_root(root_file, "Ttree_{}".format(process))
-        except IOError:  # empty trees
+        except IOError:  # occasional failure for empty trees
             continue
 
         df = df[df.Channel == channel]  # filter channel
+
+        # Count events
+        print("Process ", process, " contains ", len(df.index), " (",
+              df.EvtWeight.sum(), ") events", sep='')
 
         # Split into signal and background
         if process in signals:
