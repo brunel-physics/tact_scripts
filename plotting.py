@@ -2,6 +2,7 @@ from __future__ import division
 import os
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from operator import sub
 
@@ -73,7 +74,14 @@ def make_response_plot(sig_df_train, sig_df_test, bkg_df_train, bkg_df_test,
 
     plt.style.use("ggplot")
 
-    x_range = (0, 1)
+    if hasattr(mva, "decision_function"):
+        low = pd.concat((sig_df_train, sig_df_test,
+                         bkg_df_train, bkg_df_test)).MVA.min()
+        high = pd.concat((sig_df_train, sig_df_test,
+                          bkg_df_train, bkg_df_test)).MVA.max()
+        x_range = (low, high)
+    else:
+        x_range = (0, 1)
 
     fig, ax = plt.subplots()
 
