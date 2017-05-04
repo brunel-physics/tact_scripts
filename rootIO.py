@@ -15,9 +15,6 @@ def read_trees(signals, channel, mz, mw, blacklist=(),
 
         return re.split(r"histofile_|\.", path)[-2]
 
-    root_files = glob.iglob("/scratch/data/TopPhysics/mvaDirs/inputs/2016/all/"
-                            "mz{}mw{}/*.root".format(mz, mw))
-
     def reweight(df):
         """
         Takes the abs() of every EvtWeight in a data frame, and scales the
@@ -39,6 +36,9 @@ def read_trees(signals, channel, mz, mw, blacklist=(),
 
     sig_dfs = []
     bkg_dfs = []
+
+    root_files = glob.iglob("/scratch/data/TopPhysics/mvaDirs/inputs/2016/all/"
+                            "mz{}mw{}/*.root".format(mz, mw))
 
     for root_file in root_files:
         process = get_process_name(root_file)
