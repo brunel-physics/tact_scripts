@@ -84,7 +84,7 @@ def print_metrics(df_train, df_test, training_vars, mva):
 def main():
     # Configuration
     blacklist = ("^Data.*",)
-    mz = 50
+    mz = 20
     mw = 50
     channel = 1  # 0 -> mumu, 1 -> ee
     channel_str = {0: "mumu", 1: "ee"}[channel]
