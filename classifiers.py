@@ -29,7 +29,7 @@ def bdt_ada(df_train, df_test, training_vars):
     dt = DecisionTreeClassifier()
     bdt = AdaBoostClassifier()
     bdt.fit(df_train[training_vars], df_train.Signal,
-            sample_weight=np.abs(df_train.EvtWeight.as_matrix()))
+            sample_weight=df_train.MVAWeight.as_matrix())
 
     return bdt
 
@@ -37,9 +37,9 @@ def bdt_ada(df_train, df_test, training_vars):
 def bdt_grad(df_train, df_test, training_vars):
     """Train using a Gradient Boosted Decision Tree"""
 
-    bdt = GradientBoostingClassifier()
+    bdt = GradientBoostingClassifier(verbose=1)
     bdt.fit(df_train[training_vars], df_train.Signal,
-            sample_weight=np.abs(df_train.EvtWeight))
+            sample_weight=df_train.MVAWeight)
 
     return bdt
 
@@ -49,7 +49,7 @@ def bdt_xgb(df_train, df_test, training_vars):
 
     bdt = XGBClassifier()
     bdt.fit(df_train[training_vars], df_train.Signal,
-            sample_weight=np.abs(df_train.EvtWeight))
+            sample_weight=df_train.MVAWeight)
 
     return bdt
 
@@ -59,6 +59,6 @@ def random_forest(df_train, df_test, training_vars):
 
     rf = RandomForestClassifier()
     rf.fit(df_train[training_vars], df_train.Signal,
-           sample_weight=np.abs(df_train.EvtWeight.as_matrix()))
+           sample_weight=df_train.MVAWeight.as_matrix())
 
     return rf

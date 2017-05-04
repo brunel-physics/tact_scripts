@@ -4,6 +4,7 @@ from __future__ import print_function
 import glob
 import re
 import classifiers
+import numpy as np
 import pandas as pd
 import plotting as pt
 from root_pandas import read_root
@@ -11,7 +12,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix
 
 
-def read_trees(signals, channel, mz, mw, blacklist=()):
+def read_trees(signals, channel, mz, mw, blacklist=(),
+               negative_weight_treatment="reweight"):
     """Read in TTrees with Z mass cut mw and W mass cut mw"""
 
     def get_process_name(path):
@@ -21,6 +23,25 @@ def read_trees(signals, channel, mz, mw, blacklist=()):
 
     root_files = glob.iglob("/scratch/data/TopPhysics/mvaDirs/inputs/2016/all/"
                             "mz{}mw{}/*.root".format(mz, mw))
+
+    def reweight(df):
+        """
+        Takes the abs() of every EvtWeight in a data frame, and scales the
+        resulting weights to compensate
+        """
+
+        df["MVAWeight"] = np.abs(df.EvtWeight)
+        try:
+            df["MVAWeight"] = df.MVAWeight * \
+                    (df.EvtWeight.sum() / df.MVAWeight.sum())
+        except ZeroDivisionError:  # all weights are 0 or df is empty
+            pass
+
+        assert np.isclose(df.EvtWeight.sum(), df.MVAWeight.sum()), \
+            "Bad weight renormalisation"
+        assert (df.MVAWeight >= 0).all(), "Negative MVA Weights"
+
+        return df
 
     sig_dfs = []
     bkg_dfs = []
@@ -39,6 +60,17 @@ def read_trees(signals, channel, mz, mw, blacklist=()):
             continue
 
         df = df[df.Channel == channel]  # filter channel
+
+        # Deal with weights
+        if negative_weight_treatment == "reweight":
+            df = reweight(df)
+        elif negative_weight_treatment == "abs":
+            df["MVAWeight"] = np.abs(df.EvtWeight)
+        elif negative_weight_treatment == "passthrough":
+            df["MVAWeight"] = df.EvtWeight
+        else:
+            raise ValueError("Bad value for option negative_weight_treatment:",
+                             negative_weight_treatment)
 
         # Count events
         print("Process ", process, " contains ", len(df.index), " (",
@@ -196,7 +228,7 @@ def main():
         ]
 
     # Read samples
-    df = read_trees(signals, channel, mz, mw, blacklist=blacklist)
+    df = read_trees(signals, channel, mz, mw, blacklist, "reweight")
     sig_df = df[df.Signal == 1]
     bkg_df = df[df.Signal == 0]
 
@@ -213,9 +245,9 @@ def main():
                                          random_state=42)
 
     # Classify
-    mva = classifiers.bdt_ada(df_train, df_test, training_vars)
+    # mva = classifiers.bdt_ada(df_train, df_test, training_vars)
     # mva = classifiers.bdt_xgb(df_train, df_test, training_vars)
-    # mva = classifiers.bdt_grad(df_train, df_test, training_vars)
+    mva = classifiers.bdt_grad(df_train, df_test, training_vars)
     # mva = classifiers.mlp(df_train, df_test, training_vars)
     # mva = classifiers.random_forest(df_train, df_test, training_vars)
     for df in [df_train, df_test]:
