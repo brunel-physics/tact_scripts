@@ -72,13 +72,14 @@ def make_response_plot(sig_df_train, sig_df_test, bkg_df_train, bkg_df_test,
                        mva, filename="overtrain.pdf", bins=50):
     """Produce MVA response plot, comparing testing and training samples"""
 
+
     plt.style.use("ggplot")
 
     if hasattr(mva, "decision_function"):
-        low = pd.concat((sig_df_train, sig_df_test,
-                         bkg_df_train, bkg_df_test)).MVA.min()
-        high = pd.concat((sig_df_train, sig_df_test,
-                          bkg_df_train, bkg_df_test)).MVA.max()
+        df = pd.concat((sig_df_train, sig_df_test, bkg_df_train, bkg_df_test))
+        MVA_std = df.MVA.std()
+        low = df.MVA.quantile(0.01) - MVA_std
+        high = df.MVA.quantile(0.99) + MVA_std
         x_range = (low, high)
     else:
         x_range = (0, 1)
