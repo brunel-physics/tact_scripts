@@ -39,7 +39,7 @@ def read_trees(signals, channel, mz, mw, blacklist=(),
 
         assert np.isclose(df.EvtWeight.sum(), df.MVAWeight.sum()), \
             "Bad weight renormalisation"
-        assert (df.MVAWeight >= 0).all(), "Negative MVA Weights"
+        assert (df.MVAWeight >= 0).all(), "Negative MVA Weights after reweight"
 
         return df
 
