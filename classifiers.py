@@ -1,3 +1,4 @@
+import numpy as np
 from xgboost import XGBClassifier
 from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier, \
                              RandomForestClassifier
@@ -27,7 +28,8 @@ def bdt_ada(df_train, df_test, training_vars):
 
     dt = DecisionTreeClassifier()
     bdt = AdaBoostClassifier()
-    bdt.fit(df_train[training_vars], df_train.Signal)
+    bdt.fit(df_train[training_vars], df_train.Signal,
+            sample_weight=np.abs(df_train.EvtWeight.as_matrix()))
 
     return bdt
 
@@ -36,7 +38,8 @@ def bdt_grad(df_train, df_test, training_vars):
     """Train using a Gradient Boosted Decision Tree"""
 
     bdt = GradientBoostingClassifier()
-    bdt.fit(df_train[training_vars], df_train.Signal)
+    bdt.fit(df_train[training_vars], df_train.Signal,
+            sample_weight=np.abs(df_train.EvtWeight))
 
     return bdt
 
@@ -45,7 +48,8 @@ def bdt_xgb(df_train, df_test, training_vars):
     """Train using an XGBoost Boosted Decision Tree"""
 
     bdt = XGBClassifier()
-    bdt.fit(df_train[training_vars], df_train.Signal)
+    bdt.fit(df_train[training_vars], df_train.Signal,
+            sample_weight=np.abs(df_train.EvtWeight))
 
     return bdt
 
@@ -53,7 +57,8 @@ def bdt_xgb(df_train, df_test, training_vars):
 def random_forest(df_train, df_test, training_vars):
     """Train using a Random Forest"""
 
-    rf = RandomForestClassifier(n_jobs=-1)
-    rf.fit(df_train[training_vars], df_train.Signal)
+    rf = RandomForestClassifier()
+    rf.fit(df_train[training_vars], df_train.Signal,
+           sample_weight=np.abs(df_train.EvtWeight.as_matrix()))
 
     return rf
