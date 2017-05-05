@@ -6,6 +6,16 @@ import pandas as pd
 from root_pandas import read_root
 
 
+def read_tree(root_file, tree, channel):
+    # Read ROOT trees into data frames
+    try:
+        df = read_root(root_file, tree)
+    except IOError:  # occasional failure for empty trees
+        return pd.DataFrame()
+
+    return df[df.Channel == {"ee": 1, "mumu": 0}[channel]]  # filter channel
+
+
 def read_trees(signals, channel, mz, mw, blacklist=(),
                negative_weight_treatment="reweight"):
     """Read in TTrees with Z mass cut mw and W mass cut mw"""
@@ -47,13 +57,10 @@ def read_trees(signals, channel, mz, mw, blacklist=(),
         if any(re.match(pattern, process) for pattern in blacklist):
             continue
 
-        # Read ROOT files into data frames
-        try:
-            df = read_root(root_file, "Ttree_{}".format(process))
-        except IOError:  # occasional failure for empty trees
-            continue
+        df = read_tree(root_file, "Ttree_{}".format(process), channel)
 
-        df = df[df.Channel == channel]  # filter channel
+        if df.empty:
+            continue
 
         # Deal with weights
         if negative_weight_treatment == "reweight":

@@ -34,8 +34,7 @@ def main():
     blacklist = ("^Data.*",)
     mz = 20
     mw = 50
-    channel = 1  # 0 -> mumu, 1 -> ee
-    channel_str = {0: "mumu", 1: "ee"}[channel]
+    channel = "ee"  # 0 -> mumu, 1 -> ee
     signals = ["tZq"]
     plot_dir = "plots/"
     test_fraction = 0.25
@@ -150,11 +149,11 @@ def main():
 
     # Make plots
     pt.make_variable_histograms(sig_df, bkg_df,
-                                "{}vars_{}.pdf".format(plot_dir, channel_str))
+                                "{}vars_{}.pdf".format(plot_dir, channel))
     pt.make_corelation_plot(sig_df,
-                            "{}corr_sig_{}.pdf".format(plot_dir, channel_str))
+                            "{}corr_sig_{}.pdf".format(plot_dir, channel))
     pt.make_corelation_plot(bkg_df,
-                            "{}corr_bkg_{}.pdf".format(plot_dir, channel_str))
+                            "{}corr_bkg_{}.pdf".format(plot_dir, channel))
 
     # Split sample
     df_train, df_test = train_test_split(df, test_size=test_fraction,
@@ -177,7 +176,7 @@ def main():
                           df_train[df_train.Signal == 0],
                           df_test[df_test.Signal == 0],
                           mva,
-                          "{}response_{}.pdf".format(plot_dir, channel_str))
+                          "{}response_{}.pdf".format(plot_dir, channel))
 
 
 if __name__ == "__main__":
