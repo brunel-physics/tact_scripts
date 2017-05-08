@@ -7,16 +7,6 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from operator import sub
 
 
-def smart_save_fig(fig, path):
-    """Saves fig to path, creating required directories if they do not exist"""
-    try:
-        os.makedirs(os.path.dirname(path))
-    except OSError:  # directory already exists
-        pass
-
-    fig.savefig(path)
-
-
 def make_variable_histograms(sig_df, bkg_df, filename="vars.pdf"):
     """Produce histograms comparing the signal and background distribution
     of availible variables and write them to filename"""
@@ -36,7 +26,7 @@ def make_variable_histograms(sig_df, bkg_df, filename="vars.pdf"):
     ax = plot_histograms(sig_df, ax).flatten()[:len(sig_df.columns)]
     plot_histograms(bkg_df, ax)
 
-    smart_save_fig(fig, filename)
+    fig.savefig(filename)
 
 
 def make_corelation_plot(df, filename="corr.pdf"):
@@ -65,7 +55,7 @@ def make_corelation_plot(df, filename="corr.pdf"):
 
     plt.tight_layout()
 
-    smart_save_fig(plt, filename)
+    fig.savefig(filename)
 
 
 def make_response_plot(sig_df_train, sig_df_test, bkg_df_train, bkg_df_test,
@@ -104,4 +94,4 @@ def make_response_plot(sig_df_train, sig_df_test, bkg_df_train, bkg_df_test,
         ax.errorbar(bin_centers, hist, fmt=",",
                     yerr=yerr, xerr=(-sub(*x_range) / bins / 2))
 
-    smart_save_fig(fig, filename)
+    fig.savefig(filename)

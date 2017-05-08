@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
+import os
 import rootIO
 import classifiers
 import plotting as pt
@@ -29,6 +30,23 @@ def print_metrics(df_train, df_test, training_vars, mva):
     print(confusion_matrix(df_train.Signal, train_prediction))
 
 
+def makedirs(*paths):
+    """
+    For each path in paths create the corresponding directory, without throwing
+    and exception if the directory already exists. Any required intermediate
+    driectories are also created.
+    """
+
+    for path in paths:
+        try:
+            os.makedirs(os.path.dirname(path))
+        except OSError as e:
+            if e.errno == errno.EEXIST and os.path.isdir(path):
+                pass  # directory already exists
+            else:
+                raise
+
+
 def main():
     # Configuration
     blacklist = ("^Data.*",)
@@ -37,6 +55,7 @@ def main():
     channel = "ee"  # 0 -> mumu, 1 -> ee
     signals = ["tZq"]
     plot_dir = "plots/"
+    root_dir = "root/"
     test_fraction = 0.25
     training_vars = [
         # "bTagDisc",
@@ -142,6 +161,9 @@ def main():
         # "zlb2DelR"
         ]
 
+    # Make ouptut directories
+    makedirs(plot_dir, root_dir)
+
     # Read samples
     df = rootIO.read_trees(signals, channel, mz, mw, blacklist, "reweight")
     sig_df = df[df.Signal == 1]
@@ -177,6 +199,9 @@ def main():
                           df_test[df_test.Signal == 0],
                           mva,
                           "{}response_{}.pdf".format(plot_dir, channel))
+
+    rootIO.write_root(mva, channel, mz, mw, training_vars,
+                      filename="{}mva.root".format(root_dir))
 
 
 if __name__ == "__main__":

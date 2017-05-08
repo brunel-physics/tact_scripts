@@ -1,12 +1,36 @@
+# -*- coding: utf-8 -*-
+
 from __future__ import print_function
 import re
 import glob
+import ROOT
 import numpy as np
 import pandas as pd
+from root_numpy import fill_hist
 from root_pandas import read_root
+from classifiers import evaluate_mva
+from more_itertools import unique_everseen
 
 
 def read_tree(root_file, tree, channel):
+    """
+    Read a Ttree into a DataFrame
+
+    Parameters
+    ----------
+    root_file : string
+        Path of root file to be read in
+    tree : string
+        Name of tree to be read in
+    channel : "ee" or "mumu"
+        Channel to be read in
+
+    Returns
+    -------
+    df : DataFrame
+        DataFrame containing data read in from Ttree
+    """
+
     # Read ROOT trees into data frames
     try:
         df = read_root(root_file, tree)
@@ -91,3 +115,182 @@ def read_trees(signals, channel, mz, mw, blacklist=(),
     bkg_df["Signal"] = 0
 
     return pd.concat([sig_df, bkg_df])
+
+
+def _format_TH1_name(name, channel, combine=True):
+    """
+    Modify name of Ttrees from input files to a format expected by combine
+    or THETA
+
+    Parameters
+    ----------
+    name : string
+        Name of the Ttree.
+    channel : "ee" or "mumu"
+        The channel contained within the histogram
+    combine : bool, optional
+        Whether the names should be in a combine-compatible format
+
+    Returns
+    -------
+    name : The name of the TH1D
+
+    Notes
+    -----
+    The input name is expected to be in the format:
+        Ttree__$PROCESS
+    for each process and raw data or
+        Ttree__$PROCESS__$SYSTEMATIC__$PLUSMINUS
+    for systematics where $PLUSMINUS is plus for 1σ up and minus for 1σ down.
+    Ttree is replaced with MVA_$CHANNEL_ and __plus/__minus to Up/Down if the
+    combine flag is set.
+    """
+
+    name = re.sub(r"^Ttree", "MVA_{}_".format(channel), name)
+    if combine:
+        name = re.sub(r"__plus$", "Up", name)
+        name = re.sub(r"__minus$", "Down", name)
+
+    return name
+
+
+def MVA_to_TH1(df, bins=100, name="MVA", title="MVA"):
+    """
+    Write MVA discriminant from a DataFrame to a TH1D
+
+    Parameters
+    ----------
+    df : DataFrame
+        Dataframe contaning an "MVA" column containing the MVA discriminant and
+        "EvtWeight" column containing event weights.
+    bins : int, optional
+        Number of bins in the TH1.
+    name : string, optional
+        Name of TH1.
+    title : string, optional
+        Title of TH1.
+
+    Returns
+    -------
+    h : TH1D
+        TH1D of MVA discriminant.
+    """
+
+    h = ROOT.TH1D(name, title, bins, df.MVA.min(), df.MVA.max())
+    fill_hist(h, df.MVA.as_matrix(), df.EvtWeight.as_matrix())
+    return h
+
+
+def poisson_pseudodata(df):
+    """
+    Generate Poisson pseudodata from a DataFrame by binning the MVA
+    discriminant in a TH1D and applying a Poisson randomisation to each bin.
+
+    Paramaters
+    ----------
+    df : DataFrame
+        Dataframe containing the data to be used as a base for the pseudodata.
+
+    Returns
+    -------
+    h : TH1D
+        TH1D contaning pesudodata.
+    """
+
+
+    h = MVA_to_TH1(df)
+
+    for i in xrange(1, h.GetNbinsX() + 1):
+        try:
+            h.SetBinContent(i, np.random.poisson(h.GetBinContent(i)))
+        except ValueError:  # negatve bin
+            h.SetBinContent(i, -np.random.poisson(-h.GetBinContent(i)))
+
+    return h
+
+
+def write_root(mva, channel, mz, mw, training_vars,
+               filename="mva.root", data="poisson", combine=True):
+    """
+    Evaluate an MVA and write the result to TH1s in a root file.
+
+    Parameters
+    ----------
+    mva : trained classifier
+        Classfier on which read-in Ttrees will be evaluated.
+    channel : "ee" or "mumu"
+        The channel on which the classifier will be evaluated.
+    mz : int
+        Z mass cut in GeV.
+    mw : int
+        W mass cut in GeV.
+    training_vars: array_like
+        Names of features on which the mva was trained.
+    filename : string, optional
+        Name of the output root file (including directory).
+    data : string, optional
+        Pseudodata generation method
+
+        "empty"
+        Pseudodata histogram is empty.
+
+        "poisson"
+        Pseudodata is a TH1 containing all non-systematic MC data with a
+        poisson error applied to each bin.
+
+    combine : bool, optional
+        Whether the output root file should have TH1 names compatible with
+        the Higgs Combined Analysis tool.
+
+    Returns
+    -------
+    None
+    """
+
+    root_files = glob.iglob("/scratch/data/TopPhysics/mvaDirs/inputs/2016/all/"
+                            "mz{}mw{}/*.root".format(mz, mw))
+
+    fo = ROOT.TFile(filename, "RECREATE")
+    pseudo_dfs = []  # list of dataframes we'll turn into pseudodata
+    data_name = "DataEG" if channel == "ee" else "DataMu"
+
+    for root_file in root_files:
+        fi = ROOT.TFile(root_file, "READ")
+
+        # Dedupe, the input files contain duplicates for some reason...
+        for tree in unique_everseen(key.ReadObj().GetName()
+                                    for key in fi.GetListOfKeys()):
+            df = read_tree(root_file, tree, channel)
+
+            if df.empty:
+                continue
+
+            print("Evaluating classifier on Ttree", tree)
+            df = evaluate_mva(df, mva, training_vars)
+
+            # Trees used in pseudodata should be not systematics and not data
+            if not re.search(r"(minus)|(plus)|({})$".format(data_name), tree):
+                pseudo_dfs.append(df)
+
+            tree = _format_TH1_name(tree, channel, combine)
+            h = MVA_to_TH1(df, name=tree, title=tree)
+            h.SetDirectory(fo)
+            fo.cd()
+            h.Write()
+
+    data_process = "data_obs" if combine else "DATA"
+
+    h = ROOT.TH1D()
+    if data == "poisson":
+        h = poisson_pseudodata(pd.concat(pseudo_dfs))
+    elif data == "empty":
+        h = ROOT.TH1D()
+    else:
+        raise ValueError("Unrecogised value for option 'data': ", data)
+
+    h.SetName("MVA_{}__{}".format(channel, data_process))
+    h.SetDirectory(fo)
+    fo.cd()
+    h.Write()
+
+    fo.Close()
