@@ -85,7 +85,45 @@ def balance_weights(df1, df2):
 
 def read_trees(signals, channel, mz, mw, blacklist=(),
                equalise_signal=True, negative_weight_treatment="reweight"):
-    """Read in TTrees with Z mass cut mw and W mass cut mw"""
+    """
+    Read in Ttrees.
+
+    Parameters
+    ----------
+    signals : array_like
+        List of processes to be classes as signal events. All others will be
+        classed as background.
+    channel : "ee" or "mumu"
+        The channel to be read in.
+    mz : int
+        The Z mass cut in GeV
+    mw : int
+        The W mass cut in GeV
+    blacklist : array_like, optional
+        Any process matching any PATTERN in blacklist will not be read in
+    equalise_signal : bool
+        Whether or not the weights for the signal and background trees should
+        be scaled in such a way to equalise their sums.
+    negative_weight_treatment : string
+        How negative event weights should be dealt with
+
+        "abs"
+        Take the absolute value of every weight.
+
+        "reweight"
+        Take the absolute value of every weight but scale the resulting weights
+        down to restore the original total.
+
+        "passthrough"
+        Do not modify weights.
+
+    Returns
+    -------
+    df : DataFrame
+        DataFrame containing the Ttree data, MVA weights (as "MVAWeight") and
+        classification flag for each event ("Signal" == 1 for signal events,
+        0 otherwise)
+    """
 
     def get_process_name(path):
         """Given a path to a TTree, return the name of the process contained"""
