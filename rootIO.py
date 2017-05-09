@@ -6,6 +6,7 @@ import glob
 import ROOT
 import numpy as np
 import pandas as pd
+from operator import truediv
 from root_numpy import fill_hist
 from root_pandas import read_root
 from classifiers import evaluate_mva
@@ -40,8 +41,50 @@ def read_tree(root_file, tree, channel):
     return df[df.Channel == {"ee": 1, "mumu": 0}[channel]]  # filter channel
 
 
+def balance_weights(df1, df2):
+    """
+    Balance the MVA weights in two different DataFrames so they sum to the
+    same value.
+
+    Paramaters
+    ----------
+    df1 : DataFrame
+        First DataFrame
+    df2 : DataFrame
+        Second DataFrame
+
+    Returns
+    -------
+    df1 : DataFrame
+         First DataFrame with adjusted weights
+    df2 : DataFrame
+         Second DataFrame with adjusted weights
+
+    Notes
+    -----
+    Only one of the returned df1, df2 will have adjusted weights. The function
+    will always choose to scale the weights of one DataFrame up to match the
+    other.
+    """
+
+    sum1 = df1.MVAWeight.sum()
+    sum2 = df2.MVAWeight.sum()
+    scale = truediv(*sorted([sum1, sum2], reverse=True))  # always scale up
+
+    if sum1 < sum2:
+        df1.MVAWeight = df1.MVAWeight * scale
+    elif sum2 > sum1:
+        df2.MVAWeight = df2.MVAWeight * scale
+
+    assert np.isclose(df1.MVAWeight.sum(), df2.MVAWeight.sum())
+    assert df1.MVAWeight.sum() >= sum1
+    assert df1.MVAWeight.sum() >= sum2
+
+    return df1, df2
+
+
 def read_trees(signals, channel, mz, mw, blacklist=(),
-               negative_weight_treatment="reweight"):
+               equalise_signal=True, negative_weight_treatment="reweight"):
     """Read in TTrees with Z mass cut mw and W mass cut mw"""
 
     def get_process_name(path):
@@ -109,6 +152,10 @@ def read_trees(signals, channel, mz, mw, blacklist=(),
 
     sig_df = pd.concat(sig_dfs)
     bkg_df = pd.concat(bkg_dfs)
+
+    # Equalise signal and background weights if we were asked to
+    if equalise_signal:
+        sig_df, bkg_df = balance_weights(sig_df, bkg_df)
 
     # Label signal and background
     sig_df["Signal"] = 1

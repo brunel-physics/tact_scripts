@@ -166,7 +166,9 @@ def main():
     makedirs(plot_dir, root_dir)
 
     # Read samples
-    df = rootIO.read_trees(signals, channel, mz, mw, blacklist, "reweight")
+    df = rootIO.read_trees(signals, channel, mz, mw, blacklist=blacklist,
+                           equalise_signal=True,
+                           negative_weight_treatment="reweight")
     sig_df = df[df.Signal == 1]
     bkg_df = df[df.Signal == 0]
 
