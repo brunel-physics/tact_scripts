@@ -239,7 +239,7 @@ def _format_TH1_name(name, channel, combine=True):
     return name
 
 
-def MVA_to_TH1(df, bins=100, name="MVA", title="MVA"):
+def MVA_to_TH1(df, bins=20, name="MVA", title="MVA"):
     """
     Write MVA discriminant from a DataFrame to a TH1D
 
@@ -261,7 +261,9 @@ def MVA_to_TH1(df, bins=100, name="MVA", title="MVA"):
         TH1D of MVA discriminant.
     """
 
-    h = ROOT.TH1D(name, title, bins, df.MVA.min(), df.MVA.max())
+    _, bin_edges = np.histogram(df.MVA, bins=bins)
+
+    h = ROOT.TH1D(name, title, len(bin_edges) - 1, bin_edges)
     fill_hist(h, df.MVA.as_matrix(), df.EvtWeight.as_matrix())
     return h
 
