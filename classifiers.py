@@ -47,9 +47,13 @@ def bdt_grad(df_train, df_test, training_vars):
 def bdt_xgb(df_train, df_test, training_vars):
     """Train using an XGBoost Boosted Decision Tree"""
 
-    bdt = XGBClassifier()
+    bdt = XGBClassifier(silent=False)
+
     bdt.fit(df_train[training_vars], df_train.Signal,
-            sample_weight=df_train.MVAWeight)
+            sample_weight=df_train.MVAWeight,)
+            # eval_metric="auc",
+            # early_stopping_rounds=50,
+            # eval_set=[(df_test[training_vars], df_test.Signal)])
 
     return bdt
 
