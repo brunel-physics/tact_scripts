@@ -59,7 +59,7 @@ def make_corelation_plot(df, filename="corr.pdf"):
 
 
 def make_response_plot(sig_df_train, sig_df_test, bkg_df_train, bkg_df_test,
-                       mva, filename="overtrain.pdf", bins=50):
+                       mva, filename="overtrain.pdf", bins=25):
     """Produce MVA response plot, comparing testing and training samples"""
 
 
@@ -72,7 +72,8 @@ def make_response_plot(sig_df_train, sig_df_test, bkg_df_train, bkg_df_test,
         high = df.MVA.quantile(0.99) + MVA_std
         x_range = (low, high)
     else:
-        x_range = (0, 1)
+        df = pd.concat((sig_df_train, sig_df_test, bkg_df_train, bkg_df_test))
+        x_range = (df.MVA.min(), df.MVA.max())
 
     fig, ax = plt.subplots()
 
