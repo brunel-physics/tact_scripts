@@ -297,7 +297,8 @@ def poisson_pseudodata(df):
 
 
 def write_root(mva, channel, mz, mw, training_vars,
-               filename="mva.root", data="poisson", combine=True):
+               filename="mva.root", data="poisson", combine=True,
+               drop_nan=True):
     """
     Evaluate an MVA and write the result to TH1s in a root file.
 
@@ -328,6 +329,9 @@ def write_root(mva, channel, mz, mw, training_vars,
     combine : bool, optional
         Whether the output root file should have TH1 names compatible with
         the Higgs Combined Analysis tool.
+    drop_nan : bool, optional
+        Whether events with NaN weight should be dropped or included in the
+        final TH1s
 
     Returns
     -------
@@ -354,6 +358,13 @@ def write_root(mva, channel, mz, mw, training_vars,
 
             print("Evaluating classifier on Ttree", tree)
             df = evaluate_mva(df, mva, training_vars)
+
+            # Look for and handle NaN Event Weights:
+            nan_weights = df.EvtWeight.isnull().sum()
+            if nan_weights > 0:
+                print("WARNING:", nan_weights, "NaN weights found")
+                if drop_nan:
+                    df = df[pd.notnull(df["EvtWeight"])]
 
             # Trees used in pseudodata should be not systematics and not data
             if not re.search(r"(minus)|(plus)|({})$".format(data_name), tree):

@@ -204,7 +204,8 @@ def main():
                           "{}response_{}.pdf".format(plot_dir, channel))
 
     rootIO.write_root(mva, channel, mz, mw, training_vars,
-                      filename="{}mva.root".format(root_dir), combine=True)
+                      filename="{}mva.root".format(root_dir), combine=True,
+                      drop_nan=True)
 
 
 if __name__ == "__main__":
