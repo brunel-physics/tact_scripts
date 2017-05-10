@@ -78,7 +78,7 @@ def balance_weights(df1, df2):
 
     assert np.isclose(df1.MVAWeight.sum(), df2.MVAWeight.sum())
     assert df1.MVAWeight.sum() >= sum1
-    assert df1.MVAWeight.sum() >= sum2
+    assert df2.MVAWeight.sum() >= sum2
 
     return df1, df2
 
