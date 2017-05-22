@@ -13,7 +13,7 @@ from classifiers import evaluate_mva
 from more_itertools import unique_everseen
 
 
-def read_tree(root_file, tree, channel):
+def read_tree(root_file, tree, channel, mz, mw):
     """
     Read a Ttree into a DataFrame
 
@@ -25,6 +25,10 @@ def read_tree(root_file, tree, channel):
         Name of tree to be read in
     channel : "ee" or "mumu"
         Channel to be read in
+    mz : float
+        The Z mass cut in GeV
+    mw : float
+        The W mass cut in GeV
 
     Returns
     -------
@@ -32,13 +36,20 @@ def read_tree(root_file, tree, channel):
         DataFrame containing data read in from Ttree
     """
 
+    Z_MASS = 91.2
+    W_MASS = 80.4
+
     # Read ROOT trees into data frames
     try:
         df = read_root(root_file, tree)
     except IOError:  # occasional failure for empty trees
         return pd.DataFrame()
 
-    return df[df.Channel == {"ee": 1, "mumu": 0}[channel]]  # filter channel
+    df = df[(df.Channel == {"ee": 1, "mumu": 0}[channel])  # filter channel
+            & (df.zMass.between(Z_MASS - mz, Z_MASS + mz))
+            & (df.wPairMass.between(W_MASS - mw, W_MASS + mw))]
+
+    return df
 
 
 def balance_weights(df1, df2):
@@ -95,9 +106,9 @@ def read_trees(signals, channel, mz, mw, blacklist=(),
         classed as background.
     channel : "ee" or "mumu"
         The channel to be read in.
-    mz : int
+    mz : float
         The Z mass cut in GeV
-    mw : int
+    mw : float
         The W mass cut in GeV
     blacklist : array_like, optional
         Any process matching any PATTERN in blacklist will not be read in
@@ -153,7 +164,7 @@ def read_trees(signals, channel, mz, mw, blacklist=(),
     bkg_dfs = []
 
     root_files = glob.iglob("/scratch/data/TopPhysics/mvaDirs/inputs/2016/all/"
-                            "mz{}mw{}/*.root".format(mz, mw))
+                            "mz50mw50/*.root")
 
     for root_file in root_files:
         process = get_process_name(root_file)
@@ -162,7 +173,7 @@ def read_trees(signals, channel, mz, mw, blacklist=(),
         if any(re.match(pattern, process) for pattern in blacklist):
             continue
 
-        df = read_tree(root_file, "Ttree_{}".format(process), channel)
+        df = read_tree(root_file, "Ttree_{}".format(process), channel, mz, mw)
 
         if df.empty:
             continue
@@ -308,9 +319,9 @@ def write_root(mva, channel, mz, mw, training_vars,
         Classfier on which read-in Ttrees will be evaluated.
     channel : "ee" or "mumu"
         The channel on which the classifier will be evaluated.
-    mz : int
+    mz : float
         Z mass cut in GeV.
-    mw : int
+    mw : float
         W mass cut in GeV.
     training_vars: array_like
         Names of features on which the mva was trained.
@@ -339,7 +350,7 @@ def write_root(mva, channel, mz, mw, training_vars,
     """
 
     root_files = glob.iglob("/scratch/data/TopPhysics/mvaDirs/inputs/2016/all/"
-                            "mz{}mw{}/*.root".format(mz, mw))
+                            "mz50mw50/*.root")
 
     fo = ROOT.TFile(filename, "RECREATE")
     pseudo_dfs = []  # list of dataframes we'll turn into pseudodata
@@ -351,7 +362,7 @@ def write_root(mva, channel, mz, mw, training_vars,
         # Dedupe, the input files contain duplicates for some reason...
         for tree in unique_everseen(key.ReadObj().GetName()
                                     for key in fi.GetListOfKeys()):
-            df = read_tree(root_file, tree, channel)
+            df = read_tree(root_file, tree, channel, mz, mw)
 
             if df.empty:
                 continue
