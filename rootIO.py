@@ -13,7 +13,7 @@ from classifiers import evaluate_mva
 from more_itertools import unique_everseen
 
 
-def read_tree(root_file, tree, channel, mz, mw):
+def read_tree(root_file, tree, channel, mz, mw, region):
     """
     Read a Ttree into a DataFrame
 
@@ -29,6 +29,8 @@ def read_tree(root_file, tree, channel, mz, mw):
         The Z mass cut in GeV
     mw : float
         The W mass cut in GeV
+    region : "all", "signal", or "control"
+        The region to be read in
 
     Returns
     -------
@@ -48,6 +50,15 @@ def read_tree(root_file, tree, channel, mz, mw):
     df = df[(df.Channel == {"ee": 1, "mumu": 0}[channel])  # filter channel
             & (df.zMass.between(Z_MASS - mz, Z_MASS + mz))
             & (df.wPairMass.between(W_MASS - mw, W_MASS + mw))]
+
+    if region == "all":
+        pass
+    elif region == "signal":
+        df = df[df.chi2 < 40]
+    elif region == "control":
+        df = df[df.chi2.between(40, 150)]
+    else:
+        raise ValueError("Unrecogised value for option region: ", region)
 
     return df
 
@@ -94,7 +105,7 @@ def balance_weights(df1, df2):
     return df1, df2
 
 
-def read_trees(signals, channel, mz, mw, blacklist=(),
+def read_trees(signals, channel, mz, mw, region, blacklist=(),
                equalise_signal=True, negative_weight_treatment="reweight"):
     """
     Read in Ttrees.
@@ -110,6 +121,8 @@ def read_trees(signals, channel, mz, mw, blacklist=(),
         The Z mass cut in GeV
     mw : float
         The W mass cut in GeV
+    region : "all", "signal", or "control"
+        The region to be read in
     blacklist : array_like, optional
         Any process matching any PATTERN in blacklist will not be read in
     equalise_signal : bool
@@ -173,7 +186,8 @@ def read_trees(signals, channel, mz, mw, blacklist=(),
         if any(re.match(pattern, process) for pattern in blacklist):
             continue
 
-        df = read_tree(root_file, "Ttree_{}".format(process), channel, mz, mw)
+        df = read_tree(root_file, "Ttree_{}".format(process), channel, mz, mw,
+                       region)
 
         if df.empty:
             continue
@@ -307,7 +321,7 @@ def poisson_pseudodata(df):
     return h
 
 
-def write_root(mva, channel, mz, mw, training_vars,
+def write_root(mva, channel, mz, mw, region, training_vars,
                filename="mva.root", data="poisson", combine=True,
                drop_nan=True):
     """
@@ -323,6 +337,8 @@ def write_root(mva, channel, mz, mw, training_vars,
         Z mass cut in GeV.
     mw : float
         W mass cut in GeV.
+    region : "all", "signal", or "control"
+        The region to be read in
     training_vars: array_like
         Names of features on which the mva was trained.
     filename : string, optional
@@ -362,7 +378,7 @@ def write_root(mva, channel, mz, mw, training_vars,
         # Dedupe, the input files contain duplicates for some reason...
         for tree in unique_everseen(key.ReadObj().GetName()
                                     for key in fi.GetListOfKeys()):
-            df = read_tree(root_file, tree, channel, mz, mw)
+            df = read_tree(root_file, tree, channel, mz, mw, region)
 
             if df.empty:
                 continue

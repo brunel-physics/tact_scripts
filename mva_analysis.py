@@ -53,6 +53,7 @@ def main():
     blacklist = ("^Data.*",)
     mz = 20
     mw = 50
+    region = "signal"
     channel = "ee"  # 0 -> mumu, 1 -> ee
     signals = ["tZq"]
     plot_dir = "plots/"
@@ -166,7 +167,8 @@ def main():
     makedirs(plot_dir, root_dir)
 
     # Read samples
-    df = rootIO.read_trees(signals, channel, mz, mw, blacklist=blacklist,
+    df = rootIO.read_trees(signals, channel, mz, mw, region,
+                           blacklist=blacklist,
                            equalise_signal=True,
                            negative_weight_treatment="reweight")
     sig_df = df[df.Signal == 1]
@@ -203,7 +205,7 @@ def main():
                           mva,
                           "{}response_{}.pdf".format(plot_dir, channel))
 
-    rootIO.write_root(mva, channel, mz, mw, training_vars,
+    rootIO.write_root(mva, channel, mz, mw, region, training_vars,
                       filename="{}mva.root".format(root_dir), combine=True,
                       drop_nan=True)
 
