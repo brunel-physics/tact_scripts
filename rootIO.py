@@ -95,7 +95,7 @@ def balance_weights(df1, df2):
 
     if sum1 < sum2:
         df1.MVAWeight = df1.MVAWeight * scale
-    elif sum2 > sum1:
+    elif sum1 > sum2:
         df2.MVAWeight = df2.MVAWeight * scale
 
     assert np.isclose(df1.MVAWeight.sum(), df2.MVAWeight.sum())
