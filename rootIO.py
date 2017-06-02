@@ -264,7 +264,7 @@ def _format_TH1_name(name, channel, combine=True):
     return name
 
 
-def MVA_to_TH1(df, bins=20, name="MVA", title="MVA"):
+def MVA_to_TH1(df, bins=200, name="MVA", title="MVA"):
     """
     Write MVA discriminant from a DataFrame to a TH1D
 
