@@ -26,6 +26,9 @@ def make_variable_histograms(sig_df, bkg_df, filename="vars.pdf"):
     ax = plot_histograms(sig_df, ax).flatten()[:len(sig_df.columns)]
     plot_histograms(bkg_df, ax)
 
+    for axis in ax:
+        axis.legend(["Signal", "Background"], fontsize="x-small")
+
     fig.savefig(filename)
 
 
@@ -78,14 +81,17 @@ def make_response_plot(sig_df_train, sig_df_test, bkg_df_train, bkg_df_test,
     fig, ax = plt.subplots()
 
     # Plot histograms of test samples
-    for df in (sig_df_test, bkg_df_test):
+    for df, label in ((sig_df_test, "Signal (test sample)"),
+                      (bkg_df_test, "Background (test sample)")):
         ax = df.MVA.plot.hist(bins=bins, ax=ax, weights=df.EvtWeight,
-                              normed=True, range=x_range, alpha=0.5)
+                              normed=True, range=x_range, alpha=0.5,
+                              label=label)
 
     plt.gca().set_prop_cycle(None)  # use the same colours again
 
     # Plot error bar plots of training samples
-    for df in (sig_df_train, bkg_df_train):
+    for df, label in ((sig_df_train, "Signal (training sample)"),
+                      (bkg_df_train, "Background (training sample)")):
         hist, bin_edges = np.histogram(df.MVA, bins=bins, range=x_range,
                                        weights=df.EvtWeight)
         hist2 = np.histogram(df.MVA, bins=bins, range=x_range,
@@ -95,7 +101,9 @@ def make_response_plot(sig_df_train, sig_df_test, bkg_df_train, bkg_df_test,
         hist = hist / db / hist.sum()
         bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
 
-        ax.errorbar(bin_centers, hist, fmt=",",
+        ax.errorbar(bin_centers, hist, fmt=",", label=label,
                     yerr=yerr, xerr=(-sub(*x_range) / bins / 2))
+
+    ax.legend(fontsize="small")
 
     fig.savefig(filename)
