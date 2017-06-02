@@ -87,9 +87,12 @@ def make_response_plot(sig_df_train, sig_df_test, bkg_df_train, bkg_df_test,
     # Plot error bar plots of training samples
     for df in (sig_df_train, bkg_df_train):
         hist, bin_edges = np.histogram(df.MVA, bins=bins, range=x_range,
-                                       weights=df.EvtWeight, density=True)
-        scale = len(sig_df_test.index) / hist.sum()
-        yerr = np.sqrt(hist * scale) / scale
+                                       weights=df.EvtWeight)
+        hist2 = np.histogram(df.MVA, bins=bins, range=x_range,
+                             weights=df.EvtWeight.pow(2))[0]
+        db = np.array(np.diff(bin_edges), float)
+        yerr = np.sqrt(hist2) / db / hist.sum()
+        hist = hist / db / hist.sum()
         bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
 
         ax.errorbar(bin_centers, hist, fmt=",",
