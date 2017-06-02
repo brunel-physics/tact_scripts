@@ -289,6 +289,7 @@ def MVA_to_TH1(df, bins=200, name="MVA", title="MVA"):
     _, bin_edges = np.histogram(df.MVA, bins=bins)
 
     h = ROOT.TH1D(name, title, len(bin_edges) - 1, bin_edges)
+    h.Sumw2()
     fill_hist(h, df.MVA.as_matrix(), df.EvtWeight.as_matrix())
     return h
 
