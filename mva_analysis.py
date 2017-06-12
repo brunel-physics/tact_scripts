@@ -6,6 +6,7 @@ import errno
 import rootIO
 import classifiers
 import plotting as pt
+from scipy.stats import ks_2samp
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix
 
@@ -29,6 +30,27 @@ def print_metrics(df_train, df_test, training_vars, mva):
     print(confusion_matrix(df_test.Signal, test_prediction))
     print("Training sample:")
     print(confusion_matrix(df_train.Signal, train_prediction))
+    print()
+
+    print("KS Test p-value")
+    print("Signal:")
+    print(ks_2samp(df_train[df_train.Signal==1].MVA,
+                   df_test[df_test.Signal==1].MVA)[1])
+    print("Background:")
+    print(ks_2samp(df_train[df_train.Signal==0].MVA,
+                   df_test[df_test.Signal==0].MVA)[1])
+    print()
+
+    try:
+        print("Variable importance:")
+        for var, importance in sorted(
+                zip(training_vars, mva.feature_importances_),
+                key=lambda x: x[1],
+                reverse=True):
+            print("{0:15} {1:.3E}".format(var, importance))
+    except AttributeError:
+        pass
+    print()
 
 
 def makedirs(*paths):
