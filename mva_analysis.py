@@ -201,9 +201,9 @@ def main():
     # Make plots
     pt.make_variable_histograms(sig_df, bkg_df,
                                 "{}vars_{}.pdf".format(plot_dir, channel))
-    pt.make_corelation_plot(sig_df,
+    pt.make_corelation_plot(sig_df[training_vars],
                             "{}corr_sig_{}.pdf".format(plot_dir, channel))
-    pt.make_corelation_plot(bkg_df,
+    pt.make_corelation_plot(bkg_df[training_vars],
                             "{}corr_bkg_{}.pdf".format(plot_dir, channel))
 
     # Split sample
