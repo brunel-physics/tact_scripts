@@ -37,7 +37,11 @@ def bdt_ada(df_train, df_test, training_vars):
 def bdt_grad(df_train, df_test, training_vars):
     """Train using a Gradient Boosted Decision Tree"""
 
-    bdt = GradientBoostingClassifier(verbose=1)
+    bdt = GradientBoostingClassifier(n_estimators=75,
+                                     verbose=1,
+                                     min_samples_split=0.1,
+                                     subsample=2.0/3,
+                                     learning_rate=0.05)
     bdt.fit(df_train[training_vars], df_train.Signal,
             sample_weight=df_train.MVAWeight)
 
