@@ -7,7 +7,7 @@ import ROOT
 import numpy as np
 import pandas as pd
 from operator import truediv
-from root_numpy import fill_hist
+from root_numpy import array2hist
 from root_pandas import read_root
 from classifiers import evaluate_mva
 from more_itertools import unique_everseen
@@ -286,11 +286,14 @@ def MVA_to_TH1(df, bins=200, name="MVA", title="MVA"):
         TH1D of MVA discriminant.
     """
 
-    _, bin_edges = np.histogram(df.MVA, bins=bins)
+    contents = np.histogram(df.MVA, bins=bins, range=(-3, 3),
+                            weights=df.EvtWeight)[0]
+    errors, bin_edges = np.histogram(df.MVA, bins=bins, range=(-3, 3),
+                                     weights=df.EvtWeight.pow(2))
 
     h = ROOT.TH1D(name, title, len(bin_edges) - 1, bin_edges)
     h.Sumw2()
-    fill_hist(h, df.MVA.as_matrix(), df.EvtWeight.as_matrix())
+    array2hist(contents, h, errors=errors)
     return h
 
 
@@ -407,6 +410,7 @@ def write_root(mva, channel, mz, mw, region, training_vars,
     data_process = "data_obs" if combine else "DATA"
 
     h = ROOT.TH1D()
+    h.Sumw2()
     if data == "poisson":
         h = poisson_pseudodata(pd.concat(pseudo_dfs))
     elif data == "empty":
