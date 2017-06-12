@@ -76,7 +76,7 @@ def main():
     mz = 20
     mw = 50
     region = "signal"
-    channel = "ee"  # 0 -> mumu, 1 -> ee
+    channel = "ee"
     signals = ["tZq"]
     plot_dir = "plots/"
     root_dir = "root/"
