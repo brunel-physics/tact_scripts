@@ -216,8 +216,9 @@ def main():
     mva = classifiers.bdt_grad(df_train, df_test, training_vars)
     # mva = classifiers.mlp(df_train, df_test, training_vars)
     # mva = classifiers.random_forest(df_train, df_test, training_vars)
-    for df in [df_train, df_test]:
-        df = classifiers.evaluate_mva(df, mva, training_vars)
+
+    df_test = classifiers.evaluate_mva(df_test, mva, training_vars)
+    df_train = classifiers.evaluate_mva(df_train, mva, training_vars)
 
     # Metrics
     print_metrics(df_train, df_test, training_vars, mva)
