@@ -286,9 +286,9 @@ def MVA_to_TH1(df, bins=200, name="MVA", title="MVA"):
         TH1D of MVA discriminant.
     """
 
-    contents = np.histogram(df.MVA, bins=bins, range=(-3, 3),
+    contents = np.histogram(df.MVA, bins=bins, range=(0, 1),
                             weights=df.EvtWeight)[0]
-    errors, bin_edges = np.histogram(df.MVA, bins=bins, range=(-3, 3),
+    errors, bin_edges = np.histogram(df.MVA, bins=bins, range=(0, 1),
                                      weights=df.EvtWeight.pow(2))
     errors = np.sqrt(errors)
 

@@ -7,10 +7,7 @@ from sklearn.tree import DecisionTreeClassifier
 
 
 def evaluate_mva(df, mva, training_vars):
-    try:
-        df["MVA"] = mva.decision_function(df[training_vars])
-    except AttributeError:
-        df["MVA"] = mva.predict_proba(df[training_vars])[:, 1]
+    df = df.assign(MVA=mva.predict_proba(df[training_vars])[:, 1])
     return df
 
 
