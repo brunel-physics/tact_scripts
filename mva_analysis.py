@@ -208,7 +208,7 @@ def main():
 
     # Split sample
     df_train, df_test = train_test_split(df, test_size=test_fraction,
-                                         random_state=42)
+                                         random_state=52)
 
     # Classify
     # mva = classifiers.bdt_ada(df_train, df_test, training_vars)

@@ -38,7 +38,8 @@ def bdt_grad(df_train, df_test, training_vars):
                                      verbose=1,
                                      min_samples_split=0.1,
                                      subsample=2.0/3,
-                                     learning_rate=0.05)
+                                     learning_rate=0.05,
+                                     random_state=52)
     bdt.fit(df_train[training_vars], df_train.Signal,
             sample_weight=df_train.MVAWeight)
 
