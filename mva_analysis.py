@@ -80,7 +80,7 @@ def main():
     signals = ["tZq"]
     plot_dir = "plots/"
     root_dir = "root/"
-    test_fraction = 0.33
+    test_fraction = 0.4
     training_vars = [
         "bTagDisc",
         # "fourthJetEta",
@@ -96,7 +96,7 @@ def main():
         # "leadJetPhi",
         # "leadJetPt",
         # "leadJetbTag",
-        # "lep1D0",
+        "lep1D0",
         # "lep1Eta",
         # "lep1Phi",
         # "lep1Pt",
@@ -184,7 +184,7 @@ def main():
         # "zlb1DelPhi",
         # "zlb1DelR",
         # "zlb2DelPhi",
-        # "zlb2DelR"
+        "zlb2DelR"
         ]
 
     # Make ouptut directories
