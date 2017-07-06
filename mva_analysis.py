@@ -4,6 +4,7 @@ from __future__ import print_function
 import os
 import errno
 import rootIO
+import preprocessing
 import classifiers
 import plotting as pt
 from scipy.stats import ks_2samp
@@ -14,8 +15,12 @@ from sklearn.metrics import classification_report, confusion_matrix
 def print_metrics(df_train, df_test, training_vars, mva):
     """Print some basic metrics for the trained mva"""
 
-    test_prediction = mva.predict(df_test[training_vars])
-    train_prediction = mva.predict(df_train[training_vars])
+    try:
+        test_prediction = mva.predict(df_test[training_vars])
+        train_prediction = mva.predict(df_train[training_vars])
+    except KeyError:
+        test_prediction = mva.predict(df_test[training_vars].as_matrix())
+        train_prediction = mva.predict(df_train[training_vars].as_matrix())
 
     print("Classification Reports")
     print("Test sample:")
@@ -72,7 +77,7 @@ def makedirs(*paths):
 
 def main():
     # Configuration
-    blacklist = ("^Data.*",)
+    blacklist = (r"^Data",)
     mz = 20
     mw = 50
     region = "signal"
@@ -80,7 +85,7 @@ def main():
     signals = ["tZq"]
     plot_dir = "plots/"
     root_dir = "root/"
-    test_fraction = 0.4
+    test_fraction = 0.5
     training_vars = [
         "bTagDisc",
         # "fourthJetEta",
@@ -92,11 +97,11 @@ def main():
         # "jetMass3",
         # "jjdelPhi",
         "jjdelR",
-        "leadJetEta",
+        # "leadJetEta",
         # "leadJetPhi",
         # "leadJetPt",
         # "leadJetbTag",
-        "lep1D0",
+        # "lep1D0",
         # "lep1Eta",
         # "lep1Phi",
         # "lep1Pt",
@@ -152,7 +157,7 @@ def main():
         # "wTopDelPhi",
         # "wTopDelR",
         # "wwdelPhi",
-        # "wwdelR",
+        "wwdelR",
         # "wzdelPhi",
         # "wzdelR",
         # "zEta",
@@ -184,7 +189,8 @@ def main():
         # "zlb1DelPhi",
         # "zlb1DelR",
         # "zlb2DelPhi",
-        "zlb2DelR"
+        "zlb2DelR",
+        # "chi2"
         ]
 
     # Make ouptut directories
@@ -195,10 +201,14 @@ def main():
                            blacklist=blacklist,
                            equalise_signal=True,
                            negative_weight_treatment="passthrough")
+
+    # Preprocess data
+    df[training_vars], sc = preprocessing.robust_scale(df[training_vars])
+
+    # Make plots
     sig_df = df[df.Signal == 1]
     bkg_df = df[df.Signal == 0]
 
-    # Make plots
     pt.make_variable_histograms(sig_df, bkg_df,
                                 "{}vars_{}.pdf".format(plot_dir, channel))
     pt.make_corelation_plot(sig_df[training_vars],
@@ -213,8 +223,8 @@ def main():
     # Classify
     # mva = classifiers.bdt_ada(df_train, df_test, training_vars)
     # mva = classifiers.bdt_xgb(df_train, df_test, training_vars)
-    mva = classifiers.bdt_grad(df_train, df_test, training_vars)
-    # mva = classifiers.mlp(df_train, df_test, training_vars)
+    # mva = classifiers.bdt_grad(df_train, df_test, training_vars)
+    mva = classifiers.mlp(df_train, df_test, training_vars)
     # mva = classifiers.random_forest(df_train, df_test, training_vars)
 
     df_test = classifiers.evaluate_mva(df_test, mva, training_vars)
@@ -230,7 +240,7 @@ def main():
                           mva,
                           "{}response_{}.pdf".format(plot_dir, channel))
 
-    rootIO.write_root(mva, channel, mz, mw, region, training_vars,
+    rootIO.write_root(mva, channel, mz, mw, region, training_vars, scaler=sc,
                       filename="{}mva_{}.root".format(root_dir, channel),
                       combine=True, drop_nan=True, data="empty")
 

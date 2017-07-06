@@ -326,7 +326,7 @@ def poisson_pseudodata(df):
     return h
 
 
-def write_root(mva, channel, mz, mw, region, training_vars,
+def write_root(mva, channel, mz, mw, region, training_vars, scaler=None,
                filename="mva.root", data="poisson", combine=True,
                drop_nan=True):
     """
@@ -344,8 +344,11 @@ def write_root(mva, channel, mz, mw, region, training_vars,
         W mass cut in GeV.
     region : "all", "signal", or "control"
         The region to be read in
-    training_vars: array_like
+    training_vars : array_like
         Names of features on which the mva was trained.
+    scaler :
+        Scikit-learn scaler used to transform data before being evaluated by
+        MVA.
     filename : string, optional
         Name of the output root file (including directory).
     data : string, optional
@@ -387,6 +390,9 @@ def write_root(mva, channel, mz, mw, region, training_vars,
 
             if df.empty:
                 continue
+
+            if scaler is not None:
+                df[training_vars] = scaler.transform(df[training_vars])
 
             print("Evaluating classifier on Ttree", tree)
             df = evaluate_mva(df, mva, training_vars)
