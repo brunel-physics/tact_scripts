@@ -25,11 +25,11 @@ def mlp(df_train, df_test, training_vars):
     def build_model():
         model = Sequential()
         model.add(Dense(10,
-            activation="sigmoid",
-            input_dim=len(training_vars),
-            activity_regularizer=l1_l2(1e-5),
-            # kernel_regularizer=l1_l2(1e-4),
-            ))
+                        activation="sigmoid",
+                        input_dim=len(training_vars),
+                        activity_regularizer=l1_l2(5e-5, 5e-5),
+                        bias_regularizer=l1_l2(5e-5, 5e-5),
+                        kernel_regularizer=l1_l2(5e-5, 5e-5)))
         model.add(Dense(1, activation="sigmoid"))
 
         model.compile(loss="binary_crossentropy",
