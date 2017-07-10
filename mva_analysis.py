@@ -1,31 +1,12 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
-import os
-import errno
 import rootIO
 import preprocessing
 import classifiers
 import metrics
 import plotting as pt
 from sklearn.model_selection import train_test_split
-
-
-def makedirs(*paths):
-    """
-    For each path in paths create the corresponding directory, without throwing
-    and exception if the directory already exists. Any required intermediate
-    driectories are also created.
-    """
-
-    for path in paths:
-        try:
-            os.makedirs(os.path.dirname(path))
-        except OSError as e:
-            if e.errno == errno.EEXIST and os.path.isdir(path):
-                pass  # directory already exists
-            else:
-                raise
 
 
 def main():
@@ -147,7 +128,7 @@ def main():
         ]
 
     # Make ouptut directories
-    makedirs(plot_dir, root_dir)
+    rootIO.makedirs(plot_dir, root_dir)
 
     # Read samples
     df = rootIO.read_trees(signals, channel, mz, mw, region,

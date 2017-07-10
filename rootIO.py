@@ -2,6 +2,8 @@
 
 from __future__ import print_function
 import re
+import os
+import errno
 import glob
 import ROOT
 import numpy as np
@@ -11,6 +13,31 @@ from root_numpy import array2hist
 from root_pandas import read_root
 from classifiers import evaluate_mva
 from more_itertools import unique_everseen
+
+
+def makedirs(*paths):
+    """
+    Creates a directory for each path given. No effect if the directory
+    already exists
+
+    Parameters
+    ----------
+    paths : strings
+        Strings contaning the path of each directory desired to be created
+
+    Returns
+    -------
+    None
+    """
+
+    for path in paths:
+        try:
+            os.makedirs(os.path.dirname(path))
+        except OSError as e:
+            if e.errno == errno.EEXIST and os.path.isdir(path):
+                pass  # directory already exists
+            else:
+                raise
 
 
 def read_tree(root_file, tree, channel, mz, mw, region):
