@@ -95,7 +95,7 @@ def balance_weights(df1, df2):
     Balance the MVA weights in two different DataFrames so they sum to the
     same value.
 
-    Paramaters
+    Parameters
     ----------
     df1 : DataFrame
         First DataFrame
@@ -330,7 +330,7 @@ def poisson_pseudodata(df):
     Generate Poisson pseudodata from a DataFrame by binning the MVA
     discriminant in a TH1D and applying a Poisson randomisation to each bin.
 
-    Paramaters
+    Parameters
     ----------
     df : DataFrame
         Dataframe containing the data to be used as a base for the pseudodata.

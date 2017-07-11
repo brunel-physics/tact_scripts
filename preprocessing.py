@@ -5,7 +5,7 @@ def standard_scale(df, **kwargs):
     """
     Scale the dataframe df using a scikit-learn StandardScaler
 
-    Paramaters
+    Parameters
     ----------
     df : DataFrame
         DataFrame containing each variable to be scaled in a column
@@ -30,7 +30,7 @@ def robust_scale(df, **kwargs):
     """
     Scale the dataframe df using a scikit-learn RobustScaler
 
-    Paramaters
+    Parameters
     ----------
     df : DataFrame
         DataFrame containing each variable to be scaled in a column

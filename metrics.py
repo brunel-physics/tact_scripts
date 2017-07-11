@@ -7,7 +7,7 @@ def print_metrics(df_train, df_test, training_vars, mva):
     """
     Print metrics for a trained classifier
 
-    Paramaters
+    Parameters
     ----------
     df_test : DataFrame
         DataFrame containing testing data.
