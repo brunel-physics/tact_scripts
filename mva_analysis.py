@@ -7,6 +7,10 @@ import classifiers
 import metrics
 import plotting as pt
 from sklearn.model_selection import train_test_split
+# from sklearn.tree import DecisionTreeClassifier
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.regularizers import l1_l2
 
 
 def main():
@@ -155,10 +159,38 @@ def main():
                                          random_state=52)
 
     # Classify
-    # mva = classifiers.bdt_ada(df_train, df_test, training_vars)
-    # mva = classifiers.bdt_xgb(df_train, df_test, training_vars)
-    # mva = classifiers.bdt_grad(df_train, df_test, training_vars)
-    mva = classifiers.mlp(df_train, df_test, training_vars)
+    def build_model():
+        model = Sequential()
+        model.add(Dense(10,
+                        activation="sigmoid",
+                        input_dim=len(training_vars),
+                        activity_regularizer=l1_l2(5e-5, 5e-5),
+                        bias_regularizer=l1_l2(5e-5, 5e-5),
+                        kernel_regularizer=l1_l2(5e-5, 5e-5)))
+        model.add(Dense(1, activation="sigmoid"))
+
+        model.compile(loss="binary_crossentropy",
+                      optimizer="nadam",
+                      metrics=["accuracy"])
+
+        return model
+
+    mva = classifiers.mlp(df_train, df_test, training_vars,
+                          build_fn=build_model,
+                          epochs=10000,
+                          verbose=1,
+                          batch_size=2048)
+    # mva = classifiers.bdt_ada(df_train, df_test, training_vars,
+    #                           base_estimator=DecisionTreeClassifier())
+    # mva = classifiers.bdt_xgb(df_train, df_test, training_vars, silent=False)
+    # mva = classifiers.bdt_grad(df_train, df_test, training_vars,
+    #                            n_estimators=100,
+    #                            verbose=1,
+    #                            min_samples_split=0.1,
+    #                            subsample=0.75,
+    #                            learning_rate=0.02,
+    #                            random_state=52,
+    #                            max_depth=5)
     # mva = classifiers.random_forest(df_train, df_test, training_vars)
 
     df_test = classifiers.evaluate_mva(df_test, mva, training_vars)
