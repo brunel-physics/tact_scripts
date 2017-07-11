@@ -5,10 +5,10 @@ import re
 import os
 import errno
 import glob
+from operator import truediv
 import ROOT
 import numpy as np
 import pandas as pd
-from operator import truediv
 from root_numpy import array2hist
 from root_pandas import read_root
 from classifiers import evaluate_mva
@@ -340,7 +340,6 @@ def poisson_pseudodata(df):
     h : TH1D
         TH1D contaning pesudodata.
     """
-
 
     h = MVA_to_TH1(df)
 

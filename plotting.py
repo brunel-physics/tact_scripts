@@ -1,10 +1,8 @@
 from __future__ import division
-import os
+from operator import sub
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-from operator import sub
 
 
 def make_variable_histograms(sig_df, bkg_df, filename="vars.pdf"):

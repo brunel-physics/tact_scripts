@@ -1,5 +1,4 @@
 from __future__ import print_function
-
 from scipy.stats import ks_2samp
 from sklearn.metrics import classification_report, confusion_matrix
 
@@ -7,8 +6,8 @@ from sklearn.metrics import classification_report, confusion_matrix
 def print_metrics(df_train, df_test, training_vars, mva):
     """
     Print metrics for a trained classifier
-    
-    Parameters
+
+    Paramaters
     ----------
     df_test : DataFrame
         DataFrame containing testing data.

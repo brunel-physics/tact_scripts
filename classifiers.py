@@ -12,15 +12,15 @@ def evaluate_mva(df, mva, training_vars):
         df = df.assign(MVA=mva.predict_proba(df[training_vars])[:, 1])
     except KeyError:  # Keras doesn't like DataFrames
         df = df.assign(MVA=mva.predict_proba(df[training_vars].as_matrix(),
-                       verbose=0)[:, 1])
+                                             verbose=0)[:, 1])
     return df
 
 
 def mlp(df_train, df_test, training_vars, **kwargs):
     """Train using a Multi Layer Perceptron"""
 
-    mlp = KerasClassifier(**kwargs)
-    mlp.fit(df_train[training_vars].as_matrix(), df_train.Signal.as_matrix(),
+    ann = KerasClassifier(**kwargs)
+    ann.fit(df_train[training_vars].as_matrix(), df_train.Signal.as_matrix(),
             sample_weight=df_train.MVAWeight.as_matrix(),
             callbacks=[EarlyStopping(monitor="loss",
                                      min_delta=0,
@@ -28,7 +28,7 @@ def mlp(df_train, df_test, training_vars, **kwargs):
                                      verbose=0,
                                      mode="auto")])
 
-    return mlp
+    return ann
 
 
 def bdt_ada(df_train, df_test, training_vars, **kwargs):
