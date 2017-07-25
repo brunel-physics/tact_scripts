@@ -5,14 +5,15 @@ import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
-def make_variable_histograms(sig_df, bkg_df, filename="vars.pdf"):
+def make_variable_histograms(sig_df, bkg_df, training_vars,
+                             filename="vars.pdf"):
     """Produce histograms comparing the signal and background distribution
     of availible variables and write them to filename"""
 
     def plot_histograms(df, ax):
         """Plot histograms for every column in df"""
-        return df.hist(bins=100, ax=ax, alpha=0.5, weights=df.EvtWeight,
-                       normed=True)
+        return df[training_vars].hist(bins=100, ax=ax, alpha=0.5,
+                                      weights=df.EvtWeight, normed=True)
 
     plt.style.use("ggplot")
 

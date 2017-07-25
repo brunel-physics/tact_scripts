@@ -147,7 +147,7 @@ def main():
     sig_df = df[df.Signal == 1]
     bkg_df = df[df.Signal == 0]
 
-    pt.make_variable_histograms(sig_df, bkg_df,
+    pt.make_variable_histograms(sig_df, bkg_df, training_vars,
                                 "{}vars_{}.pdf".format(plot_dir, channel))
     pt.make_corelation_plot(sig_df[training_vars],
                             "{}corr_sig_{}.pdf".format(plot_dir, channel))
