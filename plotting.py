@@ -22,7 +22,7 @@ def make_variable_histograms(sig_df, bkg_df, training_vars,
     fig, ax = plt.subplots()
     fig.set_size_inches(fig_size)
 
-    ax = plot_histograms(sig_df, ax).ravel()[:len(sig_df.columns)]
+    ax = plot_histograms(sig_df, ax).ravel()[:len(training_vars)]
     plot_histograms(bkg_df, ax)
 
     for axis in ax:
