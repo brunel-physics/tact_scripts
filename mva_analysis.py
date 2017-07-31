@@ -205,6 +205,8 @@ def main():
                           df_test[df_test.Signal == 0],
                           mva,
                           "{}response_{}.pdf".format(plot_dir, channel))
+    pt.make_roc_curve(df_train, df_test,
+                      "{}roc_{}.pdf".format(plot_dir, channel))
 
     rootIO.write_root(mva, channel, mz, mw, region, training_vars, scaler=sc,
                       filename="{}mva_{}.root".format(root_dir, channel),

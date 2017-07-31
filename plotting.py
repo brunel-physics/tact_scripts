@@ -3,7 +3,7 @@ from operator import sub
 import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-
+from sklearn.metrics import roc_curve, auc
 
 def make_variable_histograms(sig_df, bkg_df, training_vars,
                              filename="vars.pdf"):
@@ -95,5 +95,52 @@ def make_response_plot(sig_df_train, sig_df_test, bkg_df_train, bkg_df_test,
                     yerr=yerr, xerr=(-sub(*x_range) / bins / 2))
 
     ax.legend(fontsize="small")
+
+    fig.savefig(filename)
+
+
+def make_roc_curve(df_train, df_test, filename="roc.pdf"):
+    """
+    Plot the ROC curve for the test and training data.
+
+    Parameters
+    ----------
+    df_train : DataFrame
+        DataFrame containing training data
+    df_test : DataFrame
+        DataFrame containing testing data
+    filename : string
+        File plot should be saved to
+
+    Returns
+    -------
+    None
+    """
+
+    fpr = {}
+    tpr = {}
+    roc_auc = {}
+
+    for i, df in (("train", df_train), ("test", df_test)):
+        fpr[i], tpr[i], _ = roc_curve(df.Signal, df.MVA,
+                                      sample_weight=df.EvtWeight)
+        roc_auc[i] = auc(fpr[i], tpr[i], reorder=True)
+
+    plt.style.use("ggplot")
+
+    fig, ax = plt.subplots()
+
+    for i in fpr:
+        ax.plot(fpr[i], tpr[i],
+                label="ROC curve for {} set (auc = {:0.2f})"
+                .format(i, roc_auc[i]))
+
+    ax.plot([0, 1], [0, 1], "k--")
+
+    ax.set_xlim([0, 1])
+    ax.set_ylim([0, 1])
+    ax.set_xlabel("False Positive Rate")
+    ax.set_ylabel("True Positive Rate")
+    ax.legend(loc="lower right")
 
     fig.savefig(filename)
