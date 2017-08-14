@@ -10,7 +10,7 @@ from sklearn.model_selection import train_test_split
 # from sklearn.tree import DecisionTreeClassifier
 from keras.models import Sequential
 from keras.layers import Dense
-from keras.regularizers import l1_l2
+from keras.regularizers import l2
 
 
 def main():
@@ -25,13 +25,13 @@ def main():
     root_dir = "root/"
     test_fraction = 0.5
     training_vars = [
-        "bTagDisc",
+        # "bTagDisc",
         # "fourthJetEta",
         # "fourthJetPhi",
         # "fourthJetPt",
         # "fourthJetbTag",
         # "jetHt",
-        "jetMass",
+        # "jetMass",
         # "jetMass3",
         # "jjdelPhi",
         "jjdelR",
@@ -161,12 +161,12 @@ def main():
     # Classify
     def build_model():
         model = Sequential()
-        model.add(Dense(10,
+        model.add(Dense(8,
                         activation="sigmoid",
                         input_dim=len(training_vars),
-                        activity_regularizer=l1_l2(5e-5, 5e-5),
-                        bias_regularizer=l1_l2(5e-5, 5e-5),
-                        kernel_regularizer=l1_l2(5e-5, 5e-5)))
+                        activity_regularizer=l2(5e-3)))
+                        # bias_regularizer=l2(1e-2),
+                        # kernel_regularizer=l2(1e-2)))
         model.add(Dense(1, activation="sigmoid"))
 
         model.compile(loss="binary_crossentropy",

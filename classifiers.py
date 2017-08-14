@@ -24,7 +24,7 @@ def mlp(df_train, df_test, training_vars, **kwargs):
             sample_weight=df_train.MVAWeight.as_matrix(),
             callbacks=[EarlyStopping(monitor="loss",
                                      min_delta=0,
-                                     patience=5,
+                                     patience=1,
                                      verbose=0,
                                      mode="auto")])
 
