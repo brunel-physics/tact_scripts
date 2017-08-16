@@ -1,5 +1,6 @@
 from __future__ import print_function
-from scipy.stats import ks_2samp
+import numpy as np
+from scipy.stats import kstwobign
 from sklearn.metrics import classification_report, confusion_matrix
 
 
@@ -48,10 +49,14 @@ def print_metrics(df_train, df_test, training_vars, mva):
     print("KS Test p-value")
     print("Signal:")
     print(ks_2samp(df_train[df_train.Signal == 1].MVA,
-                   df_test[df_test.Signal == 1].MVA)[1])
+                   df_test[df_test.Signal == 1].MVA,
+                   df_train[df_train.Signal == 1].EvtWeight,
+                   df_test[df_test.Signal == 1].EvtWeight)[1])
     print("Background:")
     print(ks_2samp(df_train[df_train.Signal == 0].MVA,
-                   df_test[df_test.Signal == 0].MVA)[1])
+                   df_test[df_test.Signal == 0].MVA,
+                   df_train[df_train.Signal == 0].EvtWeight,
+                   df_test[df_test.Signal == 0].EvtWeight)[1])
     print()
 
     try:
@@ -64,3 +69,80 @@ def print_metrics(df_train, df_test, training_vars, mva):
     except AttributeError:
         pass
     print()
+
+
+def ecdf(x, weights=None):
+    """
+    Return the emperical cumulative distrbution function (ECDF) for a set of
+    observations.
+
+    Parameters
+    ----------
+    x : array_like
+        Observations
+    weights : array_like
+        The weight of each observation, should be the same length as x. If
+        None, each observation will be given equal weight.
+
+    Returns
+    -------
+    ecdf : function
+        ECDF function
+    """
+
+    if weights is None:
+        weights = np.ones(len(x))
+
+    # Create a sorted array of measurements where each measurement is
+    # assoicated with the sum of the total weights of all the measurements less
+    # than or equal to it, with the weights normalised such that they sum to 1
+    m = np.sort(np.column_stack((x, np.cumsum(weights / np.sum(weights)))),
+                axis=0)
+
+    # Return a function which gives the value of the ECDF at a given x
+    # (vectoried for array-like objects!)
+    return lambda a: np.select([a <= i for i in m[:, 0]], m[:, 1], default=1)
+
+
+def ks_2samp(a, b, aw=None, bw=None):
+    """
+    Computes the Kolmogorov-Smirnov statistic on 2 samples.
+    This is a two-sided test for the null hypothesis that 2 independent samples
+    are drawn from the same continuous distribution.
+
+    Parameters
+    ----------
+    a, b : Sequence of 1D ndarrays
+        Two arrays of sample observations assumed to be drawn from a continuous
+        distribution, sample sizes can be different
+    aw, bw: Sequence of 1D ndarrays
+        The weights of each observation in a, b. Must be the same length as the
+        associated array of observations. If None, every measurement will be
+        assigned an equal weight.
+
+    Returns
+    -------
+    D : float
+        KS statistic
+    p-value : float
+        two-tailed p-value
+    """
+
+    # Methodology for weighted Kolmogorov-Smirnov test taken from Numerical
+    # Methods of Statistics - J. Monahan
+
+    ab = np.sort(np.concatenate((a, b)))
+
+    D = np.max(np.absolute(ecdf(a, aw)(ab) - ecdf(b, bw)(ab)))
+
+    n1 = len(a) if aw is None else np.sum(aw) ** 2 / np.sum(aw ** 2)
+    n2 = len(b) if bw is None else np.sum(bw) ** 2 / np.sum(bw ** 2)
+
+    en = np.sqrt(n1 * n2 / float(n1 + n2))
+
+    try:
+        p = kstwobign.sf((en + 0.12 + 0.11 / en) * D)  # Stephens (1970)
+    except:
+        p = 1.0
+
+    return D, p
