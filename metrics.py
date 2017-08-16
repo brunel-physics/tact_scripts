@@ -71,7 +71,7 @@ def print_metrics(df_train, df_test, training_vars, mva):
     print()
 
 
-def ecdf(x, weights=None):
+def ecdf(x, xw=None):
     """
     Return the emperical cumulative distrbution function (ECDF) for a set of
     observations.
@@ -90,18 +90,19 @@ def ecdf(x, weights=None):
         ECDF function
     """
 
-    if weights is None:
-        weights = np.ones(len(x))
+    if xw is None:
+        xw = np.ones(len(x))
 
     # Create a sorted array of measurements where each measurement is
     # assoicated with the sum of the total weights of all the measurements less
     # than or equal to it, with the weights normalised such that they sum to 1
-    m = np.sort(np.column_stack((x, np.cumsum(weights / np.sum(weights)))),
-                axis=0)
+    m = np.vstack(((-np.inf, 0),  # required for values < min(x)
+                   np.sort(np.column_stack((x, np.cumsum(xw / np.sum(xw)))),
+                           axis=0)))
 
     # Return a function which gives the value of the ECDF at a given x
     # (vectoried for array-like objects!)
-    return lambda a: np.select([a <= i for i in m[:, 0]], m[:, 1], default=1)
+    return lambda v: m[np.searchsorted(m[:, 0], v, side="right") - 1, 1]
 
 
 def ks_2samp(a, b, aw=None, bw=None):
