@@ -1,10 +1,5 @@
 import numpy as np
 np.random.seed(52)
-from xgboost import XGBClassifier
-from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier, \
-                             RandomForestClassifier
-from keras.callbacks import EarlyStopping
-from keras.wrappers.scikit_learn import KerasClassifier
 
 
 def evaluate_mva(df, mva, training_vars):
@@ -18,6 +13,9 @@ def evaluate_mva(df, mva, training_vars):
 
 def mlp(df_train, df_test, training_vars, **kwargs):
     """Train using a Multi Layer Perceptron"""
+
+    from keras.callbacks import EarlyStopping
+    from keras.wrappers.scikit_learn import KerasClassifier
 
     ann = KerasClassifier(**kwargs)
     ann.fit(df_train[training_vars].as_matrix(), df_train.Signal.as_matrix(),
@@ -34,6 +32,8 @@ def mlp(df_train, df_test, training_vars, **kwargs):
 def bdt_ada(df_train, df_test, training_vars, **kwargs):
     """Train using an AdaBoosted Decision Tree"""
 
+    from sklearn.ensemble import AdaBoostClassifier
+
     bdt = AdaBoostClassifier(**kwargs)
     bdt.fit(df_train[training_vars], df_train.Signal,
             sample_weight=df_train.MVAWeight.as_matrix())
@@ -44,6 +44,8 @@ def bdt_ada(df_train, df_test, training_vars, **kwargs):
 def bdt_grad(df_train, df_test, training_vars, **kwargs):
     """Train using a Gradient Boosted Decision Tree"""
 
+    from sklearn.ensemble import GradientBoostingClassifier
+
     bdt = GradientBoostingClassifier(**kwargs)
     bdt.fit(df_train[training_vars], df_train.Signal,
             sample_weight=df_train.MVAWeight)
@@ -53,6 +55,8 @@ def bdt_grad(df_train, df_test, training_vars, **kwargs):
 
 def bdt_xgb(df_train, df_test, training_vars, **kwargs):
     """Train using an XGBoost Boosted Decision Tree"""
+
+    from xgboost import XGBClassifier
 
     bdt = XGBClassifier(**kwargs)
 
@@ -67,6 +71,8 @@ def bdt_xgb(df_train, df_test, training_vars, **kwargs):
 
 def random_forest(df_train, df_test, training_vars, **kwargs):
     """Train using a Random Forest"""
+
+    from sklearn.ensemble import RandomForestClassifier
 
     rf = RandomForestClassifier(**kwargs)
     rf.fit(df_train[training_vars], df_train.Signal,

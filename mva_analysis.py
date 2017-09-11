@@ -8,9 +8,6 @@ import metrics
 import plotting as pt
 from sklearn.model_selection import train_test_split
 # from sklearn.tree import DecisionTreeClassifier
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.regularizers import l2
 
 
 def main():
@@ -160,6 +157,10 @@ def main():
 
     # Classify
     def build_model():
+        from keras.models import Sequential
+        from keras.layers import Dense
+        from keras.regularizers import l2
+
         model = Sequential()
         model.add(Dense(8,
                         activation="sigmoid",
