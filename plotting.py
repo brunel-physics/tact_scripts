@@ -17,12 +17,22 @@ def make_variable_histograms(sig_df, bkg_df, training_vars,
 
     plt.style.use("ggplot")
 
-    fig_size = (50, 31)
+    ncols = 2
+    nrows = len(training_vars) // ncols + 1
 
-    fig, ax = plt.subplots()
+    fig_size = (ncols * 1.618 * 3, nrows * 3)
+
+    fig, ax = plt.subplots(ncols=ncols, nrows=nrows)
     fig.set_size_inches(fig_size)
 
-    ax = plot_histograms(sig_df, ax).ravel()[:len(training_vars)]
+    ax = ax.flatten()
+
+    for i in xrange(1, len(training_vars) % ncols + 1):
+        ax[-i].remove()
+
+    ax = ax[:len(training_vars)]
+
+    ax = plot_histograms(sig_df, ax)
     plot_histograms(bkg_df, ax)
 
     for axis in ax:
