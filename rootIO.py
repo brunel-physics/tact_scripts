@@ -210,7 +210,7 @@ def read_trees(signals, channel, mz, mw, region, blacklist=(),
         process = get_process_name(root_file)
 
         # Ignore any samples matching any pattern in blacklist
-        if any(re.match(pattern, process) for pattern in blacklist):
+        if any(re.search(pattern, process) for pattern in blacklist):
             continue
 
         df = read_tree(root_file, "Ttree_{}".format(process), channel, mz, mw,
