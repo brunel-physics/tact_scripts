@@ -12,9 +12,9 @@ from sklearn.model_selection import train_test_split
 
 def main():
     # Configuration
-    blacklist = (r"^Data",)
+    blacklist = (r"^Data", r"aMCatNLO")
     mz = 20
-    mw = 50
+    mw = 20
     region = "signal"
     channel = "ee"
     signals = ["tZq"]
@@ -22,7 +22,7 @@ def main():
     root_dir = "root/"
     test_fraction = 0.5
     training_vars = [
-        # "bTagDisc",
+        "bTagDisc",
         # "fourthJetEta",
         # "fourthJetPhi",
         # "fourthJetPt",
@@ -66,7 +66,7 @@ def main():
         # "topEta",
         "topMass",
         # "topPhi",
-        # "topPt",
+        "topPt",
         # "totEta",
         # "totHt",
         # "totHtOverPt",
