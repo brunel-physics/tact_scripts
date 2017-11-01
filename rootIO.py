@@ -13,6 +13,7 @@ from root_numpy import array2hist
 from root_pandas import read_root
 from classifiers import evaluate_mva
 from more_itertools import unique_everseen
+from config import cfg
 
 
 def makedirs(*paths):
@@ -40,7 +41,7 @@ def makedirs(*paths):
                 raise
 
 
-def read_tree(root_file, tree, channel, mz, mw, region):
+def read_tree(root_file, tree):
     """
     Read a Ttree into a DataFrame
 
@@ -50,14 +51,6 @@ def read_tree(root_file, tree, channel, mz, mw, region):
         Path of root file to be read in
     tree : string
         Name of tree to be read in
-    channel : "ee" or "mumu"
-        Channel to be read in
-    mz : float
-        The Z mass cut in GeV
-    mw : float
-        The W mass cut in GeV
-    region : "all", "signal", or "control"
-        The region to be read in
 
     Returns
     -------
@@ -74,15 +67,15 @@ def read_tree(root_file, tree, channel, mz, mw, region):
     except IOError:  # occasional failure for empty trees
         return pd.DataFrame()
 
-    df = df[(df.Channel == {"ee": 1, "mumu": 0}[channel])  # filter channel
-            & (df.zMass.between(Z_MASS - mz, Z_MASS + mz))
-            & (df.wPairMass.between(W_MASS - mw, W_MASS + mw))]
+    df = df[(df.Channel == {"ee": 1, "mumu": 0}[cfg["channel"]])  # filter channel
+            & (df.zMass.between(Z_MASS - cfg["mz"], Z_MASS + cfg["mz"]))
+            & (df.wPairMass.between(W_MASS - cfg["mw"], W_MASS + cfg["mw"]))]
 
-    if region == "all":
+    if cfg["region"] == "all":
         pass
-    elif region == "signal":
+    elif cfg["region"] == "signal":
         df = df[df.chi2 < 40]
-    elif region == "control":
+    elif cfg["region"] == "control":
         df = df[df.chi2.between(40, 150)]
     else:
         raise ValueError("Unrecogised value for option region: ", region)
@@ -132,41 +125,13 @@ def balance_weights(df1, df2):
     return df1, df2
 
 
-def read_trees(signals, channel, mz, mw, region, blacklist=(),
-               equalise_signal=True, negative_weight_treatment="reweight"):
+def read_trees():
     """
     Read in Ttrees.
 
     Parameters
     ----------
-    signals : array_like
-        List of processes to be classes as signal events. All others will be
-        classed as background.
-    channel : "ee" or "mumu"
-        The channel to be read in.
-    mz : float
-        The Z mass cut in GeV
-    mw : float
-        The W mass cut in GeV
-    region : "all", "signal", or "control"
-        The region to be read in
-    blacklist : array_like, optional
-        Any process matching any PATTERN in blacklist will not be read in
-    equalise_signal : bool
-        Whether or not the weights for the signal and background trees should
-        be scaled in such a way to equalise their sums.
-    negative_weight_treatment : string
-        How negative event weights should be dealt with
-
-        "abs"
-        Take the absolute value of every weight.
-
-        "reweight"
-        Take the absolute value of every weight but scale the resulting weights
-        down to restore the original total.
-
-        "passthrough"
-        Do not modify weights.
+    None
 
     Returns
     -------
@@ -203,39 +168,37 @@ def read_trees(signals, channel, mz, mw, region, blacklist=(),
     sig_dfs = []
     bkg_dfs = []
 
-    root_files = glob.iglob("/scratch/data/TopPhysics/mvaDirs/inputs/2016/all/"
-                            "mz50mw50/*.root")
+    root_files = glob.iglob(cfg["input_dir"] + r"*.root")
 
     for root_file in root_files:
         process = get_process_name(root_file)
 
         # Ignore any samples matching any pattern in blacklist
-        if any(re.search(pattern, process) for pattern in blacklist):
+        if any(re.search(pattern, process) for pattern in cfg["blacklist"]):
             continue
 
-        df = read_tree(root_file, "Ttree_{}".format(process), channel, mz, mw,
-                       region)
+        df = read_tree(root_file, "Ttree_{}".format(process))
 
         if df.empty:
             continue
 
         # Deal with weights
-        if negative_weight_treatment == "reweight":
+        if cfg["negative_weight_treatment"] == "reweight":
             df = reweight(df)
-        elif negative_weight_treatment == "abs":
+        elif cfg["negative_weight_treatment"] == "abs":
             df["MVAWeight"] = np.abs(df.EvtWeight)
-        elif negative_weight_treatment == "passthrough":
+        elif cfg["negative_weight_treatment"] == "passthrough":
             df["MVAWeight"] = df.EvtWeight
         else:
             raise ValueError("Bad value for option negative_weight_treatment:",
-                             negative_weight_treatment)
+                             cfg["negative_weight_treatment"])
 
         # Count events
         print("Process ", process, " contains ", len(df.index), " (",
               df.EvtWeight.sum(), ") events", sep='')
 
         # Split into signal and background
-        if process in signals:
+        if process in cfg["signals"]:
             sig_dfs.append(df)
         else:
             bkg_dfs.append(df)
@@ -244,7 +207,7 @@ def read_trees(signals, channel, mz, mw, region, blacklist=(),
     bkg_df = pd.concat(bkg_dfs)
 
     # Equalise signal and background weights if we were asked to
-    if equalise_signal:
+    if cfg["equalise_signal"]:
         sig_df, bkg_df = balance_weights(sig_df, bkg_df)
 
     # Label signal and background
@@ -254,7 +217,7 @@ def read_trees(signals, channel, mz, mw, region, blacklist=(),
     return pd.concat([sig_df, bkg_df])
 
 
-def _format_TH1_name(name, channel, combine=True):
+def _format_TH1_name(name):
     """
     Modify name of Ttrees from input files to a format expected by combine
     or THETA
@@ -265,8 +228,6 @@ def _format_TH1_name(name, channel, combine=True):
         Name of the Ttree.
     channel : "ee" or "mumu"
         The channel contained within the histogram
-    combine : bool, optional
-        Whether the names should be in a combine-compatible format
 
     Returns
     -------
@@ -283,15 +244,15 @@ def _format_TH1_name(name, channel, combine=True):
     combine flag is set.
     """
 
-    name = re.sub(r"^Ttree", "MVA_{}_".format(channel), name)
-    if combine:
+    name = re.sub(r"^Ttree", "MVA_{}_".format(cfg["channel"]), name)
+    if cfg["root_out"]["combine"]:
         name = re.sub(r"__plus$", "Up", name)
         name = re.sub(r"__minus$", "Down", name)
 
     return name
 
 
-def MVA_to_TH1(df, bins=200, name="MVA", title="MVA"):
+def MVA_to_TH1(df, name="MVA", title="MVA"):
     """
     Write MVA discriminant from a DataFrame to a TH1D
 
@@ -300,8 +261,6 @@ def MVA_to_TH1(df, bins=200, name="MVA", title="MVA"):
     df : DataFrame
         Dataframe contaning an "MVA" column containing the MVA discriminant and
         "EvtWeight" column containing event weights.
-    bins : int, optional
-        Number of bins in the TH1.
     name : string, optional
         Name of TH1.
     title : string, optional
@@ -312,6 +271,8 @@ def MVA_to_TH1(df, bins=200, name="MVA", title="MVA"):
     h : TH1D
         TH1D of MVA discriminant.
     """
+
+    bins = cfg["root_out"]["bins"]
 
     contents = np.histogram(df.MVA, bins=bins, range=(0, 1),
                             weights=df.EvtWeight)[0]
@@ -352,9 +313,7 @@ def poisson_pseudodata(df):
     return h
 
 
-def write_root(mva, channel, mz, mw, region, training_vars, scaler=None,
-               filename="mva.root", data="poisson", combine=True,
-               drop_nan=True):
+def write_root(mva, scaler=None, filename="mva.root"):
     """
     Evaluate an MVA and write the result to TH1s in a root file.
 
@@ -362,49 +321,24 @@ def write_root(mva, channel, mz, mw, region, training_vars, scaler=None,
     ----------
     mva : trained classifier
         Classfier on which read-in Ttrees will be evaluated.
-    channel : "ee" or "mumu"
-        The channel on which the classifier will be evaluated.
-    mz : float
-        Z mass cut in GeV.
-    mw : float
-        W mass cut in GeV.
-    region : "all", "signal", or "control"
-        The region to be read in
-    training_vars : array_like
-        Names of features on which the mva was trained.
     scaler :
         Scikit-learn scaler used to transform data before being evaluated by
         MVA.
     filename : string, optional
         Name of the output root file (including directory).
-    data : string, optional
-        Pseudodata generation method
-
-        "empty"
-        Pseudodata histogram is empty.
-
-        "poisson"
-        Pseudodata is a TH1 containing all non-systematic MC data with a
-        poisson error applied to each bin.
-
-    combine : bool, optional
-        Whether the output root file should have TH1 names compatible with
-        the Higgs Combined Analysis tool.
-    drop_nan : bool, optional
-        Whether events with NaN weight should be dropped or included in the
-        final TH1s
 
     Returns
     -------
     None
     """
 
-    root_files = glob.iglob("/scratch/data/TopPhysics/mvaDirs/inputs/2016/all/"
-                            "mz50mw50/*.root")
+    training_vars = cfg["training_vars"]
+
+    root_files = glob.iglob(cfg["input_dir"] + r"*.root")
 
     fo = ROOT.TFile(filename, "RECREATE")
     pseudo_dfs = []  # list of dataframes we'll turn into pseudodata
-    data_name = "DataEG" if channel == "ee" else "DataMu"
+    data_name = "DataEG" if cfg["channel"] == "ee" else "DataMu"
 
     for root_file in root_files:
         fi = ROOT.TFile(root_file, "READ")
@@ -412,7 +346,7 @@ def write_root(mva, channel, mz, mw, region, training_vars, scaler=None,
         # Dedupe, the input files contain duplicates for some reason...
         for tree in unique_everseen(key.ReadObj().GetName()
                                     for key in fi.GetListOfKeys()):
-            df = read_tree(root_file, tree, channel, mz, mw, region)
+            df = read_tree(root_file, tree)
 
             if df.empty:
                 continue
@@ -427,31 +361,31 @@ def write_root(mva, channel, mz, mw, region, training_vars, scaler=None,
             nan_weights = df.EvtWeight.isnull().sum()
             if nan_weights > 0:
                 print("WARNING:", nan_weights, "NaN weights found")
-                if drop_nan:
+                if cfg["root_out"]["drop_nan"]:
                     df = df[pd.notnull(df["EvtWeight"])]
 
             # Trees used in pseudodata should be not systematics and not data
             if not re.search(r"(minus)|(plus)|({})$".format(data_name), tree):
                 pseudo_dfs.append(df)
 
-            tree = _format_TH1_name(tree, channel, combine)
+            tree = _format_TH1_name(tree)
             h = MVA_to_TH1(df, name=tree, title=tree)
             h.SetDirectory(fo)
             fo.cd()
             h.Write()
 
-    data_process = "data_obs" if combine else "DATA"
+    data_process = "data_obs" if cfg["root_out"]["combine"] else "DATA"
 
     h = ROOT.TH1D()
     h.Sumw2()
-    if data == "poisson":
+    if cfg["root_out"]["data"] == "poisson":
         h = poisson_pseudodata(pd.concat(pseudo_dfs))
-    elif data == "empty":
+    elif cfg["root_out"]["data"] == "empty":
         h = ROOT.TH1D()
     else:
         raise ValueError("Unrecogised value for option 'data': ", data)
 
-    h.SetName("MVA_{}__{}".format(channel, data_process))
+    h.SetName("MVA_{}__{}".format(cfg["channel"], data_process))
     h.SetDirectory(fo)
     fo.cd()
     h.Write()

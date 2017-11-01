@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from sklearn.metrics import roc_curve, auc
+from config import cfg
 
-def make_variable_histograms(sig_df, bkg_df, training_vars,
-                             filename="vars.pdf"):
+def make_variable_histograms(sig_df, bkg_df, filename="vars.pdf"):
     """Produce histograms comparing the signal and background distribution
     of availible variables and write them to filename"""
 
@@ -14,6 +14,8 @@ def make_variable_histograms(sig_df, bkg_df, training_vars,
         """Plot histograms for every column in df"""
         return df[training_vars].hist(bins=100, ax=ax, alpha=0.5,
                                       weights=df.EvtWeight, normed=True)
+
+    training_vars = cfg["training_vars"]
 
     plt.style.use("ggplot")
 
