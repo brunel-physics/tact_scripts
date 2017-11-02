@@ -67,7 +67,7 @@ mlp:
             activation: sigmoid
             activity_regularizer:
               class_name: L1L2
-              config: {l1: 0.0, l2: 8e-4}
+              config: {l1: 0.0, l2: 7e-3}
             units: 16
         - class_name: Dense
           config:
@@ -145,7 +145,7 @@ training_vars:
   # - lepHt
     - mTW
     - met
-    - nBjets
+  # - nBjets
   # - nJets
   # - secJetEta
   # - secJetPhi

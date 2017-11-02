@@ -27,7 +27,7 @@ def print_metrics(df_train, df_test, training_vars, mva):
     try:
         test_prediction = mva.predict(df_test[training_vars])
         train_prediction = mva.predict(df_train[training_vars])
-    except KeyError:
+    except (KeyError, UnboundLocalError):
         test_prediction = mva.predict(df_test[training_vars].as_matrix())
         train_prediction = mva.predict(df_train[training_vars].as_matrix())
 
