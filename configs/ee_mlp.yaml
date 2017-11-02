@@ -68,7 +68,7 @@ mlp:
             activation: sigmoid
             activity_regularizer:
               class_name: L1L2
-              config: {l1: 0.0, l2: 7e-3}
+              config: {l1: 0.0, l2: 7e-4}
             units: 16
         - class_name: Dense
           config:
