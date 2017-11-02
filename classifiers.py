@@ -121,5 +121,4 @@ def save_classifier(mva, filename="mva"):
         except ImportError:
             import pickle
 
-        print("Pickling")
         pickle.dump(mva, open("{}.pkl".format(filename), "wb"))
