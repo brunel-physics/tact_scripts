@@ -97,3 +97,29 @@ def random_forest(df_train, df_test, training_vars):
            sample_weight=df_train.MVAWeight.as_matrix())
 
     return rf
+
+
+def save_classifier(mva, filename="mva"):
+    """
+    Write a trained classifier to an external file. Keras models are saved as
+    hdf5, other classifiers are pickled.
+
+    Parameters
+    ----------
+    mva : trained classifier
+        Classifier to be trained
+    filename : string, optional
+        Name of output file (including directory). Extension will be set
+        automatically
+    """
+
+    try:
+        mva.model.save("{}.h5".format(filename), overwrite=True)
+    except AttributeError:
+        try:
+            import cPickle as pickle
+        except ImportError:
+            import pickle
+
+        print("Pickling")
+        pickle.dump(mva, open("{}.pkl".format(filename), "wb"))

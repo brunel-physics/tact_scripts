@@ -27,9 +27,10 @@ channel: ee
 signals:
     - tZq
 
-# Directories plots and root files should be output into
+# Directories plots, root files, and trained classifiers should be output into
 plot_dir: plots/
 root_dir: root/
+mva_dir: mva/
 
 # Fraction of data to be reserved in test sample
 test_fraction: 0.25

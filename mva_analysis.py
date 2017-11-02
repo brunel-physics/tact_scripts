@@ -17,7 +17,7 @@ def main():
     training_vars = cfg["training_vars"]
 
     # Make ouptut directories
-    rootIO.makedirs(cfg["plot_dir"], cfg["root_dir"])
+    rootIO.makedirs(cfg["plot_dir"], cfg["root_dir"], cfg["mva_dir"])
 
     # Read samples
     df = rootIO.read_trees()
@@ -57,6 +57,11 @@ def main():
 
     df_test = classifiers.evaluate_mva(df_test, mva, training_vars)
     df_train = classifiers.evaluate_mva(df_train, mva, training_vars)
+
+    # Save trained classifier
+    classifiers.save_classifier(mva, "{}{}_{}".format(cfg["mva_dir"],
+                                                      cfg["classifier"],
+                                                      cfg["channel"]))
 
     # Metrics
     metrics.print_metrics(df_train, df_test, training_vars, mva)
