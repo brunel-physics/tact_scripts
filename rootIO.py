@@ -63,7 +63,12 @@ def read_tree(root_file, tree):
 
     # Read ROOT trees into data frames
     try:
-        df = read_root(root_file, tree)
+        # We only want to read in the features we're training on, features
+        # we're cutting on, and weights
+        columns = set(cfg["training_vars"] +
+                      ["EvtWeight", "Channel", "wPairMass", "zMass", "chi2"])
+
+        df = read_root(root_file, tree, columns=columns)
     except IOError:  # occasional failure for empty trees
         return pd.DataFrame()
 
