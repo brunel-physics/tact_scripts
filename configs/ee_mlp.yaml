@@ -126,102 +126,102 @@ root_out:
 # Features to be included in the classifier training
 training_vars:
     - bTagDisc
-  # - fourthJetEta
-  # - fourthJetPhi
+    # - fourthJetEta
+    # - fourthJetPhi
     - fourthJetPt
-  # - fourthJetbTag
-  # - jetHt
+    # - fourthJetbTag
+    # - jetHt
     - jetMass
-  # - jetMass3
-  # - jjdelPhi
+    # - jetMass3
+    # - jjdelPhi
     - jjdelR
     - leadJetEta
-  # - leadJetPhi
-  # - leadJetPt
+    # - leadJetPhi
+    # - leadJetPt
     - leadJetbTag
-  # - lep1D0
-  # - lep1Eta
-  # - lep1Phi
-  # - lep1Pt
-  # - lep1RelIso
-  # - lep2D0
-  # - lep2Eta
-  # - lep2Phi
-  # - lep2Pt
-  # - lep2RelIso
-  # - lepEta
-  # - lepHt
+    # - lep1D0
+    # - lep1Eta
+    # - lep1Phi
+    # - lep1Pt
+    # - lep1RelIso
+    # - lep2D0
+    # - lep2Eta
+    # - lep2Phi
+    # - lep2Pt
+    # - lep2RelIso
+    # - lepEta
+    # - lepHt
     - mTW
     - met
-  # - nBjets
-  # - nJets
-  # - secJetEta
-  # - secJetPhi
-  # - secJetPt
+    # - nBjets
+    # - nJets
+    # - secJetEta
+    # - secJetPhi
+    # - secJetPt
     - secJetbTag
-  # - thirdJetEta
-  # - thirdJetPhi
-  # - thirdJetPt
-  # - thirdJetbTag
-  # - topEta
+    # - thirdJetEta
+    # - thirdJetPhi
+    # - thirdJetPt
+    # - thirdJetbTag
+    # - topEta
     - topMass
-  # - topPhi
+    # - topPhi
     - topPt
-  # - totEta
-  # - totHt
-  # - totHtOverPt
-  # - totPt
-  # - totPt2Jet
-  # - totPtVec
-  # - totVecM
-  # - w1TopDelPhi
-  # - w1TopDelR
-  # - w2TopDelPhi
-  # - w2TopDelR
-  # - wPairEta
+    # - totEta
+    # - totHt
+    # - totHtOverPt
+    # - totPt
+    # - totPt2Jet
+    # - totPtVec
+    # - totVecM
+    # - w1TopDelPhi
+    # - w1TopDelR
+    # - w2TopDelPhi
+    # - w2TopDelR
+    # - wPairEta
     - wPairMass
-  # - wPairPhi
-  # - wPairPt
-  # - wQuark1Eta
-  # - wQuark1Phi
-  # - wQuark1Pt
-  # - wQuark2Eta
-  # - wQuark2Phi
-  # - wQuark2Pt
-  # - wQuarkHt
-  # - wTopDelPhi
-  # - wTopDelR
+    # - wPairPhi
+    # - wPairPt
+    # - wQuark1Eta
+    # - wQuark1Phi
+    # - wQuark1Pt
+    # - wQuark2Eta
+    # - wQuark2Phi
+    # - wQuark2Pt
+    # - wQuarkHt
+    # - wTopDelPhi
+    # - wTopDelR
     - wwdelPhi
-  # - wwdelR
-  # - wzdelPhi
-  # - wzdelR
-  # - zEta
+    # - wwdelR
+    # - wzdelPhi
+    # - wzdelR
+    # - zEta
     - zLepdelPhi
-  # - zLepdelR
+    # - zLepdelR
     - zMass
-  # - zPhi
-  # - zPt
-  # - zQuark1DelPhi
-  # - zQuark1DelR
-  # - zQuark2DelPhi
-  # - zQuark2DelR
-  # - zTopDelPhi
-  # - zTopDelR
-  # - zjminPhi
-  # - zjminR
-  # - zl1Quark1DelPhi
-  # - zl1Quark1DelR
-  # - zl1Quark2DelPhi
-  # - zl1Quark2DelR
-  # - zl1TopDelPhi
-  # - zl1TopDelR
-  # - zl2Quark1DelPhi
-  # - zl2Quark1DelR
-  # - zl2Quark2DelPhi
-  # - zl2Quark2DelR
-  # - zl2TopDelPhi
-  # - zl2TopDelR
-  # - zlb1DelPhi
-  # - zlb1DelR
-  # - zlb2DelPhi
+    # - zPhi
+    # - zPt
+    # - zQuark1DelPhi
+    # - zQuark1DelR
+    # - zQuark2DelPhi
+    # - zQuark2DelR
+    # - zTopDelPhi
+    # - zTopDelR
+    # - zjminPhi
+    # - zjminR
+    # - zl1Quark1DelPhi
+    # - zl1Quark1DelR
+    # - zl1Quark2DelPhi
+    # - zl1Quark2DelR
+    # - zl1TopDelPhi
+    # - zl1TopDelR
+    # - zl2Quark1DelPhi
+    # - zl2Quark1DelR
+    # - zl2Quark2DelPhi
+    # - zl2Quark2DelR
+    # - zl2TopDelPhi
+    # - zl2TopDelR
+    # - zlb1DelPhi
+    # - zlb1DelR
+    # - zlb2DelPhi
     - zlb2DelR
