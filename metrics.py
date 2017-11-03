@@ -4,7 +4,7 @@ from scipy.stats import kstwobign
 from sklearn.metrics import classification_report, confusion_matrix
 
 
-def print_metrics(df_train, df_test, training_vars, mva):
+def print_metrics(df_train, df_test, features, mva):
     """
     Print metrics for a trained classifier
 
@@ -14,7 +14,7 @@ def print_metrics(df_train, df_test, training_vars, mva):
         DataFrame containing testing data.
     df_train: DataFrame
         DataFrame containing training data.
-    training_vars : array_like
+    features : array_like
         Names of features on which the classifier was trained.
     mva : trained classifier
         Classifier trained on df_train
@@ -25,11 +25,11 @@ def print_metrics(df_train, df_test, training_vars, mva):
     """
 
     try:
-        test_prediction = mva.predict(df_test[training_vars])
-        train_prediction = mva.predict(df_train[training_vars])
+        test_prediction = mva.predict(df_test[features])
+        train_prediction = mva.predict(df_train[features])
     except (KeyError, UnboundLocalError):
-        test_prediction = mva.predict(df_test[training_vars].as_matrix())
-        train_prediction = mva.predict(df_train[training_vars].as_matrix())
+        test_prediction = mva.predict(df_test[features].as_matrix())
+        train_prediction = mva.predict(df_train[features].as_matrix())
 
     print("Classification Reports")
     print("Test sample:")
@@ -62,7 +62,7 @@ def print_metrics(df_train, df_test, training_vars, mva):
     try:
         print("Variable importance:")
         for var, importance in sorted(
-                zip(training_vars, mva.feature_importances_),
+                zip(features, mva.feature_importances_),
                 key=lambda x: x[1],
                 reverse=True):
             print("{0:15} {1:.3E}".format(var, importance))

@@ -12,15 +12,15 @@ def make_variable_histograms(sig_df, bkg_df, filename="vars.pdf"):
 
     def plot_histograms(df, ax):
         """Plot histograms for every column in df"""
-        return df[training_vars].hist(bins=100, ax=ax, alpha=0.5,
+        return df[features].hist(bins=100, ax=ax, alpha=0.5,
                                       weights=df.EvtWeight, normed=True)
 
-    training_vars = cfg["training_vars"]
+    features = cfg["features"]
 
     plt.style.use("ggplot")
 
     ncols = 2
-    nrows = len(training_vars) // ncols + 1
+    nrows = len(features) // ncols + 1
 
     fig_size = (ncols * 1.618 * 3, nrows * 3)
 
@@ -29,10 +29,10 @@ def make_variable_histograms(sig_df, bkg_df, filename="vars.pdf"):
 
     ax = ax.flatten()
 
-    for i in xrange(1, len(training_vars) % ncols + 1):
+    for i in xrange(1, len(features) % ncols + 1):
         ax[-i].remove()
 
-    ax = ax[:len(training_vars)]
+    ax = ax[:len(features)]
 
     ax = plot_histograms(sig_df, ax)
     plot_histograms(bkg_df, ax)

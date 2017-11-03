@@ -15,7 +15,7 @@ from sklearn.preprocessing import RobustScaler
 def main():
     # Read configuration
     read_config(sys.argv[1])
-    training_vars = cfg["training_vars"]
+    features = cfg["features"]
 
     # Make ouptut directories
     rootIO.makedirs(cfg["plot_dir"], cfg["root_dir"], cfg["mva_dir"])
@@ -41,10 +41,10 @@ def main():
     pt.make_variable_histograms(sig_df, bkg_df,
                                 "{}vars_{}.pdf".format(cfg["plot_dir"],
                                                        cfg["channel"]))
-    pt.make_corelation_plot(sig_df[training_vars],
+    pt.make_corelation_plot(sig_df[features],
                             "{}corr_sig_{}.pdf".format(cfg["plot_dir"],
                                                        cfg["channel"]))
-    pt.make_corelation_plot(bkg_df[training_vars],
+    pt.make_corelation_plot(bkg_df[features],
                             "{}corr_bkg_{}.pdf".format(cfg["plot_dir"],
                                                        cfg["channel"]))
 
@@ -54,18 +54,18 @@ def main():
 
     # Classify
     if cfg["classifier"] == "mlp":
-        mva = classifiers.mlp(df_train, pre, training_vars)
+        mva = classifiers.mlp(df_train, pre, features)
     elif cfg["classifier"] == "bdt_ada":
-        mva = classifiers.bdt_ada(df_train, pre, training_vars)
+        mva = classifiers.bdt_ada(df_train, pre, features)
     elif cfg["classifier"] == "bdt_xgb":
-        mva = classifiers.bdt_xgb(df_train, pre, training_vars)
+        mva = classifiers.bdt_xgb(df_train, pre, features)
     elif cfg["classifier"] == "bdt_grad":
-        mva = classifiers.bdt_grad(df_train, pre, training_vars)
+        mva = classifiers.bdt_grad(df_train, pre, features)
     elif cfg["classifier"] == "random_forest":
-        mva = classifiers.random_forest(df_train, pre, training_vars)
+        mva = classifiers.random_forest(df_train, pre, features)
 
-    df_test = classifiers.evaluate_mva(df_test, mva, training_vars)
-    df_train = classifiers.evaluate_mva(df_train, mva, training_vars)
+    df_test = classifiers.evaluate_mva(df_test, mva, features)
+    df_train = classifiers.evaluate_mva(df_train, mva, features)
 
     # Save trained classifier
     classifiers.save_classifier(mva, "{}{}_{}".format(cfg["mva_dir"],
@@ -73,7 +73,7 @@ def main():
                                                       cfg["channel"]))
 
     # Metrics
-    metrics.print_metrics(df_train, df_test, training_vars, mva)
+    metrics.print_metrics(df_train, df_test, features, mva)
 
     pt.make_response_plot(df_train[df_train.Signal == 1],
                           df_test[df_test.Signal == 1],

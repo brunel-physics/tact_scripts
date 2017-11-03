@@ -65,7 +65,7 @@ def read_tree(root_file, tree):
     try:
         # We only want to read in the features we're training on, features
         # we're cutting on, and weights
-        columns = set(cfg["training_vars"] +
+        columns = set(cfg["features"] +
                       ["EvtWeight", "Channel", "wPairMass", "zMass", "chi2"])
 
         df = read_root(root_file, tree, columns=columns)
@@ -337,7 +337,7 @@ def write_root(mva, filename="mva.root"):
     None
     """
 
-    training_vars = cfg["training_vars"]
+    features = cfg["features"]
 
     root_files = glob.iglob(cfg["input_dir"] + r"*.root")
 
@@ -357,7 +357,7 @@ def write_root(mva, filename="mva.root"):
                 continue
 
             print("Evaluating classifier on Ttree", tree)
-            df = evaluate_mva(df, mva, training_vars)
+            df = evaluate_mva(df, mva, features)
 
             # Look for and handle NaN Event Weights:
             nan_weights = df.EvtWeight.isnull().sum()

@@ -4,16 +4,16 @@ from sklearn.pipeline import make_pipeline
 np.random.seed(52)
 
 
-def evaluate_mva(df, mva, training_vars):
+def evaluate_mva(df, mva, features):
     # Keras doesn't like DataFrames, error thrown depends on Keras version
     try:
-        df = df.assign(MVA=mva.predict_proba(df[training_vars])[:, 1])
+        df = df.assign(MVA=mva.predict_proba(df[features])[:, 1])
     except (KeyError, UnboundLocalError):  # Keras doesn't like DataFrames
-        df = df.assign(MVA=mva.predict_proba(df[training_vars].as_matrix())[:, 1])
+        df = df.assign(MVA=mva.predict_proba(df[features].as_matrix())[:, 1])
     return df
 
 
-def mlp(df_train, pre, training_vars):
+def mlp(df_train, pre, features):
     """Train using a Multi Layer Perceptron"""
 
     def build_model():
@@ -21,7 +21,7 @@ def mlp(df_train, pre, training_vars):
 
         # Set input layer shape
         cfg["mlp"]["model"]["config"][0]["config"]["batch_input_shape"] \
-            = (None, len(training_vars))
+            = (None, len(features))
 
         model = layer_module.deserialize(cfg["mlp"]["model"])
 
@@ -41,14 +41,14 @@ def mlp(df_train, pre, training_vars):
 
     mva = make_pipeline(*(pre + [ann]))
 
-    mva.fit(df_train[training_vars].as_matrix(), df_train.Signal.as_matrix(),
+    mva.fit(df_train[features].as_matrix(), df_train.Signal.as_matrix(),
             kerasclassifier__sample_weight=df_train.MVAWeight.as_matrix(),
             kerasclassifier__callbacks=callbacks)
 
     return mva
 
 
-def bdt_ada(df_train, pre, training_vars):
+def bdt_ada(df_train, pre, features):
     """Train using an AdaBoosted Decision Tree"""
 
     from sklearn.ensemble import AdaBoostClassifier
@@ -59,13 +59,13 @@ def bdt_ada(df_train, pre, training_vars):
 
     mva = make_pipeline(*(pre + [bdt]))
 
-    mva.fit(df_train[training_vars], df_train.Signal,
+    mva.fit(df_train[features], df_train.Signal,
             adaboostclassifier__sample_weight=df_train.MVAWeight.as_matrix())
 
     return mva
 
 
-def bdt_grad(df_train, pre, training_vars, **kwargs):
+def bdt_grad(df_train, pre, features, **kwargs):
     """Train using a Gradient Boosted Decision Tree"""
 
     from sklearn.ensemble import GradientBoostingClassifier
@@ -74,13 +74,13 @@ def bdt_grad(df_train, pre, training_vars, **kwargs):
 
     mva = make_pipeline(*(pre + [bdt]))
 
-    mva.fit(df_train[training_vars], df_train.Signal,
+    mva.fit(df_train[features], df_train.Signal,
             gradientboostingclassifier__sample_weight=df_train.MVAWeight)
 
     return mva
 
 
-def bdt_xgb(df_train, pre, training_vars):
+def bdt_xgb(df_train, pre, features):
     """Train using an XGBoost Boosted Decision Tree"""
 
     from xgboost import XGBClassifier
@@ -89,16 +89,16 @@ def bdt_xgb(df_train, pre, training_vars):
 
     mva = make_pipeline(*(pre + [bdt]))
 
-    mva.fit(df_train[training_vars], df_train.Signal,
+    mva.fit(df_train[features], df_train.Signal,
             xgboostclassifier__sample_weight=df_train.MVAWeight,)
             # eval_metric="auc",
             # early_stopping_rounds=50,
-            # eval_set=[(df_test[training_vars], df_test.Signal)])
+            # eval_set=[(df_test[features], df_test.Signal)])
 
     return mva
 
 
-def random_forest(df_train, pre, training_vars):
+def random_forest(df_train, pre, features):
     """Train using a Random Forest"""
 
     from sklearn.ensemble import RandomForestClassifier
@@ -107,7 +107,7 @@ def random_forest(df_train, pre, training_vars):
 
     mva = make_pipeline(*(pre + [rf]))
 
-    rf.fit(df_train[training_vars], df_train.Signal,
+    rf.fit(df_train[features], df_train.Signal,
            randomforestclassifier__sample_weight=df_train.MVAWeight)
 
     return mva

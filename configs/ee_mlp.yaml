@@ -124,7 +124,7 @@ root_out:
     bins: 200
 
 # Features to be included in the classifier training
-training_vars:
+features:
     - bTagDisc
     # - fourthJetEta
     # - fourthJetPhi
