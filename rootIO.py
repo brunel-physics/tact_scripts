@@ -313,7 +313,7 @@ def poisson_pseudodata(df):
     return h
 
 
-def write_root(mva, scaler=None, filename="mva.root"):
+def write_root(mva, filename="mva.root"):
     """
     Evaluate an MVA and write the result to TH1s in a root file.
 
@@ -350,9 +350,6 @@ def write_root(mva, scaler=None, filename="mva.root"):
 
             if df.empty:
                 continue
-
-            if scaler is not None:
-                df[training_vars] = scaler.transform(df[training_vars])
 
             print("Evaluating classifier on Ttree", tree)
             df = evaluate_mva(df, mva, training_vars)

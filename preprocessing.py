@@ -1,32 +1,27 @@
 from sklearn.preprocessing import StandardScaler, RobustScaler
 
 
-def standard_scale(df, **kwargs):
+def add_standard_scaler(l, **kwargs):
     """
-    Scale the dataframe df using a scikit-learn StandardScaler
+    Appends a scikit-learn StandardScaler to l
 
     Parameters
     ----------
-    df : DataFrame
-        DataFrame containing each variable to be scaled in a column
+    l : list
+        Pipeline to be modified
     kwargs : keyword arguments
         Keyword arguments to be passed to StandardScaler()
 
     Returns
     -------
-    a : array
-        Array containing scaled data
-    sc : StandardScaler
-        Trained scaler
+    l: list
+        Modified list
     """
 
-    sc = StandardScaler()
-    a = sc.fit_transform(df)
-
-    return a, sc
+    return l.append(StandardScaler(**kwargs))
 
 
-def robust_scale(df, **kwargs):
+def add_robust_scaler(l, **kwargs):
     """
     Scale the dataframe df using a scikit-learn RobustScaler
 
@@ -45,7 +40,4 @@ def robust_scale(df, **kwargs):
         Trained scaler
     """
 
-    sc = RobustScaler()
-    a = sc.fit_transform(df)
-
-    return a, sc
+    return l.append(RobustScaler(**kwargs))

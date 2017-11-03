@@ -1,5 +1,6 @@
 import numpy as np
 from config import cfg
+from sklearn.pipeline import make_pipeline
 np.random.seed(52)
 
 
@@ -8,12 +9,11 @@ def evaluate_mva(df, mva, training_vars):
     try:
         df = df.assign(MVA=mva.predict_proba(df[training_vars])[:, 1])
     except (KeyError, UnboundLocalError):  # Keras doesn't like DataFrames
-        df = df.assign(MVA=mva.predict_proba(df[training_vars].as_matrix(),
-                                             verbose=0)[:, 1])
+        df = df.assign(MVA=mva.predict_proba(df[training_vars].as_matrix())[:, 1])
     return df
 
 
-def mlp(df_train, df_test, training_vars):
+def mlp(df_train, pre, training_vars):
     """Train using a Multi Layer Perceptron"""
 
     def build_model():
@@ -38,14 +38,17 @@ def mlp(df_train, df_test, training_vars):
 
     ann = KerasClassifier(build_fn=build_model,
                           **cfg["mlp"]["model_params"])
-    ann.fit(df_train[training_vars].as_matrix(), df_train.Signal.as_matrix(),
-            sample_weight=df_train.MVAWeight.as_matrix(),
-            callbacks=callbacks)
 
-    return ann
+    mva = make_pipeline(*(pre + [ann]))
+
+    mva.fit(df_train[training_vars].as_matrix(), df_train.Signal.as_matrix(),
+            kerasclassifier__sample_weight=df_train.MVAWeight.as_matrix(),
+            kerasclassifier__callbacks=callbacks)
+
+    return mva
 
 
-def bdt_ada(df_train, df_test, training_vars):
+def bdt_ada(df_train, pre, training_vars):
     """Train using an AdaBoosted Decision Tree"""
 
     from sklearn.ensemble import AdaBoostClassifier
@@ -53,56 +56,68 @@ def bdt_ada(df_train, df_test, training_vars):
 
     bdt = AdaBoostClassifier(base_estimator=DecisionTreeClassifier(),
                              **cfg["bdt_ada"])
-    bdt.fit(df_train[training_vars], df_train.Signal,
-            sample_weight=df_train.MVAWeight.as_matrix())
 
-    return bdt
+    mva = make_pipeline(*(pre + [bdt]))
+
+    mva.fit(df_train[training_vars], df_train.Signal,
+            adaboostclassifier__sample_weight=df_train.MVAWeight.as_matrix())
+
+    return mva
 
 
-def bdt_grad(df_train, df_test, training_vars, **kwargs):
+def bdt_grad(df_train, pre, training_vars, **kwargs):
     """Train using a Gradient Boosted Decision Tree"""
 
     from sklearn.ensemble import GradientBoostingClassifier
 
     bdt = GradientBoostingClassifier(**cfg["bdt_grad"])
-    bdt.fit(df_train[training_vars], df_train.Signal,
-            sample_weight=df_train.MVAWeight)
 
-    return bdt
+    mva = make_pipeline(*(pre + [bdt]))
+
+    mva.fit(df_train[training_vars], df_train.Signal,
+            gradientboostingclassifier__sample_weight=df_train.MVAWeight)
+
+    return mva
 
 
-def bdt_xgb(df_train, df_test, training_vars):
+def bdt_xgb(df_train, pre, training_vars):
     """Train using an XGBoost Boosted Decision Tree"""
 
     from xgboost import XGBClassifier
 
     bdt = XGBClassifier(**cfg["bdt_xgb"])
 
-    bdt.fit(df_train[training_vars], df_train.Signal,
-            sample_weight=df_train.MVAWeight,)
+    mva = make_pipeline(*(pre + [bdt]))
+
+    mva.fit(df_train[training_vars], df_train.Signal,
+            xgboostclassifier__sample_weight=df_train.MVAWeight,)
             # eval_metric="auc",
             # early_stopping_rounds=50,
             # eval_set=[(df_test[training_vars], df_test.Signal)])
 
-    return bdt
+    return mva
 
 
-def random_forest(df_train, df_test, training_vars):
+def random_forest(df_train, pre, training_vars):
     """Train using a Random Forest"""
 
     from sklearn.ensemble import RandomForestClassifier
 
     rf = RandomForestClassifier(**cfg["random_forest"])
-    rf.fit(df_train[training_vars], df_train.Signal,
-           sample_weight=df_train.MVAWeight.as_matrix())
 
-    return rf
+    mva = make_pipeline(*(pre + [rf]))
+
+    rf.fit(df_train[training_vars], df_train.Signal,
+           randomforestclassifier__sample_weight=df_train.MVAWeight)
+
+    return mva
 
 
 def save_classifier(mva, filename="mva"):
     """
-    Write a trained classifier to an external file. Keras models are saved as
-    hdf5, other classifiers are pickled.
+    Write a trained classifier pipeline to an external file. If the classifier
+    is a Keras model it is saved as a hdf5 file alongside the pickled pipeline
+    with a None in the model's place.
 
     Parameters
     ----------
@@ -114,11 +129,21 @@ def save_classifier(mva, filename="mva"):
     """
 
     try:
-        mva.model.save("{}.h5".format(filename), overwrite=True)
-    except AttributeError:
-        try:
-            import cPickle as pickle
-        except ImportError:
-            import pickle
+        import cPickle as pickle
+    except ImportError:
+        import pickle
 
+    try:
         pickle.dump(mva, open("{}.pkl".format(filename), "wb"))
+    except TypeError:  # Keras models cannot be pickled
+        from sklearn.pipeline import Pipeline
+
+        # Save Keras model
+        mva.named_steps["kerasclassifier"].model.save("{}__model.h5".format(filename))
+
+        # Pickle transformers
+        try:
+            pickle.dump(Pipeline(mva.steps[:-1]),
+                        open("{}.pkl".format(filename), "wb"))
+        except ValueError:  # if there are no transformers
+            pickle.dump(None, open("{}.pkl".format(filename), "wb"))

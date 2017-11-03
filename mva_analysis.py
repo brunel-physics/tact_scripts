@@ -4,11 +4,12 @@ from __future__ import print_function
 import sys
 from config import read_config, cfg
 import rootIO
-import preprocessing
 import classifiers
 import metrics
+import preprocessing
 import plotting as pt
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import RobustScaler
 
 
 def main():
@@ -22,8 +23,16 @@ def main():
     # Read samples
     df = rootIO.read_trees()
 
-    # Preprocess data
-    df[training_vars], sc = preprocessing.robust_scale(df[training_vars])
+    # Configure preprocessing
+    pre = []
+    try:
+        for p in cfg["preprocessors"]:
+            if p["preprocessor"] == "robust_scaler":
+                preprocessing.add_robust_scaler(pre, **p["config"])
+            if p["preprocessor"] == "standard_scaler":
+                preprocessing.add_standard_scaler(pre, **p["config"])
+    except KeyError:
+        pass
 
     # Make plots
     sig_df = df[df.Signal == 1]
@@ -45,15 +54,15 @@ def main():
 
     # Classify
     if cfg["classifier"] == "mlp":
-        mva = classifiers.mlp(df_train, df_test, training_vars)
+        mva = classifiers.mlp(df_train, pre, training_vars)
     elif cfg["classifier"] == "bdt_ada":
-        mva = classifiers.bdt_ada(df_train, df_test, training_vars)
+        mva = classifiers.bdt_ada(df_train, pre, training_vars)
     elif cfg["classifier"] == "bdt_xgb":
-        mva = classifiers.bdt_xgb(df_train, df_test, training_vars)
+        mva = classifiers.bdt_xgb(df_train, pre, training_vars)
     elif cfg["classifier"] == "bdt_grad":
-        mva = classifiers.bdt_grad(df_train, df_test, training_vars)
+        mva = classifiers.bdt_grad(df_train, pre, training_vars)
     elif cfg["classifier"] == "random_forest":
-        mva = classifiers.random_forest(df_train, df_test, training_vars)
+        mva = classifiers.random_forest(df_train, pre, training_vars)
 
     df_test = classifiers.evaluate_mva(df_test, mva, training_vars)
     df_train = classifiers.evaluate_mva(df_train, mva, training_vars)
@@ -77,7 +86,7 @@ def main():
                       "{}roc_{}.pdf".format(cfg["plot_dir"],
                                             cfg["channel"]))
 
-    rootIO.write_root(mva, scaler=sc,
+    rootIO.write_root(mva,
                       filename="{}mva_{}.root".format(cfg["root_dir"],
                                                       cfg["channel"]))
 
