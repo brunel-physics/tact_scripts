@@ -1,6 +1,7 @@
 import numpy as np
 from config import cfg
 from sklearn.pipeline import make_pipeline
+from collections import namedtuple
 np.random.seed(52)
 
 
@@ -113,11 +114,14 @@ def random_forest(df_train, pre, features):
     return mva
 
 
+SavedClassifier = namedtuple("SavedClassifier", "cfg mva keras")
+
+
 def save_classifier(mva, filename="mva"):
     """
     Write a trained classifier pipeline to an external file. If the classifier
-    is a Keras model it is saved as a hdf5 file alongside the pickled pipeline
-    with a None in the model's place.
+    is a Keras model it is saved as a hdf5 file alongside the pickled pipeline,
+    classifier excluded.
 
     Parameters
     ----------
@@ -133,17 +137,21 @@ def save_classifier(mva, filename="mva"):
     except ImportError:
         import pickle
 
-    try:
-        pickle.dump(mva, open("{}.pkl".format(filename), "wb"))
-    except TypeError:  # Keras models cannot be pickled
+    keras = 'kerasclassifier' in mva.named_steps
+
+    if not keras:
+        pickle.dump(SavedClassifier(cfg, mva, keras),
+                    open("{}.pkl".format(filename), "wb"))
+    else:  # Keras models cannot be pickled
         from sklearn.pipeline import Pipeline
 
         # Save Keras model
         mva.named_steps["kerasclassifier"].model.save("{}__model.h5".format(filename))
 
         # Pickle transformers
-        try:
-            pickle.dump(Pipeline(mva.steps[:-1]),
+        if len(mva.steps) > 1:
+            pickle.dump(SavedClassifier(cfg, Pipeline(mva.steps[:-1]), keras),
                         open("{}.pkl".format(filename), "wb"))
-        except ValueError:  # if there are no transformers
-            pickle.dump(None, open("{}.pkl".format(filename), "wb"))
+        else:  # if there are no transformers
+            pickle.dump(SavedClassifier(cfg, None, keras),
+                        open("{}.pkl".format(filename), "wb"))
