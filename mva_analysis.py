@@ -14,7 +14,14 @@ from sklearn.preprocessing import RobustScaler
 
 def main():
     # Read configuration
-    read_config(sys.argv[1])
+    try:
+        if sys.argv[1] == "--stdin":
+            read_config(sys.stdin)
+        else:
+            read_config(open(sys.argv[1], 'r'))
+    except IndexError:
+        print("Usage: requires input file or --stdin to be specified")
+        raise
     features = cfg["features"]
 
     # Make ouptut directories
