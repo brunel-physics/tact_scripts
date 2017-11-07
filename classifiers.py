@@ -1,6 +1,7 @@
 import numpy as np
+import sys
 from config import cfg
-from sklearn.pipeline import make_pipeline
+from sklearn.pipeline import make_pipeline, Pipeline
 from collections import namedtuple
 np.random.seed(52)
 
@@ -119,9 +120,8 @@ SavedClassifier = namedtuple("SavedClassifier", "cfg mva keras")
 
 def save_classifier(mva, filename="mva"):
     """
-    Write a trained classifier pipeline to an external file. If the classifier
-    is a Keras model it is saved as a hdf5 file alongside the pickled pipeline,
-    classifier excluded.
+    Write a trained classifier pipeline and global cofig to an external file.
+
 
     Parameters
     ----------
@@ -130,28 +130,52 @@ def save_classifier(mva, filename="mva"):
     filename : string, optional
         Name of output file (including directory). Extension will be set
         automatically
+
+    Returns
+    -------
+    None
+
+    Notes
+    -----
+    Requires the dill package.
     """
 
-    try:
-        import cPickle as pickle
-    except ImportError:
-        import pickle
+    import dill
 
     keras = 'kerasclassifier' in mva.named_steps
 
-    if not keras:
-        pickle.dump(SavedClassifier(cfg, mva, keras),
-                    open("{}.pkl".format(filename), "wb"))
-    else:  # Keras models cannot be pickled
-        from sklearn.pipeline import Pipeline
+    # Temporarily boost the recursion limit
+    tmp = sys.getrecursionlimit()
+    sys.setrecursionlimit(9999)
 
-        # Save Keras model
-        mva.named_steps["kerasclassifier"].model.save("{}__model.h5".format(filename))
+    dill.dump(SavedClassifier(cfg, mva, keras),
+              open("{}.pkl".format(filename), "wb"))
 
-        # Pickle transformers
-        if len(mva.steps) > 1:
-            pickle.dump(SavedClassifier(cfg, Pipeline(mva.steps[:-1]), keras),
-                        open("{}.pkl".format(filename), "wb"))
-        else:  # if there are no transformers
-            pickle.dump(SavedClassifier(cfg, None, keras),
-                        open("{}.pkl".format(filename), "wb"))
+    sys.setrecursionlimit(tmp)
+
+def load_classifier(f):
+    """
+    Load a trained classifier from a pickle file.
+
+    Parameters
+    ----------
+    f : file
+        File classifier is to be loaded from
+
+    Returns
+    -------
+    mva: Pipeline
+        scikit-learn Pipeline containing full classifier stack
+    cfg:
+        Configuration associated with mva
+
+    Notes
+    -----
+    Requires the dill package.
+    """
+
+    import dill
+
+    sc = dill.load(f)
+
+    return sc.mva, sc.cfg
