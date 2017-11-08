@@ -83,7 +83,8 @@ def read_tree(root_file, tree):
     elif cfg["region"] == "control":
         df = df[df.chi2.between(40, 150)]
     else:
-        raise ValueError("Unrecogised value for option region: ", region)
+        raise ValueError("Unrecogised value for option region: ",
+                         cfg["region"])
 
     return df
 
@@ -385,7 +386,8 @@ def write_root(mva, filename="mva.root"):
     elif cfg["root_out"]["data"] == "empty":
         h = ROOT.TH1D()
     else:
-        raise ValueError("Unrecogised value for option 'data': ", data)
+        raise ValueError("Unrecogised value for option 'data': ",
+                         cfg["root_out"]["data"])
 
     h.SetName("MVA_{}__{}".format(cfg["channel"], data_process))
     h.SetDirectory(fo)
