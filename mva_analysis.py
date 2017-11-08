@@ -9,7 +9,6 @@ import metrics
 import preprocessing
 import plotting as pt
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import RobustScaler
 
 
 def main():
