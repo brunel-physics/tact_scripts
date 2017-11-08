@@ -9,9 +9,9 @@ np.random.seed(52)
 def evaluate_mva(df, mva, features):
     # Keras doesn't like DataFrames, error thrown depends on Keras version
     try:
-        df = df.assign(MVA=mva.predict_proba(df[features])[:, 1])
+        return mva.predict_proba(df[features])[:, 1]
     except (KeyError, UnboundLocalError):  # Keras doesn't like DataFrames
-        df = df.assign(MVA=mva.predict_proba(df[features].as_matrix())[:, 1])
+        return mva.predict_proba(df[features].as_matrix())[:, 1]
     return df
 
 

@@ -70,8 +70,10 @@ def main():
     elif cfg["classifier"] == "random_forest":
         mva = classifiers.random_forest(df_train, pre, features)
 
-    df_test = classifiers.evaluate_mva(df_test, mva, features)
-    df_train = classifiers.evaluate_mva(df_train, mva, features)
+    df_test = df_test.assign(MVA=classifiers.evaluate_mva(df_test,
+                                                          mva, features))
+    df_train = df_train.assign(MVA=classifiers.evaluate_mva(df_train,
+                                                            mva, features))
 
     # Save trained classifier
     classifiers.save_classifier(mva, "{}{}_{}".format(cfg["mva_dir"],

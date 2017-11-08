@@ -358,7 +358,7 @@ def write_root(mva, filename="mva.root"):
                 continue
 
             print("Evaluating classifier on Ttree", tree)
-            df = evaluate_mva(df, mva, features)
+            df = df.assign(MVA=evaluate_mva(df, mva, features))
 
             # Look for and handle NaN Event Weights:
             nan_weights = df.EvtWeight.isnull().sum()
