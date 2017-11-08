@@ -1,8 +1,8 @@
-import numpy as np
 import sys
-from config import cfg
-from sklearn.pipeline import make_pipeline, Pipeline
 from collections import namedtuple
+import numpy as np
+from config import cfg
+from sklearn.pipeline import make_pipeline
 np.random.seed(52)
 
 
@@ -67,7 +67,7 @@ def bdt_ada(df_train, pre, features):
     return mva
 
 
-def bdt_grad(df_train, pre, features, **kwargs):
+def bdt_grad(df_train, pre, features):
     """Train using a Gradient Boosted Decision Tree"""
 
     from sklearn.ensemble import GradientBoostingClassifier
@@ -152,6 +152,7 @@ def save_classifier(mva, filename="mva"):
               open("{}.pkl".format(filename), "wb"))
 
     sys.setrecursionlimit(tmp)
+
 
 def load_classifier(f):
     """

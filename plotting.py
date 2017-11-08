@@ -6,6 +6,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from sklearn.metrics import roc_curve, auc
 from config import cfg
 
+
 def make_variable_histograms(sig_df, bkg_df, filename="vars.pdf"):
     """Produce histograms comparing the signal and background distribution
     of availible variables and write them to filename"""
@@ -13,7 +14,7 @@ def make_variable_histograms(sig_df, bkg_df, filename="vars.pdf"):
     def plot_histograms(df, ax):
         """Plot histograms for every column in df"""
         return df[features].hist(bins=100, ax=ax, alpha=0.5,
-                                      weights=df.EvtWeight, normed=True)
+                                 weights=df.EvtWeight, normed=True)
 
     features = cfg["features"]
 
@@ -73,7 +74,7 @@ def make_corelation_plot(df, filename="corr.pdf"):
 
 
 def make_response_plot(sig_df_train, sig_df_test, bkg_df_train, bkg_df_test,
-                       mva, filename="overtrain.pdf", bins=25):
+                       filename="overtrain.pdf", bins=25):
     """Produce MVA response plot, comparing testing and training samples"""
 
     plt.style.use("ggplot")

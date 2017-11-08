@@ -72,7 +72,7 @@ def read_tree(root_file, tree):
     except IOError:  # occasional failure for empty trees
         return pd.DataFrame()
 
-    df = df[(df.Channel == {"ee": 1, "mumu": 0}[cfg["channel"]])  # filter channel
+    df = df[(df.Channel == {"ee": 1, "mumu": 0}[cfg["channel"]])
             & (df.zMass.between(Z_MASS - cfg["mz"], Z_MASS + cfg["mz"]))
             & (df.wPairMass.between(W_MASS - cfg["mw"], W_MASS + cfg["mw"]))]
 

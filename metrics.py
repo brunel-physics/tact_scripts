@@ -141,9 +141,6 @@ def ks_2samp(a, b, aw=None, bw=None):
 
     en = np.sqrt(n1 * n2 / float(n1 + n2))
 
-    try:
-        p = kstwobign.sf((en + 0.12 + 0.11 / en) * D)  # Stephens (1970)
-    except:
-        p = 1.0
+    p = kstwobign.sf((en + 0.12 + 0.11 / en) * D)  # Stephens (1970)
 
     return D, p
