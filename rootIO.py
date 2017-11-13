@@ -11,7 +11,6 @@ import numpy as np
 import pandas as pd
 from root_numpy import array2hist
 from root_pandas import read_root
-from classifiers import evaluate_mva
 from more_itertools import unique_everseen
 from config import cfg
 
@@ -319,14 +318,15 @@ def poisson_pseudodata(df):
     return h
 
 
-def write_root(mva, filename="mva.root"):
+def write_root(response_function, filename="mva.root"):
     """
     Evaluate an MVA and write the result to TH1s in a root file.
 
     Parameters
     ----------
-    mva : trained classifier
-        Classfier on which read-in Ttrees will be evaluated.
+    response_function : callable
+        Callable which takes a dataframe as its argument and returns an
+        array-like containing the classifier responses.
     scaler :
         Scikit-learn scaler used to transform data before being evaluated by
         MVA.
@@ -358,7 +358,7 @@ def write_root(mva, filename="mva.root"):
                 continue
 
             print("Evaluating classifier on Ttree", tree)
-            df = df.assign(MVA=evaluate_mva(df, mva, features))
+            df = df.assign(MVA=response_function(df[features]))
 
             # Look for and handle NaN Event Weights:
             nan_weights = df.EvtWeight.isnull().sum()

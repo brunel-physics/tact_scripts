@@ -70,10 +70,10 @@ def main():
     elif cfg["classifier"] == "random_forest":
         mva = classifiers.random_forest(df_train, pre, features)
 
-    df_test = df_test.assign(MVA=classifiers.evaluate_mva(df_test,
-                                                          mva, features))
-    df_train = df_train.assign(MVA=classifiers.evaluate_mva(df_train,
-                                                            mva, features))
+    df_test = df_test.assign(MVA=classifiers.evaluate_mva(df_test[features],
+                                                          mva))
+    df_train = df_train.assign(MVA=classifiers.evaluate_mva(df_train[features],
+                                                            mva))
 
     # Save trained classifier
     classifiers.save_classifier(mva, "{}{}_{}".format(cfg["mva_dir"],
@@ -93,7 +93,7 @@ def main():
                       "{}roc_{}.pdf".format(cfg["plot_dir"],
                                             cfg["channel"]))
 
-    rootIO.write_root(mva,
+    rootIO.write_root(lambda df: classifiers.evaluate_mva(df, mva),
                       filename="{}mva_{}.root".format(cfg["root_dir"],
                                                       cfg["channel"]))
 
