@@ -61,30 +61,30 @@ def read_tree(root_file, tree):
     Z_MASS = 91.2
     W_MASS = 80.4
 
-    # Read ROOT trees into data frames
-    try:
-        # We only want to read in the features we're training on, features
-        # we're cutting on, and weights
-        columns = set(cfg["features"] +
-                      ["EvtWeight", "Channel", "wPairMass", "zMass", "chi2"])
-
-        df = read_root(root_file, tree, columns=columns)
-    except IOError:  # occasional failure for empty trees
-        return pd.DataFrame()
-
-    df = df[(df.Channel == {"ee": 1, "mumu": 0}[cfg["channel"]])
-            & (df.zMass.between(Z_MASS - cfg["mz"], Z_MASS + cfg["mz"]))
-            & (df.wPairMass.between(W_MASS - cfg["mw"], W_MASS + cfg["mw"]))]
-
+    # Compose selection string
+    selection = ""
     if cfg["region"] == "all":
         pass
     elif cfg["region"] == "signal":
-        df = df[df.chi2 < 40]
+        selection += "chi2<40&&"
     elif cfg["region"] == "control":
-        df = df[df.chi2.between(40, 150)]
+        selection += "chi2>40&&chi2<150&&"
     else:
         raise ValueError("Unrecogised value for option region: ",
                          cfg["region"])
+
+    selection += "zMass>{}&&zMass<{}".format(Z_MASS - cfg["mz"],
+                                             Z_MASS + cfg["mz"]) + \
+        "&&wPairMass>{}&&wPairMass<{}".format(W_MASS - cfg["mw"],
+                                              W_MASS + cfg["mw"]) + \
+        "&&Channel=={}".format({"ee": 1, "mumu": 0}[cfg["channel"]])
+
+    # Read ROOT trees into data frames
+    try:
+        df = read_root(root_file, tree, where=selection,
+                       columns=cfg["features"] + ["EvtWeight"])
+    except (IOError, IndexError):  # failure for empty trees
+        return pd.DataFrame()
 
     return df
 
