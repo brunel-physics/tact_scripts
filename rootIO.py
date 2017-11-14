@@ -202,6 +202,9 @@ def read_trees():
         print("Process ", process, " contains ", len(df.index), " (",
               df.EvtWeight.sum(), ") events", sep='')
 
+        # Label process
+        df = df.assign(Process=process)
+
         # Split into signal and background
         if process in cfg["signals"]:
             sig_dfs.append(df)
@@ -257,7 +260,7 @@ def _format_TH1_name(name):
     return name
 
 
-def MVA_to_TH1(df, name="MVA", title="MVA"):
+def MVA_to_TH1(df, name="MVA", title="MVA", range=(0, 1)):
     """
     Write MVA discriminant from a DataFrame to a TH1D
 
@@ -270,6 +273,8 @@ def MVA_to_TH1(df, name="MVA", title="MVA"):
         Name of TH1.
     title : string, optional
         Title of TH1.
+    range : (float, float), optional
+        Lower and upper range of bins. Defaults to (0, 1).
 
     Returns
     -------
@@ -279,9 +284,9 @@ def MVA_to_TH1(df, name="MVA", title="MVA"):
 
     bins = cfg["root_out"]["bins"]
 
-    contents = np.histogram(df.MVA, bins=bins, range=(0, 1),
+    contents = np.histogram(df.MVA, bins=bins, range=range,
                             weights=df.EvtWeight)[0]
-    errors, bin_edges = np.histogram(df.MVA, bins=bins, range=(0, 1),
+    errors, bin_edges = np.histogram(df.MVA, bins=bins, range=range,
                                      weights=df.EvtWeight.pow(2))
     errors = np.sqrt(errors)
 
@@ -291,7 +296,7 @@ def MVA_to_TH1(df, name="MVA", title="MVA"):
     return h
 
 
-def poisson_pseudodata(df):
+def poisson_pseudodata(df, range=(0, 1)):
     """
     Generate Poisson pseudodata from a DataFrame by binning the MVA
     discriminant in a TH1D and applying a Poisson randomisation to each bin.
@@ -300,6 +305,8 @@ def poisson_pseudodata(df):
     ----------
     df : DataFrame
         Dataframe containing the data to be used as a base for the pseudodata.
+    range : (float, float), optional
+        Lower and upper range of bins. Defaults to (0, 1).
 
     Returns
     -------
@@ -307,7 +314,7 @@ def poisson_pseudodata(df):
         TH1D contaning pesudodata.
     """
 
-    h = MVA_to_TH1(df)
+    h = MVA_to_TH1(df, range=range)
 
     for i in xrange(1, h.GetNbinsX() + 1):
         try:
@@ -318,7 +325,7 @@ def poisson_pseudodata(df):
     return h
 
 
-def write_root(response_function, filename="mva.root"):
+def write_root(response_function, range=(0, 1), filename="mva.root"):
     """
     Evaluate an MVA and write the result to TH1s in a root file.
 
@@ -332,6 +339,8 @@ def write_root(response_function, filename="mva.root"):
         MVA.
     filename : string, optional
         Name of the output root file (including directory).
+    range : (float, float), optional
+        Lower and upper range of bins. Defaults to (0, 1).
 
     Returns
     -------
@@ -372,7 +381,7 @@ def write_root(response_function, filename="mva.root"):
                 pseudo_dfs.append(df)
 
             tree = _format_TH1_name(tree)
-            h = MVA_to_TH1(df, name=tree, title=tree)
+            h = MVA_to_TH1(df, name=tree, title=tree, range=range)
             h.SetDirectory(fo)
             fo.cd()
             h.Write()
@@ -382,7 +391,7 @@ def write_root(response_function, filename="mva.root"):
     h = ROOT.TH1D()
     h.Sumw2()
     if cfg["root_out"]["data"] == "poisson":
-        h = poisson_pseudodata(pd.concat(pseudo_dfs))
+        h = poisson_pseudodata(pd.concat(pseudo_dfs), range=range)
     elif cfg["root_out"]["data"] == "empty":
         h = ROOT.TH1D()
     else:

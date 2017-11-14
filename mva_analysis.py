@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
-import sys
 from config import read_config, cfg
 import rootIO
 import classifiers
@@ -13,21 +12,15 @@ from sklearn.model_selection import train_test_split
 
 def main():
     # Read configuration
-    try:
-        if sys.argv[1] == "--stdin":
-            read_config(sys.stdin)
-        else:
-            read_config(open(sys.argv[1], 'r'))
-    except IndexError:
-        print("Usage: requires input file or --stdin to be specified")
-        raise
-    features = cfg["features"]
+    read_config()
 
     # Make ouptut directories
     rootIO.makedirs(cfg["plot_dir"], cfg["root_dir"], cfg["mva_dir"])
 
     # Read samples
     df = rootIO.read_trees()
+
+    features = cfg["features"]
 
     # Configure preprocessing
     pre = []

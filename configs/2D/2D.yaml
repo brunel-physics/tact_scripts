@@ -1,0 +1,55 @@
+input_dir: /scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz50mw50/
+whitelist:
+    - DYToLL_M10To50
+    - DYToLL_M50
+    - FakeEG
+    - FakeMu
+    - TbartChan
+    - TbartW
+    - THQ
+    - TsChan
+    - TT
+    - TtChan
+    - ttH
+    - TTW
+    - TtW
+    - TTZ
+    - TWZ
+    - tZq
+    - Wjets
+    - WW
+    - WWW
+    - WWZ
+    - WZ
+    - WZZ
+    - ZZ
+    - ZZZ
+negative_weight_treatment: "passthrough"
+signals:
+    - tZq
+equalise_signal: true
+channel: ee
+mz: 20
+mw: 20
+region: signal
+channel: ee
+plot_dir: plots2D/
+root_dir: root2D/
+mva_dir: mva2D/
+
+classifier1: mva1/mlp_ee.pkl
+classifier2: mva2/mlp_ee.pkl
+
+# How the results of the two classifiers should be combined
+#   min: minimum response
+#   max: maximum response
+#   add: sum of the responses
+#   quadrature: sum of the responses in quadrature
+#   PCA: Use Principal Component Analysis to project the responses to 1D
+combination: PCA
+
+root_out:
+    combine: true
+    drop_nan: true
+    data: empty
+    bins: 200

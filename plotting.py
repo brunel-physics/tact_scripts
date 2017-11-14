@@ -13,7 +13,7 @@ def make_variable_histograms(sig_df, bkg_df, filename="vars.pdf"):
 
     def plot_histograms(df, ax):
         """Plot histograms for every column in df"""
-        return df[features].hist(bins=100, ax=ax, alpha=0.5,
+        return df[features].hist(bins=42, ax=ax, alpha=0.5,
                                  weights=df.EvtWeight, normed=True)
 
     features = cfg["features"]
@@ -155,5 +155,24 @@ def make_roc_curve(df_train, df_test, filename="roc.pdf"):
     ax.set_xlabel("False Positive Rate")
     ax.set_ylabel("True Positive Rate")
     ax.legend(loc="lower right")
+
+    fig.savefig(filename)
+
+
+def make_scatter_plot(df, col_x="MVA1", col_y="MVA2", col_w="EvtWeight",
+                      filename="scatter.pdf"):
+    """
+    """
+
+    plt.style.use("ggplot")
+
+    fig, ax = plt.subplots()
+
+    df.plot.scatter(col_x, col_y, ax=ax, marker=',',
+                    s=df[col_w].abs(),
+                    c=np.select([df.Process == "tZq",
+                                 np.in1d(df.Process, cfg["mva1"]["whitelist"])],
+                                ["#e24a33", "#8eba42"],
+                                default="#348abd"))
 
     fig.savefig(filename)

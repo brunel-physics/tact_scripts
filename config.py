@@ -1,3 +1,5 @@
+from __future__ import print_function
+import sys
 from yaml import load
 try:
     from yaml import CLoader as Loader
@@ -7,5 +9,14 @@ except ImportError:
 cfg = {}
 
 
-def read_config(f):
-    cfg.update(load(f, Loader=Loader))
+def read_config():
+    try:
+        if sys.argv[1] == "--stdin":
+            f = sys.stdin
+        else:
+            f = open(sys.argv[1], 'r')
+
+        cfg.update(load(f, Loader=Loader))
+    except IndexError:
+        print("Usage: requires input file or --stdin to be specified")
+        raise
