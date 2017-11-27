@@ -4,11 +4,33 @@
 # Monte Carlo for a process, along with a separate file for the data.
 input_dir: /scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz50mw50/
 
-# Channels matching any regex in blacklist will not be included in the test or
-# training samples
-blacklist:
-    - "^Data"
-    - "aMCatNLO"
+# Only processes matching those in the whitelist will be included in the test
+# and training samples
+whitelist:
+    - DYToLL_M10To50
+    - DYToLL_M50
+    - FakeEG
+    - FakeMu
+    - TbartChan
+    - TbartW
+    - THQ
+    - TsChan
+    - TT
+    - TtChan
+    - ttH
+    - TTW
+    - TtW
+    - TTZ
+    - TWZ
+    - tZq
+    - Wjets
+    - WW
+    - WWW
+    - WWZ
+    - WZ
+    - WZZ
+    - ZZ
+    - ZZZ
 
 # mz and mw define the cut around the Z and W mass, respectively in GeV
 mz: 20

@@ -178,8 +178,8 @@ def read_trees():
     for root_file in root_files:
         process = get_process_name(root_file)
 
-        # Ignore any samples matching any pattern in blacklist
-        if any(re.search(pattern, process) for pattern in cfg["blacklist"]):
+        # Only include samples in the whitelist
+        if process not in cfg["whitelist"]:
             continue
 
         df = read_tree(root_file, "Ttree_{}".format(process))
