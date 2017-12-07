@@ -5,7 +5,6 @@ import classifiers
 import rootIO
 import plotting
 import numpy as np
-import pandas as pd
 from config import read_config, cfg
 
 
