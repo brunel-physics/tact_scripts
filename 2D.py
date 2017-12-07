@@ -66,10 +66,7 @@ def main():
         from sklearn.decomposition import PCA
 
         pca = PCA(n_components=1, svd_solver="full")
-        mva = np.column_stack(
-            (classifiers.evaluate_mva(df[cfg["mva1"]["features"]], mva1),
-             classifiers.evaluate_mva(df[cfg["mva2"]["features"]], mva2)))
-        pca = pca.fit(mva)
+        km = pca.fit(df[["MVA1", "MVA2"]])
 
         response = lambda x: pca.transform(
             np.column_stack((
