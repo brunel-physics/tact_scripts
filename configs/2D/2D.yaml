@@ -46,7 +46,9 @@ classifier2: mva2/mlp_ee.pkl
 #   add: sum of the responses
 #   quadrature: sum of the responses in quadrature
 #   PCA: Use Principal Component Analysis to project the responses to 1D
-combination: PCA
+#   kmeans: Use kmeans to cluster the results, sort clusters by S/N ratio,
+#           and create bins in numeric cluster labels
+combination: kmeans
 
 root_out:
     combine: true

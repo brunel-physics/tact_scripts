@@ -176,3 +176,65 @@ def make_scatter_plot(df, col_x="MVA1", col_y="MVA2", col_w="EvtWeight",
                                 default="#348abd"))
 
     fig.savefig(filename)
+
+
+def make_kmeans_cluster_plots(df, km, col_x="MVA1", col_y="MVA2",
+                              col_label="kmean", col_w="EvtWeight",
+                              filename1="kmeans_areas.pdf",
+                              filename2="kmeans_clusters.pdf"):
+    """
+    Plot the result of kmeans clustering
+
+    Parameters
+    ----------
+    df : DataFrame
+        DataFrame containing data
+    km : KMeans
+        Trained kmeans classifier
+    col_x : string
+        Name of column in df containing observations for the x-axis
+    col_y : string
+        Name of column in df containing observations for the y-axis
+    col_label : string
+        Name of column in df containing cluster labels
+    col_w : string
+        Name of column in df containing sample weights
+    filename1, filename2 : string
+        Files plots should be saved to
+
+    Returns
+    -------
+    None
+    """
+
+    # First plot shows the full extent of each cluster
+    fig1, ax1 = plt.subplots()
+
+    x_min = 0
+    x_max = 1
+    y_min = 0
+    y_max = 1
+    h = (x_max - x_min) / 1000
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
+                         np.arange(y_min, y_max, h))
+
+    Z = km.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+
+    ax1.imshow(Z, interpolation='nearest',
+               extent=(xx.min(), xx.max(), yy.min(), yy.max()),
+               cmap="tab20",
+               aspect='auto', origin='lower')
+
+    ax1.grid(False)
+
+    fig1.savefig(filename1)
+
+    # Second plot shows the usual 2D scatter plot, but colour is based on
+    # cluster membership
+    fig2, ax2 = plt.subplots()
+
+    df.plot.scatter(col_x, col_y, marker=",", c=col_label, ax=ax2,
+                    s=df[col_w].abs(), cmap="tab20", colorbar=False)
+
+    fig2.savefig(filename2)
