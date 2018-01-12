@@ -172,12 +172,12 @@ def make_scatter_plot(df, col_x="MVA1", col_y="MVA2", col_w="EvtWeight",
 
     fig, ax = plt.subplots()
 
-    df.plot.scatter(col_x, col_y, ax=ax, marker=',',
-                    s=df[col_w].abs(),
-                    c=np.select([df.Process == "tZq",
-                                 np.in1d(df.Process, cfg["mva1"]["whitelist"])],
-                                ["#e24a33", "#8eba42"],
-                                default="#348abd"))
+    df.plot.scatter(
+        col_x, col_y, ax=ax, marker=',', s=df[col_w].abs(),
+        c=np.select([df.Process == "tZq",
+                     np.in1d(df.Process, cfg["mva1"]["whitelist"])],
+                    ["#e24a33", "#8eba42"],
+                    default="#348abd"))
 
     fig.savefig(filename)
 
