@@ -1,18 +1,21 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import, division, print_function, \
-    unicode_literals
-import re
-import os
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
 import errno
 import glob
+import os
+import re
 from operator import truediv
-import ROOT
+
 import numpy as np
 import pandas as pd
+from more_itertools import unique_everseen
 from root_numpy import array2hist
 from root_pandas import read_root
-from more_itertools import unique_everseen
+
+import ROOT
 from config import cfg
 
 

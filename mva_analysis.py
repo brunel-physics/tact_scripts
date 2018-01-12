@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 
-from __future__ import absolute_import, division, print_function, \
-    unicode_literals
-from config import read_config, cfg
-import rootIO
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
+from sklearn.model_selection import train_test_split
+
 import classifiers
 import metrics
-import preprocessing
 import plotting as pt
-from sklearn.model_selection import train_test_split
+import preprocessing
+import rootIO
+from config import cfg, read_config
 
 
 def main():

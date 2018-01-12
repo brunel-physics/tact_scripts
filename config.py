@@ -1,7 +1,10 @@
-from __future__ import absolute_import, division, print_function, \
-    unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
 import sys
+
 from yaml import load
+
 try:
     from yaml import CLoader as Loader
 except ImportError:

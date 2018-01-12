@@ -1,6 +1,7 @@
-from __future__ import absolute_import, division, print_function, \
-    unicode_literals
-from sklearn.preprocessing import StandardScaler, RobustScaler
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
+from sklearn.preprocessing import RobustScaler, StandardScaler
 
 
 def add_standard_scaler(l, **kwargs):
