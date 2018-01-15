@@ -34,9 +34,8 @@ def evaluate_mva(df, mva):
     # Keras doesn't like DataFrames, error thrown depends on Keras version
     try:
         return mva.predict_proba(df)[:, 1]
-    except (KeyError, UnboundLocalError):  # Keras doesn't like DataFrames
+    except (KeyError, UnboundLocalError):
         return mva.predict_proba(df.as_matrix())[:, 1]
-    return df
 
 
 def mlp(df_train, pre, features):
