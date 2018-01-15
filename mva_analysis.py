@@ -1,8 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+mva_analysis.py
+
+Usage:
+    mva_analysis.py config.yaml
+or  mva_analysis.py --stdin < config.yaml
+"""
+
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+
+import sys
 
 from sklearn.model_selection import train_test_split
 
@@ -16,7 +26,11 @@ from config import cfg, read_config
 
 def main():
     # Read configuration
-    read_config()
+    try:
+        read_config()
+    except IndexError:
+        print(__doc__.strip(), file=sys.stderr)
+        sys.exit(1)
 
     # Make ouptut directories
     rootIO.makedirs(cfg["plot_dir"], cfg["root_dir"], cfg["mva_dir"])

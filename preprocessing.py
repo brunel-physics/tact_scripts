@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+"""
+This modules contain functions which add scikit-learn preprocessors to lists,
+which can later be transformed into a scikit-learn Pipeline.
+"""
+
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 

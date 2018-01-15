@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+"""
+This module contains functions and helper functions that print classifier
+metrics to stdout.
+"""
+
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 

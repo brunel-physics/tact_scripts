@@ -1,8 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+2D.py
+
+Usage:
+    2D.py config.yaml
+or  2D.py --stdin < config.yaml
+"""
+
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+
+import sys
 
 import numpy as np
 
@@ -14,7 +24,11 @@ from config import cfg, read_config
 
 def main():
     # Read configuration
-    read_config()
+    try:
+        read_config()
+    except IndexError:
+        print(__doc__.strip(), file=sys.stderr)
+        sys.exit(1)
 
     # Load pickled classifiers
     mva1, cfg["mva1"] = classifiers.load_classifier(open(cfg["classifier1"],

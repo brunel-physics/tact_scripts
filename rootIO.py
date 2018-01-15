@@ -1,5 +1,18 @@
 # -*- coding: utf-8 -*-
 
+"""
+This module contains functions and helper functions relating to the reading and
+writing of ROOT files.
+
+Note that this module uses root_numpy (and root_pandas, which depends on it)
+for ROOT interop. root_numpy must be recompiled every time the ROOT version is
+changed, or there may be issues.
+
+Todo:
+    * When it contains all the functionality we need (notably ROOT file
+      writing), use the uproot package for interop.
+"""
+
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 

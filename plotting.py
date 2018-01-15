@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 
+"""
+This module contains functions which create plots.
+
+These deal only with plots created with matplotlib. Functions handling the
+creation of ROOT histograms are found in the rootIO module.
+"""
+
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 

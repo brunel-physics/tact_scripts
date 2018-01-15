@@ -1,5 +1,21 @@
 # -*- coding: utf-8 -*-
 
+"""
+This module contains functions which create and train classifiers, as well as
+saving them to and reading them from disk.
+
+A classifier function takes a DataFrame containing training data, a list
+describing pre-processing steps, and a list of features. It will return a
+trained scikit-learn Pipeline containing the preprocessing steps and
+classifier.
+
+Classifiers are saved do disk using dill. Python's standard pickle module
+does not correctly serialise Keras classifiers. It should be noted that Keras
+does not recommend pickling for neural network serialisation, but no issues
+have been observed so far using the dill library.
+"""
+
+
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
@@ -128,8 +144,7 @@ SavedClassifier = namedtuple("SavedClassifier", "cfg mva keras")
 
 def save_classifier(mva, filename="mva"):
     """
-    Write a trained classifier pipeline and global cofig to an external file.
-
+    Write a trained classifier pipeline and global config to an external file.
 
     Parameters
     ----------
