@@ -70,14 +70,14 @@ def print_metrics(df_train, df_test, mva):
                    df_test[df_test.Signal == 0].EvtWeight)[1])
     print()
 
-    try:
-        print("Variable importance:")
+    if hasattr(mva, "feature_importances_"):
+        print("Feature importance:")
         for var, importance in sorted(
                 zip(features, mva.feature_importances_),
                 key=lambda x: x[1],
                 reverse=True):
             print("{0:15} {1:.3E}".format(var, importance))
-    except AttributeError:
+    else:
         pass
     print()
 
