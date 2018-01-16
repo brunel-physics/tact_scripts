@@ -5,14 +5,14 @@ This module contains functions which create and train classifiers, as well as
 saving them to and reading them from disk.
 
 A classifier function takes a DataFrame containing training data, a list
-describing pre-processing steps, and a list of features. It will return a
+describing preprocessing steps, and a list of features. It will return a
 trained scikit-learn Pipeline containing the preprocessing steps and
 classifier.
 
-Classifiers are saved do disk using dill. Python's standard pickle module
-does not correctly serialise Keras classifiers. It should be noted that Keras
-does not recommend pickling for neural network serialisation, but no issues
-have been observed so far using the dill library.
+Classifiers are saved do disk using dill as Python's pickle module does not
+correctly serialise Keras classifiers. It should be noted that Keras does not
+recommend pickling for neural network serialisation, but no issues have been
+observed so far using the dill library.
 """
 
 
@@ -31,6 +31,30 @@ np.random.seed(52)
 
 
 def evaluate_mva(df, mva):
+    """
+    Evaluate the response of a trained classifier.
+
+    Parameters
+    ----------
+    df : DataFrame
+        DataFrame containing features.
+    mva
+        Trained classifier.
+
+    Returns
+    -------
+    Series or array
+        Classifier response values corresponding to each entry in df.
+
+    Notes
+    -----
+    The classifier response values are taken from the mva object's
+    predict_proba method. By default this is passed the df DataFrame directly
+    but in some cases this is not supported and df is passed as a numpy array.
+    In the former case this function returns a Pandas Series and in the latter
+    a 1D array. This fallback has only been tested for Keras classifiers.
+    """
+
     # Keras doesn't like DataFrames, error thrown depends on Keras version
     try:
         return mva.predict_proba(df)[:, 1]
@@ -39,7 +63,31 @@ def evaluate_mva(df, mva):
 
 
 def mlp(df_train, pre):
-    """Train using a Multi Layer Perceptron"""
+    """
+    Train using a multi-layer perceptron (MLP).
+
+    Parameters
+    ----------
+    df_train : DataFrame
+        DataFrame containing training data.
+    pre : list
+        List containing preprocessing steps.
+
+    Returns
+    -------
+    Pipeline
+        Scikit-learn pipeline containing the trained classifier and
+        preprocessing steps.
+
+    Notes
+    -----
+    This function requires Keras to be availible. Additional configuration can
+    be configured using Keras' configuration file. See the Keras documentation
+    for more information.
+
+    Keras should outperform scikit-learn's internal MLP implementation in most
+    cases, and supports sample weights while training.
+    """
 
     def build_model():
         from keras.models import layer_module
@@ -74,7 +122,22 @@ def mlp(df_train, pre):
 
 
 def bdt_ada(df_train, pre):
-    """Train using an AdaBoosted Decision Tree"""
+    """
+    Train using an AdaBoosted decision tree.
+
+    Parameters
+    ----------
+    df_train : DataFrame
+        DataFrame containing training data.
+    pre : list
+        List containing preprocessing steps.
+
+    Returns
+    -------
+    Pipeline
+        Scikit-learn pipeline containing the trained classifier and
+        preprocessing steps.
+    """
 
     from sklearn.ensemble import AdaBoostClassifier
     from sklearn.tree import DecisionTreeClassifier
@@ -91,7 +154,23 @@ def bdt_ada(df_train, pre):
 
 
 def bdt_grad(df_train, pre):
-    """Train using a Gradient Boosted Decision Tree"""
+    """
+    Train using a gradient boosted tecision tree using scikit-learn's
+    internal implementation.
+
+    Parameters
+    ----------
+    df_train : DataFrame
+        DataFrame containing training data.
+    pre : list
+        List containing preprocessing steps.
+
+    Returns
+    -------
+    Pipeline
+        Scikit-learn pipeline containing the trained classifier and
+        preprocessing steps.
+    """
 
     from sklearn.ensemble import GradientBoostingClassifier
 
@@ -106,7 +185,29 @@ def bdt_grad(df_train, pre):
 
 
 def bdt_xgb(df_train, pre):
-    """Train using an XGBoost Boosted Decision Tree"""
+    """
+    Train using a gradient boosted decision tree with the XGBoost library.
+
+    Parameters
+    ----------
+    df_train : DataFrame
+        DataFrame containing training data.
+    pre : list
+        List containing preprocessing steps.
+    features : list
+        List containing the names of features to be trained upon. These should
+        correspond to column headings in df_train.
+
+    Returns
+    -------
+    Pipeline
+        Scikit-learn pipeline containing the trained classifier and
+        preprocessing steps.
+
+    Notes
+    -----
+    Requires xgboost.
+    """
 
     from xgboost import XGBClassifier
 
@@ -124,7 +225,22 @@ def bdt_xgb(df_train, pre):
 
 
 def random_forest(df_train, pre):
-    """Train using a Random Forest"""
+    """
+    Train using a random forest.
+
+    Parameters
+    ----------
+    df_train : DataFrame
+        DataFrame containing training data.
+    pre : list
+        List containing preprocessing steps.
+
+    Returns
+    -------
+    Pipeline
+        Scikit-learn pipeline containing the trained classifier and
+        preprocessing steps.
+    """
 
     from sklearn.ensemble import RandomForestClassifier
 
@@ -138,9 +254,6 @@ def random_forest(df_train, pre):
     return mva
 
 
-SavedClassifier = namedtuple("SavedClassifier", "cfg mva keras")
-
-
 def save_classifier(mva, filename="mva"):
     """
     Write a trained classifier pipeline and global config to an external file.
@@ -151,7 +264,7 @@ def save_classifier(mva, filename="mva"):
         Classifier to be trained
     filename : string, optional
         Name of output file (including directory). Extension will be set
-        automatically
+        automatically.
 
     Returns
     -------
@@ -159,10 +272,12 @@ def save_classifier(mva, filename="mva"):
 
     Notes
     -----
-    Requires the dill package.
+    Requires dill.
     """
 
     import dill
+
+    SavedClassifier = namedtuple("SavedClassifier", "cfg mva keras")
 
     keras = 'kerasclassifier' in mva.named_steps
 
@@ -183,18 +298,18 @@ def load_classifier(f):
     Parameters
     ----------
     f : file
-        File classifier is to be loaded from
+        File classifier is to be loaded from.
 
     Returns
     -------
     mva: Pipeline
-        scikit-learn Pipeline containing full classifier stack
+        Scikit-learn Pipeline containing full classifier stack.
     cfg:
-        Configuration associated with mva
+        Configuration associated with mva.
 
     Notes
     -----
-    Requires the dill package.
+    Requires dill.
     """
 
     import dill

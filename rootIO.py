@@ -35,12 +35,12 @@ from config import cfg
 def makedirs(*paths):
     """
     Creates a directory for each path given. No effect if the directory
-    already exists
+    already exists.
 
     Parameters
     ----------
     paths : strings
-        Strings contaning the path of each directory desired to be created
+        The path of each directory to be created.
 
     Returns
     -------
@@ -64,14 +64,14 @@ def read_tree(root_file, tree):
     Parameters
     ----------
     root_file : string
-        Path of root file to be read in
+        Path of ROOT file to be read.
     tree : string
-        Name of tree to be read in
+        Name of Ttree in root_file to be read.
 
     Returns
     -------
     df : DataFrame
-        DataFrame containing data read in from Ttree
+        DataFrame containing data read in from tree.
     """
 
     Z_MASS = 91.2
@@ -107,22 +107,25 @@ def read_tree(root_file, tree):
 
 def balance_weights(df1, df2):
     """
-    Balance the MVA weights in two different DataFrames so they sum to the
-    same value.
+    Balance the weights in two different DataFrames so they sum to the same
+    value.
+
+    This function will use values found in the "MVAWeight" column in df1 and
+    df2 as weights.
 
     Parameters
     ----------
     df1 : DataFrame
-        First DataFrame
+        First DataFrame.
     df2 : DataFrame
-        Second DataFrame
+        Second DataFrame.
 
     Returns
     -------
     df1 : DataFrame
-         First DataFrame with adjusted weights
+         First DataFrame with adjusted weights.
     df2 : DataFrame
-         Second DataFrame with adjusted weights
+         Second DataFrame with adjusted weights.
 
     Notes
     -----
@@ -151,6 +154,11 @@ def read_trees():
     """
     Read in Ttrees.
 
+    File in the input directory should be named according to the schema
+    "histofile_$PROCESS.root". Within each file should be a Ttree named
+    "Ttree_$PROCESS" containing event data. A branch named "EvtWeight"
+    containing event weights is expected in each Ttree.
+
     Parameters
     ----------
     None
@@ -160,18 +168,46 @@ def read_trees():
     df : DataFrame
         DataFrame containing the Ttree data, MVA weights (as "MVAWeight") and
         classification flag for each event ("Signal" == 1 for signal events,
-        0 otherwise)
+        0 otherwise).
+
+    Notes
+    -----
+    Options for this function are handled entirely by the global configuration.
     """
 
     def get_process_name(path):
-        """Given a path to a TTree, return the name of the process contained"""
+        """
+        Given a path to a ROOT file, return the name of the process contained.
+
+        Parameters
+        ----------
+        path : string
+            Path to ROOT file.
+
+        Returns
+        -------
+        string :
+            Name of process.
+        """
 
         return re.split(r"histofile_|\.", path)[-2]
 
     def reweight(df):
         """
-        Takes the abs() of every EvtWeight in a data frame, and scales the
-        resulting weights to compensate
+        Takes the absolute value of every MVAWeight in a data frame, and scales
+        the resulting weights down to restore the original normalisation.
+
+        Will fail if the normalisation of df is < 0.
+
+        Parameters
+        ----------
+        df : DataFrame
+            DataFrame containing entries to be reweighted.
+
+        Returns
+        -------
+        DataFrame
+            DataFrame with adjusted MVAWeight.
         """
 
         df["MVAWeight"] = np.abs(df.EvtWeight)
@@ -245,14 +281,14 @@ def read_trees():
 def _format_TH1_name(name):
     """
     Modify name of Ttrees from input files to a format expected by combine
-    or THETA
+    or THETA.
 
     Parameters
     ----------
     name : string
         Name of the Ttree.
     channel : "ee" or "mumu"
-        The channel contained within the histogram
+        The channel contained within the histogram.
 
     Returns
     -------
@@ -279,7 +315,7 @@ def _format_TH1_name(name):
 
 def MVA_to_TH1(df, name="MVA", title="MVA", range=(0, 1)):
     """
-    Write MVA discriminant from a DataFrame to a TH1D
+    Write MVA discriminant from a DataFrame to a TH1D.
 
     Parameters
     ----------
@@ -291,12 +327,19 @@ def MVA_to_TH1(df, name="MVA", title="MVA", range=(0, 1)):
     title : string, optional
         Title of TH1.
     range : (float, float), optional
-        Lower and upper range of bins. Defaults to (0, 1).
+        Lower and upper range of bins.
 
     Returns
     -------
     h : TH1D
         TH1D of MVA discriminant.
+
+    Notes
+    -----
+    Uses array2hist for speed, and as such does not preserve the total number
+    of entries. The number of entries will be listed as the number of bins in
+    the final histogram. This should not affect the expected significance as
+    the weighted contents and error of each bin is preserved.
     """
 
     bins = cfg["root_out"]["bins"]
@@ -323,12 +366,16 @@ def poisson_pseudodata(df, range=(0, 1)):
     df : DataFrame
         Dataframe containing the data to be used as a base for the pseudodata.
     range : (float, float), optional
-        Lower and upper range of bins. Defaults to (0, 1).
+        Lower and upper range of bins.
 
     Returns
     -------
     h : TH1D
-        TH1D contaning pesudodata.
+        TH1D containing pesudodata.
+
+    Notes
+    -----
+    Should only be used in THETA.
     """
 
     h = MVA_to_TH1(df, range=range)
@@ -344,20 +391,17 @@ def poisson_pseudodata(df, range=(0, 1)):
 
 def write_root(response_function, range=(0, 1), filename="mva.root"):
     """
-    Evaluate an MVA and write the result to TH1s in a root file.
+    Evaluate an MVA and write the result to TH1s in a ROOT file.
 
     Parameters
     ----------
     response_function : callable
         Callable which takes a dataframe as its argument and returns an
         array-like containing the classifier responses.
-    scaler :
-        Scikit-learn scaler used to transform data before being evaluated by
-        MVA.
     filename : string, optional
         Name of the output root file (including directory).
     range : (float, float), optional
-        Lower and upper range of bins. Defaults to (0, 1).
+        Lower and upper range of bins.
 
     Returns
     -------

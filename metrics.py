@@ -17,7 +17,13 @@ from config import cfg
 
 def print_metrics(df_train, df_test, mva):
     """
-    Print metrics for a trained classifier
+    Print metrics for a trained classifier to stdout.
+
+    This will print the classification report from scikit-learn for the test
+    and training sample and the confusion matrix for the test and training
+    sample. The p-value for the two-sample Kolmogorov-Smirnov test performed on
+    the test and training samples will b given for the signal and bacground.
+    Finally, if supported by the classifier, feature importances will be shown.
 
     Parameters
     ----------
@@ -25,7 +31,7 @@ def print_metrics(df_train, df_test, mva):
         DataFrame containing testing data.
     df_train: DataFrame
         DataFrame containing training data.
-    mva : trained classifier
+    mva
         Classifier trained on df_train
 
     Returns
@@ -83,22 +89,38 @@ def print_metrics(df_train, df_test, mva):
 
 
 def ecdf(x, xw=None):
-    """
-    Return the emperical cumulative distrbution function (ECDF) for a set of
+    r"""
+    Return the empirical cumulative distrbution function (ECDF) for a set of
     observations.
 
     Parameters
     ----------
     x : array_like
         Observations
-    weights : array_like
+    weights : array_like, optional
         The weight of each observation, should be the same length as x. If
-        None, each observation will be given equal weight.
+        omitted or None, each observation will be given equal weight.
 
     Returns
     -------
-    ecdf : function
-        ECDF function
+    ecdf : callable
+        ECDF
+
+    Notes
+    -----
+    The ECDF is
+
+    .. math:: F_{n}(x) = \frac{\sum_{i=1}^{n}W_{i}I_{[-\infty,x]}(X_{i})}
+                              {\sum_{i=1}^{n}W_{i}}
+
+    where :math:`n` is the number of independent and identically distributed
+    observations :math:`X_{i}`, :math:`W_{i}` is the corresponding weight on
+    each observation, and
+
+    .. math:: I_{[-\infty,x]}(X_{i}) = \begin{cases}
+                                       1 & \text{for }X_{i}\leq x\\
+                                       0 & \text{otherwise}
+                                       \end{cases}.
     """
 
     if xw is None:
@@ -118,7 +140,8 @@ def ecdf(x, xw=None):
 
 def ks_2samp(a, b, aw=None, bw=None):
     """
-    Computes the Kolmogorov-Smirnov statistic on 2 samples.
+    Computes the Kolmogorov-Smirnov (KS) statistic on 2 samples.
+
     This is a two-sided test for the null hypothesis that 2 independent samples
     are drawn from the same continuous distribution.
 
@@ -126,18 +149,44 @@ def ks_2samp(a, b, aw=None, bw=None):
     ----------
     a, b : Sequence of 1D ndarrays
         Two arrays of sample observations assumed to be drawn from a continuous
-        distribution, sample sizes can be different
-    aw, bw: Sequence of 1D ndarrays
+        distribution, sample sizes can be different.
+    aw, bw: Sequence of 1D ndarrays, optional
         The weights of each observation in a, b. Must be the same length as the
-        associated array of observations. If None, every measurement will be
-        assigned an equal weight.
+        associated array of observations. If omitted or None, every measurement
+        will be assigned an equal weight.
 
     Returns
     -------
     D : float
         KS statistic
     p-value : float
-        two-tailed p-value
+        Two-tailed p-value
+
+    Notes
+    -----
+    This tests whether 2 samples are drawn from the same distribution. Note
+    that, like in the case of the one-sample KS test, the distribution is
+    assumed to be continuous.
+
+    This is the two-sided test, one-sided tests are not implemented. The test
+    uses the two-sided asymptotic KS distribution.
+
+    If the KS statistic is small or the p-value is high, then we cannot reject
+    the hypothesis that the distributions of the two samples are the same.
+
+    This function accounts for weights using the recommendations found in [1].
+
+    Convergence is improved in the large-sample KS distribution by using the
+    form found by [2].
+
+    References
+    ----------
+    [1] J. Monahan, "Numerical Methods of Statistics" 2nd Ed., 2011
+
+    [2] M. A. Stephens "Use of the Kolmogorov-Smirnov, Cramer-Von Mises and
+    Related Statistics Without Extensive Tables", Journal of the Royal
+    Statistical Society, Series B (Methodological), Vol. 32, No. 1., pp.
+    115-122, 1970
     """
 
     # Methodology for weighted Kolmogorov-Smirnov test taken from Numerical

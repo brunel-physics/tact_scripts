@@ -13,7 +13,7 @@ from sklearn.preprocessing import RobustScaler, StandardScaler
 
 def add_standard_scaler(l, **kwargs):
     """
-    Appends a scikit-learn StandardScaler to l
+    Appends a scikit-learn StandardScaler to l.
 
     Parameters
     ----------
@@ -24,7 +24,7 @@ def add_standard_scaler(l, **kwargs):
 
     Returns
     -------
-    l: list
+    list
         Modified list
     """
 
@@ -33,21 +33,19 @@ def add_standard_scaler(l, **kwargs):
 
 def add_robust_scaler(l, **kwargs):
     """
-    Scale the dataframe df using a scikit-learn RobustScaler
+    Appends a scikit-learn RobustScaler to l.
 
     Parameters
     ----------
-    df : DataFrame
-        DataFrame containing each variable to be scaled in a column
+    l : list
+        Pipeline to be modified
     kwargs : keyword arguments
         Keyword arguments to be passed to RobustScaler()
 
     Returns
     -------
-    a : array
-        Array containing scaled data
-    sc : RobustScaler
-        Trained scaler
+    list
+        Modified list
     """
 
     return l.append(RobustScaler(**kwargs))

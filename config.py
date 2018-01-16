@@ -20,6 +20,19 @@ cfg = {}
 
 
 def read_config():
+    """
+    Read the configuration file supplied at the command line, or listen on
+    stdin.
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    None
+    """
+
     if sys.argv[1] == "--stdin":
         f = sys.stdin
     else:

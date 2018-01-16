@@ -21,8 +21,26 @@ from config import cfg
 
 
 def make_variable_histograms(sig_df, bkg_df, filename="vars.pdf"):
-    """Produce histograms comparing the signal and background distribution
-    of availible variables and write them to filename"""
+    """
+    Produce histograms comparing the distribution of features in sig_df and
+    bkg_df.
+
+    Histograms are only produced for columns listed in the features config
+    option.
+
+    Parameters
+    ----------
+    sig_df : DataFrame
+        DataFrame containing signal data.
+    bkg_df : DataFrame
+        DataFrame containing background data.
+    filename : string, optional
+        Name of the file the plot is saved to.
+
+    Returns
+    -------
+    None
+    """
 
     def plot_histograms(df, ax):
         """Plot histograms for every column in df"""
@@ -58,8 +76,24 @@ def make_variable_histograms(sig_df, bkg_df, filename="vars.pdf"):
 
 
 def make_corelation_plot(df, filename="corr.pdf"):
-    """Produce 2D histogram representing the correlation matrix of dataframe
-    df. Written to filename."""
+    """
+    Produce matshow plot representing the correlation matrix of DataFrame
+    df.
+
+    Correlation coefficients are calculated between every column in df.
+
+    Parameters
+    ----------
+    df : DataFrame
+        DataFrame containing data for which the correlation coefficients are to
+        be calculated.
+    filename : string, optional
+        Name of the file the plot is saved to.
+
+    Returns
+    -------
+    None
+    """
 
     plt.style.use("ggplot")
 
@@ -87,8 +121,29 @@ def make_corelation_plot(df, filename="corr.pdf"):
 
 
 def make_response_plot(sig_df_train, sig_df_test, bkg_df_train, bkg_df_test,
-                       filename="overtrain.pdf", bins=25):
-    """Produce MVA response plot, comparing testing and training samples"""
+                       bins=25, filename="response.pdf"):
+    """
+    Produce histogram comparing the response of the test data and training data
+    in signal and background.
+
+    Every provided DataFrame must contain a column named "MVA" containing the
+    response.
+
+    Parameters
+    ----------
+    sig_df_train : DataFrame
+        Dataframe containing signal training data.
+    sig_df_test : DataFrame
+        Dataframe containing signal testing data.
+    bkg_df_train : DataFrame
+        Dataframe containing background training data.
+    bkg_df_test : DataFrame
+        Dataframe containing background testing data.
+    bins : int, optional
+        Number of bins in histogram
+    filename : string, optional
+        Name of the file the plot is saved to.
+    """
 
     plt.style.use("ggplot")
 
@@ -127,16 +182,17 @@ def make_response_plot(sig_df_train, sig_df_test, bkg_df_train, bkg_df_test,
 
 def make_roc_curve(df_train, df_test, filename="roc.pdf"):
     """
-    Plot the ROC curve for the test and training data.
+    Plot the receiver operating characteristic curve for the test and training
+    data.
 
     Parameters
     ----------
     df_train : DataFrame
-        DataFrame containing training data
+        DataFrame containing training data.
     df_test : DataFrame
-        DataFrame containing testing data
-    filename : string
-        File plot should be saved to
+        DataFrame containing testing data.
+    filename : string, optional
+        Name of the file the plot is saved to.
 
     Returns
     -------
@@ -175,6 +231,35 @@ def make_roc_curve(df_train, df_test, filename="roc.pdf"):
 def make_scatter_plot(df, col_x="MVA1", col_y="MVA2", col_w="EvtWeight",
                       filename="scatter.pdf"):
     """
+    Plot the responses of two classifiers for every item in df on a scatter
+    plot.
+
+    Events will be coloured red, if they are signal in the first
+    classifier, blue if they are background in the first classifier, and green
+    otherwise.
+
+    The size of points will be scaled according to the absolute value of the
+    associated weight.
+
+    Parameters
+    ----------
+    df : DataFrame
+        DataFrame containing data to be displayed.
+    col_x : string, optional
+        Name of the column in df whose values should be used as the x-position
+        on the 2D plane.
+    col_y : string, optional
+        Name of the column in df whose values should be used as the y-position
+        on the 2D plane.
+    col_w : string, optional
+        Name of the column in df whose values should be used as the sample
+        weights.
+    filename : string, optional
+        Name of the file the plot is saved to.
+
+    Returns
+    -------
+    None
     """
 
     plt.style.use("ggplot")
@@ -183,7 +268,7 @@ def make_scatter_plot(df, col_x="MVA1", col_y="MVA2", col_w="EvtWeight",
 
     df.plot.scatter(
         col_x, col_y, ax=ax, marker=',', s=df[col_w].abs(),
-        c=np.select([df.Process == "tZq",
+        c=np.select([np.in1d(df.Process, cfg["mva1"]["signals"]),
                      np.in1d(df.Process, cfg["mva1"]["whitelist"])],
                     ["#e24a33", "#8eba42"],
                     default="#348abd"))
@@ -196,24 +281,26 @@ def make_kmeans_cluster_plots(df, km, col_x="MVA1", col_y="MVA2",
                               filename1="kmeans_areas.pdf",
                               filename2="kmeans_clusters.pdf"):
     """
-    Plot the result of kmeans clustering
+    Plot the result of kmeans clustering. This produces a scatter plot similar
+    to make_scatter_plot but colour-coded by cluster and a plot showing
+    the extent of each cluster on the 2D plane.
 
     Parameters
     ----------
     df : DataFrame
-        DataFrame containing data
-    km : KMeans
+        DataFrame containing data to be displayed.
+    km
         Trained kmeans classifier
-    col_x : string
-        Name of column in df containing observations for the x-axis
-    col_y : string
-        Name of column in df containing observations for the y-axis
-    col_label : string
-        Name of column in df containing cluster labels
-    col_w : string
-        Name of column in df containing sample weights
-    filename1, filename2 : string
-        Files plots should be saved to
+    col_x : string, optional
+        Name of column in df containing observations for the x-axis.
+    col_y : string, optional
+        Name of column in df containing observations for the y-axis.
+    col_label : string, optional
+        Name of column in df containing cluster labels.
+    col_w : string, optional
+        Name of column in df containing sample weights.
+    filename1, filename2 : string, optional
+        Name of the files the plots are saved to.
 
     Returns
     -------
