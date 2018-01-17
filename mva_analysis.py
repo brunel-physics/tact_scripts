@@ -98,8 +98,8 @@ def main():
                           df_test[df_test.Signal == 1],
                           df_train[df_train.Signal == 0],
                           df_test[df_test.Signal == 0],
-                          "{}response_{}.pdf".format(cfg["plot_dir"],
-                                                     cfg["channel"]))
+                          filename="{}response_{}.pdf".format(cfg["plot_dir"],
+                                                              cfg["channel"]))
     pt.make_roc_curve(df_train, df_test,
                       "{}roc_{}.pdf".format(cfg["plot_dir"],
                                             cfg["channel"]))
