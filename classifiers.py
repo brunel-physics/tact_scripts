@@ -38,7 +38,7 @@ def evaluate_mva(df, mva):
         return mva.predict_proba(df.as_matrix())[:, 1]
 
 
-def mlp(df_train, pre, features):
+def mlp(df_train, pre):
     """Train using a Multi Layer Perceptron"""
 
     def build_model():
@@ -46,7 +46,7 @@ def mlp(df_train, pre, features):
 
         # Set input layer shape
         cfg["mlp"]["model"]["config"][0]["config"]["batch_input_shape"] \
-            = (None, len(features))
+            = (None, len(cfg["features"]))
 
         model = layer_module.deserialize(cfg["mlp"]["model"])
 
@@ -66,14 +66,14 @@ def mlp(df_train, pre, features):
 
     mva = make_pipeline(*(pre + [ann]))
 
-    mva.fit(df_train[features].as_matrix(), df_train.Signal.as_matrix(),
+    mva.fit(df_train[cfg["features"]].as_matrix(), df_train.Signal.as_matrix(),
             kerasclassifier__sample_weight=df_train.MVAWeight.as_matrix(),
             kerasclassifier__callbacks=callbacks)
 
     return mva
 
 
-def bdt_ada(df_train, pre, features):
+def bdt_ada(df_train, pre):
     """Train using an AdaBoosted Decision Tree"""
 
     from sklearn.ensemble import AdaBoostClassifier
@@ -84,13 +84,13 @@ def bdt_ada(df_train, pre, features):
 
     mva = make_pipeline(*(pre + [bdt]))
 
-    mva.fit(df_train[features], df_train.Signal,
+    mva.fit(df_train[cfg["features"]], df_train.Signal,
             adaboostclassifier__sample_weight=df_train.MVAWeight.as_matrix())
 
     return mva
 
 
-def bdt_grad(df_train, pre, features):
+def bdt_grad(df_train, pre):
     """Train using a Gradient Boosted Decision Tree"""
 
     from sklearn.ensemble import GradientBoostingClassifier
@@ -99,13 +99,13 @@ def bdt_grad(df_train, pre, features):
 
     mva = make_pipeline(*(pre + [bdt]))
 
-    mva.fit(df_train[features], df_train.Signal,
+    mva.fit(df_train[cfg["features"]], df_train.Signal,
             gradientboostingclassifier__sample_weight=df_train.MVAWeight)
 
     return mva
 
 
-def bdt_xgb(df_train, pre, features):
+def bdt_xgb(df_train, pre):
     """Train using an XGBoost Boosted Decision Tree"""
 
     from xgboost import XGBClassifier
@@ -114,16 +114,16 @@ def bdt_xgb(df_train, pre, features):
 
     mva = make_pipeline(*(pre + [bdt]))
 
-    mva.fit(df_train[features], df_train.Signal,
+    mva.fit(df_train[cfg["features"]], df_train.Signal,
             xgboostclassifier__sample_weight=df_train.MVAWeight,)
             # eval_metric="auc",
             # early_stopping_rounds=50,
-            # eval_set=[(df_test[features], df_test.Signal)])
+            # eval_set=[(df_test[cfg["features"]], df_test.Signal)])
 
     return mva
 
 
-def random_forest(df_train, pre, features):
+def random_forest(df_train, pre):
     """Train using a Random Forest"""
 
     from sklearn.ensemble import RandomForestClassifier
@@ -132,7 +132,7 @@ def random_forest(df_train, pre, features):
 
     mva = make_pipeline(*(pre + [rf]))
 
-    rf.fit(df_train[features], df_train.Signal,
+    rf.fit(df_train[cfg["features"]], df_train.Signal,
            randomforestclassifier__sample_weight=df_train.MVAWeight)
 
     return mva

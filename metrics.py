@@ -12,8 +12,10 @@ import numpy as np
 from scipy.stats import kstwobign
 from sklearn.metrics import classification_report, confusion_matrix
 
+from config import cfg
 
-def print_metrics(df_train, df_test, features, mva):
+
+def print_metrics(df_train, df_test, mva):
     """
     Print metrics for a trained classifier
 
@@ -23,8 +25,6 @@ def print_metrics(df_train, df_test, features, mva):
         DataFrame containing testing data.
     df_train: DataFrame
         DataFrame containing training data.
-    features : array_like
-        Names of features on which the classifier was trained.
     mva : trained classifier
         Classifier trained on df_train
 
@@ -32,6 +32,8 @@ def print_metrics(df_train, df_test, features, mva):
     -------
     None
     """
+
+    features = cfg["features"]
 
     try:
         test_prediction = mva.predict(df_test[features])

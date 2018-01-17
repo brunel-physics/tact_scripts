@@ -71,15 +71,15 @@ def main():
 
     # Classify
     if cfg["classifier"] == "mlp":
-        mva = classifiers.mlp(df_train, pre, features)
+        mva = classifiers.mlp(df_train, pre)
     elif cfg["classifier"] == "bdt_ada":
-        mva = classifiers.bdt_ada(df_train, pre, features)
+        mva = classifiers.bdt_ada(df_train, pre)
     elif cfg["classifier"] == "bdt_xgb":
-        mva = classifiers.bdt_xgb(df_train, pre, features)
+        mva = classifiers.bdt_xgb(df_train, pre)
     elif cfg["classifier"] == "bdt_grad":
-        mva = classifiers.bdt_grad(df_train, pre, features)
+        mva = classifiers.bdt_grad(df_train, pre)
     elif cfg["classifier"] == "random_forest":
-        mva = classifiers.random_forest(df_train, pre, features)
+        mva = classifiers.random_forest(df_train, pre)
 
     df_test = df_test.assign(MVA=classifiers.evaluate_mva(df_test[features],
                                                           mva))
@@ -92,7 +92,7 @@ def main():
                                                       cfg["channel"]))
 
     # Metrics
-    metrics.print_metrics(df_train, df_test, features, mva)
+    metrics.print_metrics(df_train, df_test, mva)
 
     pt.make_response_plot(df_train[df_train.Signal == 1],
                           df_test[df_test.Signal == 1],
