@@ -52,7 +52,6 @@ mlp:
         optimizer: nadam
         metrics:
             - accuracy
-    early_stopping: true
     early_stopping_params:
         monitor: loss
         min_delta: 0
