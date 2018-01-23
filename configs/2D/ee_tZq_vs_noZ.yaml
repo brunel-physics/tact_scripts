@@ -1,7 +1,9 @@
 input_dir: /scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz50mw50/
-mz: 20
-mw: 20
-region: signal
+selection: >-
+    zMass > 71.2 && zMass < 111.2 &&
+    wPairMass > 60.4 && wPairMass < 100.4 &&
+    chi2 < 40 &&
+    Channel == 1
 channel: ee
 signals:
     - tZq

@@ -4,15 +4,13 @@
 # Monte Carlo for a process, along with a separate file for the data.
 input_dir: /scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz50mw50/
 
-# mz and mw define the cut around the Z and W mass, respectively in GeV
-mz: 20
-mw: 20
-
-# region - Sets the chi2 cut. Can be "all", "signal", or "control".
-#   signal:     chi2 < 40
-#   control:    40 < chi2 < 150
-#   all:        no cut
-region: signal
+# ROOT selection string specifying the cuts that should be made before
+# classifier training takes place.
+selection: >-
+    zMass > 71.2 && zMass < 111.2 &&
+    wPairMass > 60.4 && wPairMass < 100.4 &&
+    chi2 < 40 &&
+    Channel == 1
 
 # channel - whether to run on the ee or mumu channel
 channel: ee
