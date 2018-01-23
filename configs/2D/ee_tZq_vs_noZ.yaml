@@ -1,5 +1,11 @@
 input_dir: /scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz50mw50/
-whitelist:
+mz: 20
+mw: 20
+region: signal
+channel: ee
+signals:
+    - tZq
+backgrounds:
     - FakeEG
     - FakeMu
     - TbartChan
@@ -11,16 +17,9 @@ whitelist:
     - ttH
     - TTW
     - TtW
-    - tZq
     - Wjets
     - WW
     - WWW
-mz: 20
-mw: 20
-region: signal
-channel: ee
-signals:
-    - tZq
 plot_dir: plots2/
 root_dir: root2/
 mva_dir: mva2/

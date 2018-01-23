@@ -1,21 +1,20 @@
 input_dir: /scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz50mw50/
-whitelist:
-    - DYToLL_M10To50
-    - DYToLL_M50
-    - TTZ
-    - TWZ
-    - tZq
-    - WWZ
-    - WZ
-    - WZZ
-    - ZZ
-    - ZZZ
 mz: 20
 mw: 50
 region: signal
 channel: ee
 signals:
     - tZq
+backgrounds:
+    - DYToLL_M10To50
+    - DYToLL_M50
+    - TTZ
+    - TWZ
+    - WWZ
+    - WZ
+    - WZZ
+    - ZZ
+    - ZZZ
 plot_dir: plots1/
 root_dir: root1/
 mva_dir: mva1/

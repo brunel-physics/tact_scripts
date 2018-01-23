@@ -1,5 +1,8 @@
 input_dir: /scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz50mw50/
-whitelist:
+negative_weight_treatment: "passthrough"
+signals:
+    - tZq
+backgrounds:
     - DYToLL_M10To50
     - DYToLL_M50
     - FakeEG
@@ -15,7 +18,6 @@ whitelist:
     - TtW
     - TTZ
     - TWZ
-    - tZq
     - Wjets
     - WW
     - WWW
@@ -24,9 +26,6 @@ whitelist:
     - WZZ
     - ZZ
     - ZZZ
-negative_weight_treatment: "passthrough"
-signals:
-    - tZq
 equalise_signal: true
 channel: ee
 mz: 20

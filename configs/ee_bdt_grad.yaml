@@ -4,9 +4,25 @@
 # Monte Carlo for a process, along with a separate file for the data.
 input_dir: /scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz50mw50/
 
-# Only processes matching those in the whitelist will be included in the test
-# and training samples
-whitelist:
+# mz and mw define the cut around the Z and W mass, respectively in GeV
+mz: 20
+mw: 20
+
+# region - Sets the chi2 cut. Can be "all", "signal", or "control".
+#   signal:     chi2 < 40
+#   control:    40 < chi2 < 150
+#   all:        no cut
+region: signal
+
+# channel - whether to run on the ee or mumu channel
+channel: ee
+
+# List of channels which should be considered signal
+signals:
+    - tZq
+
+# List of channels which should be considered background
+backgrounds:
     - DYToLL_M10To50
     - DYToLL_M50
     - FakeEG
@@ -22,7 +38,6 @@ whitelist:
     - TtW
     - TTZ
     - TWZ
-    - tZq
     - Wjets
     - WW
     - WWW
@@ -31,23 +46,6 @@ whitelist:
     - WZZ
     - ZZ
     - ZZZ
-
-# mz and mw define the cut around the Z and W mass, respectively in GeV
-mz: 20
-mw: 20
-
-# region - Sets the chi2 cut. Can be "all", "signal", or "control".
-#   signal:     chi2 < 40 
-#   control:    40 < chi2 < 150
-#   all:        no cut
-region: signal
-
-# channel - whether to run on the ee or mumu channel
-channel: ee
-
-# List of channels which should be considered signal
-signals:
-    - tZq
 
 # Directories plots, root files, and trained classifiers should be output into
 plot_dir: plots/
