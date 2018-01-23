@@ -22,7 +22,7 @@ signals:
     - tZq
 
 # List of channels which should be considered background
-whitelist:
+backgrounds:
     - DYToLL_M10To50
     - DYToLL_M50
     - FakeEG
