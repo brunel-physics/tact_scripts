@@ -27,10 +27,11 @@ backgrounds:
     - ZZ
     - ZZZ
 equalise_signal: true
-channel: ee
-mz: 20
-mw: 20
-region: signal
+selection: >-
+    zMass > 71.2 && zMass < 111.2 &&
+    wPairMass > 60.4 && wPairMass < 100.4 &&
+    chi2 < 40 &&
+    Channel == 1
 channel: ee
 plot_dir: plots2D/
 root_dir: root2D/
