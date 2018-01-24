@@ -4,6 +4,8 @@
 # Monte Carlo for a process, along with a separate file for the data.
 input_dir: /scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz50mw50/
 
+# ROOT selection string specifying the cuts that should be made before
+# classifier training takes place.
 selection: >-
     zMass > 71.2 && zMass < 111.2 &&
     wPairMass > 60.4 && wPairMass < 100.4 &&
@@ -110,9 +112,6 @@ mlp:
         optimizer: nadam
         metrics:
             - accuracy
-
-    # Whether early stopping should be enabled
-    early_stopping: true
 
     # Parameters passed to Keras' EarlyStopping()
     early_stopping_params:
