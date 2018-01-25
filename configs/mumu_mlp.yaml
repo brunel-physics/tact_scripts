@@ -82,6 +82,7 @@ preprocessors:
 #   bdt_xgb: Gradient Boosted Decision Tree (XGBoost)
 #   random_forest: Random Forest
 #   mlp: Multi-Layer Perceptron (Keras)
+#   load: load classfier specfied by classifer_path option
 classifier: mlp
 
 # MLP configuration
