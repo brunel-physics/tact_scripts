@@ -1,4 +1,5 @@
 input_dir: /scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz50mw50/
+seed: 52
 negative_weight_treatment: "passthrough"
 signals:
     - tZq

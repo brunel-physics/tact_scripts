@@ -4,6 +4,9 @@
 # Monte Carlo for a process, along with a separate file for the data.
 input_dir: /scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz50mw50/
 
+# Random number generation seed
+seed: 52
+
 # ROOT selection string specifying the cuts that should be made before
 # classifier training takes place.
 selection: >-

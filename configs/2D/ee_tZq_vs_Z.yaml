@@ -1,4 +1,5 @@
 input_dir: /scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz50mw50/
+seed: 52
 selection: >-
     zMass > 71.2 && zMass < 111.2 &&
     wPairMass > 60.4 && wPairMass < 100.4 &&
