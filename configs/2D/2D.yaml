@@ -26,6 +26,7 @@ backgrounds:
     - WZZ
     - ZZ
     - ZZZ
+data_process: DataEG
 equalise_signal: true
 selection: >-
     zMass > 71.2 && zMass < 111.2 &&

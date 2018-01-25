@@ -22,6 +22,7 @@ backgrounds:
     - Wjets
     - WW
     - WWW
+data_process: DataEG
 plot_dir: plots2/
 root_dir: root2/
 mva_dir: mva2/

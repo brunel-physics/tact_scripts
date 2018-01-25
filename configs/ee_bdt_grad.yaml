@@ -45,6 +45,9 @@ backgrounds:
     - ZZ
     - ZZZ
 
+# Name of process containing collision data
+data_process: dataeg
+
 # Directories plots, root files, and trained classifiers should be output into
 plot_dir: plots/
 root_dir: root/
@@ -95,6 +98,7 @@ root_out:
     # empty: Empty histograms
     # poisson: Sum the Monte Carlo histograms, and perform a Poisson jump on
     #          each bin
+    # real: Use the real data
     data: empty
 
     # Number of bins

@@ -17,6 +17,7 @@ backgrounds:
     - WZZ
     - ZZ
     - ZZZ
+data_process: DataEG
 plot_dir: plots1/
 root_dir: root1/
 mva_dir: mva1/
