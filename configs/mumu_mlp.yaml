@@ -10,7 +10,7 @@ selection: >-
     zMass > 71.2 && zMass < 111.2 &&
     wPairMass > 60.4 && wPairMass < 100.4 &&
     chi2 < 40 &&
-    Channel == 1
+    Channel == 0
 
 # channel - whether to run on the ee or mumu channel
 channel: mumu
