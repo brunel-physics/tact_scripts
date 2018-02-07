@@ -49,7 +49,7 @@ backgrounds:
     - ZZZ
 
 # Name of process containing collision data
-data_process: dataeg
+data_process: DataEG
 
 # Directories plots, root files, and trained classifiers should be output into
 plot_dir: plots/
