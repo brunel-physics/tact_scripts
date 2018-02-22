@@ -1,0 +1,209 @@
+# Configuration file for ee channel classifier using multi-layer perceptron
+
+# Directory containing input files for the classifier. Each file should contain
+# Monte Carlo for a process, along with a separate file for the data.
+input_dir: /scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz50mw50/
+
+# Random number generation seed
+seed: 52
+
+# ROOT selection string specifying the cuts that should be made before
+# classifier training takes place.
+selection: >-
+    chi2 < 40 &&
+    Channel == 1
+
+# channel - whether to run on the ee or mumu channel
+channel: ee
+
+# List of channels which should be considered signal
+signals:
+    - tZq
+
+# List of channels which should be considered background
+backgrounds:
+    - DYToLL_M10To50_aMCatNLO
+    - DYToLL_M50_aMCatNLO
+    - FakeEG
+    - FakeMu
+    - TbartChan
+    - TbartW
+    - THQ
+    - TsChan
+    - TT
+    - TtChan
+    - ttH
+    - TTW
+    - TtW
+    - TTZ
+    - TWZ
+    - Wjets
+    - WW
+    - WWW
+    - WWZ
+    - WZ
+    - WZZ
+    - ZZ
+    - ZZZ
+
+# Name of process containing collision data
+data_process: DataEG
+
+# Directories plots, root files, and trained classifiers should be output into
+plot_dir: plots/
+root_dir: root/
+mva_dir: mva/
+
+# Fraction of data to be reserved in test sample
+test_fraction: 0.25
+
+# If true, the weights of the signal channels are linearly scaled so that the
+# overall normalisation for both the signal and background channels is the same
+equalise_signal: true
+
+# How negative event weights should be treated
+#   passthrough: negative weights are unaltered
+#   abs: the absolute value of all negative weights is taken
+#   reweight: The absolute value of all negative weights is taken. The original
+#             normalisation for each process is then restored by linearly
+#             scaling the resulting weights down. This will fail if any
+#             processes have an overall negative weight.
+negative_weight_treatment: reweight
+
+# Classifier selection
+#   bdt_ada: AdaBoosted Boosted Decision Tree
+#   bdt_grad: Gradient Boosted Decision Tree (scikit-learn)
+#   bdt_xgb: Gradient Boosted Decision Tree (XGBoost)
+#   random_forest: Random Forest
+#   mlp: Multi-Layer Perceptron (Keras)
+#   load: load classfier specfied by classifer_path option
+classifier: bdt_xgb
+
+# BDT configuration. Passed to scikit-learn's GradientBoostingClassifier()
+bdt_xgb:
+    n_estimators: 100
+    silent: False
+    subsample: 0.75
+    learning_rate: 0.02
+    max_depth: 3
+
+# Options governing the root file output
+root_out:
+    # Whether output should be in the format for combine (true) or THETA (false)
+    combine: true
+
+    # Whether NaN values should be dropped
+    drop_nan: true
+
+    # What form the (pseudo)-data in the files should take
+    # empty: Empty histograms
+    # poisson: Sum the Monte Carlo histograms, and perform a Poisson jump on
+    #          each bin
+    # real: Use the real data
+    data: empty
+
+    # Number of bins
+    bins: 200
+
+# Features to be included in the classifier training
+features:
+    # - bTagDisc
+    # - fourthJetEta
+    # - fourthJetPhi
+    # - fourthJetPt
+    # - fourthJetbTag
+    # - jetHt
+    - jetMass
+    - jetMass3
+    - jjdelPhi
+    - jjdelR
+    - leadJetEta
+    # - leadJetPhi
+    # - leadJetPt
+    - leadJetbTag
+    # - lep1D0
+    - lep1Eta
+    # - lep1Phi
+    # - lep1Pt
+    # - lep1RelIso
+    # - lep2D0
+    - lep2Eta
+    # - lep2Phi
+    # - lep2Pt
+    # - lep2RelIso
+    # - lepEta
+    # - lepHt
+    # - mTW
+    - met
+    - nBjets
+    - nJets
+    - secJetEta
+    # - secJetPhi
+    # - secJetPt
+    # - secJetbTag
+    - thirdJetEta
+    # - thirdJetPhi
+    # - thirdJetPt
+    # - thirdJetbTag
+    # - topEta
+    - topMass
+    # - topPhi
+    # - topPt
+    # - totEta
+    # - totHt
+    # - totHtOverPt
+    - totPt
+    # - totPt2Jet
+    # - totPtVec
+    # - totVecM
+    # - w1TopDelPhi
+    # - w1TopDelR
+    # - w2TopDelPhi
+    # - w2TopDelR
+    # - wPairEta
+    # - wPairMass
+    # - wPairPhi
+    # - wPairPt
+    # - wQuark1Eta
+    # - wQuark1Phi
+    # - wQuark1Pt
+    # - wQuark2Eta
+    # - wQuark2Phi
+    # - wQuark2Pt
+    # - wQuarkHt
+    # - wTopDelPhi
+    # - wTopDelR
+    # - wwdelPhi
+    # - wwdelR
+    # - wzdelPhi
+    - wzdelR
+    # - zEta
+    - zLepdelPhi
+    # - zLepdelR
+    - zMass
+    # - zPhi
+    # - zPt
+    # - zQuark1DelPhi
+    - zQuark1DelR
+    # - zQuark2DelPhi
+    - zQuark2DelR
+    # - zTopDelPhi
+    - zTopDelR
+    # - zjminPhi
+    - zjminR
+    # - zl1Quark1DelPhi
+    - zl1Quark1DelR
+    # - zl1Quark2DelPhi
+    - zl1Quark2DelR
+    # - zl1TopDelPhi
+    - zl1TopDelR
+    # - zl2Quark1DelPhi
+    - zl2Quark1DelR
+    # - zl2Quark2DelPhi
+    - zl2Quark2DelR
+    # - zl2TopDelPhi
+    - zl2TopDelR
+    # - zlb1DelPhi
+    - zlb1DelR
+    # - zlb2DelPhi
+    - zlb2DelR
