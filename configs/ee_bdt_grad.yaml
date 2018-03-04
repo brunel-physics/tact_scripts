@@ -2,7 +2,7 @@
 
 # Directory containing input files for the classifier. Each file should contain
 # Monte Carlo for a process, along with a separate file for the data.
-input_dir: /scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz50mw50/
+input_dir: /scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz20mw20/
 
 # Random number generation seed
 seed: 52
@@ -10,8 +10,6 @@ seed: 52
 # ROOT selection string specifying the cuts that should be made before
 # classifier training takes place.
 selection: >-
-    zMass > 71.2 && zMass < 111.2 &&
-    wPairMass > 60.4 && wPairMass < 100.4 &&
     chi2 < 40 &&
     Channel == 1
 
@@ -24,8 +22,8 @@ signals:
 
 # List of channels which should be considered background
 backgrounds:
-    - DYToLL_M10To50
-    - DYToLL_M50
+    - DYToLL_M10To50_aMCatNLO
+    - DYToLL_M50_aMCatNLO
     - FakeEG
     - FakeMu
     - TbartChan
@@ -57,7 +55,7 @@ root_dir: root/
 mva_dir: mva/
 
 # Fraction of data to be reserved in test sample
-test_fraction: 0.25
+test_fraction: 0.33
 
 # If true, the weights of the signal channels are linearly scaled so that the
 # overall normalisation for both the signal and background channels is the same
@@ -70,7 +68,7 @@ equalise_signal: true
 #             normalisation for each process is then restored by linearly
 #             scaling the resulting weights down. This will fail if any
 #             processes have an overall negative weight.
-negative_weight_treatment: passthrough
+negative_weight_treatment: abs
 
 # Classifier selection
 #   bdt_ada: AdaBoosted Boosted Decision Tree
@@ -106,21 +104,21 @@ root_out:
     data: empty
 
     # Number of bins
-    bins: 200
+    bins: 50
 
 # Features to be included in the classifier training
 features:
-    - bTagDisc
+    # - bTagDisc
     # - fourthJetEta
     # - fourthJetPhi
-    - fourthJetPt
+    # - fourthJetPt
     # - fourthJetbTag
     # - jetHt
     - jetMass
     # - jetMass3
-    # - jjdelPhi
+    - jjdelPhi
     - jjdelR
-    - leadJetEta
+    # - leadJetEta
     # - leadJetPhi
     # - leadJetPt
     - leadJetbTag
@@ -136,9 +134,9 @@ features:
     # - lep2RelIso
     # - lepEta
     # - lepHt
-    - mTW
+    # - mTW
     - met
-    - nBjets
+    # - nBjets
     # - nJets
     # - secJetEta
     # - secJetPhi
@@ -151,7 +149,7 @@ features:
     # - topEta
     - topMass
     # - topPhi
-    - topPt
+    # - topPt
     # - totEta
     # - totHt
     # - totHtOverPt
@@ -164,7 +162,7 @@ features:
     # - w2TopDelPhi
     # - w2TopDelR
     # - wPairEta
-    - wPairMass
+    # - wPairMass
     # - wPairPhi
     # - wPairPt
     # - wQuark1Eta
@@ -176,13 +174,13 @@ features:
     # - wQuarkHt
     # - wTopDelPhi
     # - wTopDelR
-    - wwdelPhi
+    # - wwdelPhi
     # - wwdelR
     # - wzdelPhi
     # - wzdelR
-    # - zEta
+    - zEta
     - zLepdelPhi
-    # - zLepdelR
+    - zLepdelR
     - zMass
     # - zPhi
     # - zPt
@@ -193,7 +191,7 @@ features:
     # - zTopDelPhi
     # - zTopDelR
     # - zjminPhi
-    # - zjminR
+    - zjminR
     # - zl1Quark1DelPhi
     # - zl1Quark1DelR
     # - zl1Quark2DelPhi

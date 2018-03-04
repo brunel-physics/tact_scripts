@@ -2,7 +2,7 @@
 
 # Directory containing input files for the classifier. Each file should contain
 # Monte Carlo for a process, along with a separate file for the data.
-input_dir: /scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz50mw50/
+input_dir: /scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz20mw20/
 
 # Random number generation seed
 seed: 52
@@ -55,7 +55,7 @@ root_dir: root/
 mva_dir: mva/
 
 # Fraction of data to be reserved in test sample
-test_fraction: 0.25
+test_fraction: 0.33
 
 # If true, the weights of the signal channels are linearly scaled so that the
 # overall normalisation for both the signal and background channels is the same
@@ -81,11 +81,15 @@ classifier: bdt_xgb
 
 # BDT configuration. Passed to scikit-learn's GradientBoostingClassifier()
 bdt_xgb:
-    n_estimators: 100
+    n_estimators: 200
     silent: False
-    subsample: 0.75
-    learning_rate: 0.02
-    max_depth: 3
+    subsample: 0.5
+    learning_rate: 0.1
+    max_depth: 100
+    # min_child_weight: 0
+    gamma: 5
+    # reg_lambda: 5
+    # reg_alpha: 5
 
 # Options governing the root file output
 root_out:
@@ -103,47 +107,49 @@ root_out:
     data: empty
 
     # Number of bins
-    bins: 200
+    bins: 5
+
+    quantile_bins: False
 
 # Features to be included in the classifier training
 features:
-    # - bTagDisc
+    - bTagDisc
     # - fourthJetEta
     # - fourthJetPhi
-    # - fourthJetPt
+    - fourthJetPt
     # - fourthJetbTag
     # - jetHt
     - jetMass
     - jetMass3
-    - jjdelPhi
+    # - jjdelPhi
     - jjdelR
     - leadJetEta
     # - leadJetPhi
-    # - leadJetPt
+    - leadJetPt
     - leadJetbTag
     # - lep1D0
-    - lep1Eta
+    # - lep1Eta
     # - lep1Phi
     # - lep1Pt
     # - lep1RelIso
     # - lep2D0
-    - lep2Eta
+    # - lep2Eta
     # - lep2Phi
     # - lep2Pt
     # - lep2RelIso
     # - lepEta
-    # - lepHt
+    - lepHt
     # - mTW
     - met
-    - nBjets
-    - nJets
-    - secJetEta
+    # - nBjets
+    # - nJets
+    # - secJetEta
     # - secJetPhi
     # - secJetPt
     # - secJetbTag
-    - thirdJetEta
+    # - thirdJetEta
     # - thirdJetPhi
-    # - thirdJetPt
+    - thirdJetPt
     # - thirdJetbTag
     # - topEta
     - topMass
@@ -151,17 +157,17 @@ features:
     # - topPt
     # - totEta
     # - totHt
-    # - totHtOverPt
-    - totPt
+    - totHtOverPt
+    # - totPt
     # - totPt2Jet
     # - totPtVec
     # - totVecM
     # - w1TopDelPhi
     # - w1TopDelR
     # - w2TopDelPhi
-    # - w2TopDelR
+    - w2TopDelR
     # - wPairEta
-    # - wPairMass
+    - wPairMass
     # - wPairPhi
     # - wPairPt
     # - wQuark1Eta
@@ -169,41 +175,41 @@ features:
     # - wQuark1Pt
     # - wQuark2Eta
     # - wQuark2Phi
-    # - wQuark2Pt
+    - wQuark2Pt
     # - wQuarkHt
     # - wTopDelPhi
     # - wTopDelR
     # - wwdelPhi
     # - wwdelR
     # - wzdelPhi
-    - wzdelR
+    # - wzdelR
     # - zEta
-    - zLepdelPhi
+    # - zLepdelPhi
     # - zLepdelR
     - zMass
     # - zPhi
     # - zPt
     # - zQuark1DelPhi
-    - zQuark1DelR
+    # - zQuark1DelR
     # - zQuark2DelPhi
-    - zQuark2DelR
+    # - zQuark2DelR
     # - zTopDelPhi
-    - zTopDelR
+    # - zTopDelR
     # - zjminPhi
     - zjminR
     # - zl1Quark1DelPhi
-    - zl1Quark1DelR
+    # - zl1Quark1DelR
     # - zl1Quark2DelPhi
-    - zl1Quark2DelR
+    # - zl1Quark2DelR
     # - zl1TopDelPhi
-    - zl1TopDelR
+    # - zl1TopDelR
     # - zl2Quark1DelPhi
-    - zl2Quark1DelR
+    # - zl2Quark1DelR
     # - zl2Quark2DelPhi
-    - zl2Quark2DelR
+    # - zl2Quark2DelR
     # - zl2TopDelPhi
-    - zl2TopDelR
+    # - zl2TopDelR
     # - zlb1DelPhi
-    - zlb1DelR
+    # - zlb1DelR
     # - zlb2DelPhi
-    - zlb2DelR
+    # - zlb2DelR

@@ -11,10 +11,10 @@ seed: 52
 # classifier training takes place.
 selection: >-
     chi2 < 40 &&
-    Channel == 1
+    Channel == 0
 
 # channel - whether to run on the ee or mumu channel
-channel: ee
+channel: mumu
 
 # List of channels which should be considered signal
 signals:
@@ -68,14 +68,7 @@ equalise_signal: true
 #             normalisation for each process is then restored by linearly
 #             scaling the resulting weights down. This will fail if any
 #             processes have an overall negative weight.
-negative_weight_treatment: passthrough
-
-# Preprocessing
-# List of preprocessors in the order they should be applied, accompanied by
-# key-value pairs of keyword arguments under a config key
-preprocessors:
-    - preprocessor: robust_scaler
-      config: {}
+negative_weight_treatment: reweight
 
 # Classifier selection
 #   bdt_ada: AdaBoosted Boosted Decision Tree
@@ -84,60 +77,19 @@ preprocessors:
 #   random_forest: Random Forest
 #   mlp: Multi-Layer Perceptron (Keras)
 #   load: load classfier specfied by classifer_path option
-classifier: mlp
+classifier: bdt_xgb
 
-# MLP configuration
-mlp:
-    # YAML describing model, see Keras documentation for details
-    model:
-        backend: theano
-        class_name: Sequential
-        config:
-        - class_name: Dense
-          config:
-            activation: tanh
-            # activity_regularizer:
-            #   class_name: L1L2
-            #   config: {l1: 5e-6, l2: 1e-5}
-            kernel_regularizer:
-              class_name: L1L2
-              config: {l1: 5e-6, l2: 5e-5}
-            bias_regularizer:
-              class_name: L1L2
-              config: {l1: 5e-6, l2: 5e-5}
-            units: 32
-        - class_name: Dense
-          config:
-            activation: sigmoid
-            units: 1
-
-    # Keyword arguments to be passed to Keras' KerasClassifier() function
-    model_params:
-        epochs: 10000
-        verbose: 1
-        batch_size: 256
-
-    # Keyword arguments to be sent to Keras' model.compile() function
-    compile_params:
-        loss: binary_crossentropy
-        optimizer: adam
-        metrics:
-            - accuracy
-
-    # Parameters passed to Keras' EarlyStopping()
-    early_stopping_params:
-        monitor: loss
-        min_delta: 0
-        patience: 10
-        verbose: 1
-        mode: auto
-
-    # Parameters passed to Keras' ReduceLROnPlateau
-    lr_reduction_params:
-        monitor: loss
-        factor: 0.2
-        patience: 2
-        verbose: 1
+# BDT configuration. Passed to scikit-learn's GradientBoostingClassifier()
+bdt_xgb:
+    n_estimators: 200
+    silent: False
+    subsample: 0.5
+    learning_rate: 0.1
+    max_depth: 100
+    # min_child_weight: 0
+    gamma: 5
+    # reg_lambda: 5
+    # reg_alpha: 5
 
 # Options governing the root file output
 root_out:
@@ -155,10 +107,11 @@ root_out:
     data: empty
 
     # Number of bins
-    bins: 5
+    bins: 20
 
     quantile_bins: False
 
+# Features to be included in the classifier training
 features:
     - bTagDisc
     # - fourthJetEta
