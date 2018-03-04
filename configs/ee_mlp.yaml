@@ -128,6 +128,13 @@ mlp:
         verbose: 0
         mode: auto
 
+    # Parameters passed to Keras' ReduceLROnPlateau
+    lr_reduction_params:
+        monitor: loss
+        factor: 0.2
+        patience: 2
+        verbose: 1
+
 # Options governing the root file output
 root_out:
     # Whether output should be in the format for combine (true) or THETA (false)
