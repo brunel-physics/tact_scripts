@@ -1,11 +1,14 @@
-input_dir: /scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz50mw50/
+input_dir: /scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz20mw20/
 seed: 52
-negative_weight_treatment: "passthrough"
+selection: >-
+    chi2 < 40 &&
+    Channel == 1
+negative_weight_treatment: passthrough
 signals:
     - tZq
 backgrounds:
-    - DYToLL_M10To50
-    - DYToLL_M50
+    - DYToLL_M10To50_aMCatNLO
+    - DYToLL_M50_aMCatNLO
     - FakeEG
     - FakeMu
     - TbartChan
@@ -29,11 +32,6 @@ backgrounds:
     - ZZZ
 data_process: DataEG
 equalise_signal: true
-selection: >-
-    zMass > 71.2 && zMass < 111.2 &&
-    wPairMass > 60.4 && wPairMass < 100.4 &&
-    chi2 < 40 &&
-    Channel == 1
 channel: ee
 plot_dir: plots2D/
 root_dir: root2D/
@@ -50,10 +48,14 @@ classifier2: mva2/mlp_ee.pkl
 #   PCA: Use Principal Component Analysis to project the responses to 1D
 #   kmeans: Use kmeans to cluster the results, sort clusters by S/N ratio,
 #           and create bins in numeric cluster labels
-combination: kmeans
+combination: recursive_kmeans
 
 root_out:
     combine: true
     drop_nan: true
     data: empty
     bins: 200
+    min_signal_events: 0
+    min_background_events: 1
+    max_signal_error: 0.3
+    max_background_error: 0.3

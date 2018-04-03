@@ -5,7 +5,7 @@
 input_dir: /scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz20mw20/
 
 # Random number generation seed
-seed: 52
+seed: 777
 
 # ROOT selection string specifying the cuts that should be made before
 # classifier training takes place.
@@ -13,14 +13,14 @@ selection: >-
     chi2 < 40 &&
     Channel == 1
 
-# channel - whether to run on the ee or mumu channel
+# channel - prefix for output file names
 channel: ee
 
-# List of channels which should be considered signal
+# List of processes which should be considered signal
 signals:
     - tZq
 
-# List of channels which should be considered background
+# List of processes which should be considered background
 backgrounds:
     - DYToLL_M10To50_aMCatNLO
     - DYToLL_M50_aMCatNLO
@@ -99,13 +99,16 @@ mlp:
             # activity_regularizer:
             #   class_name: L1L2
             #   config: {l1: 5e-6, l2: 1e-5}
-            kernel_regularizer:
-              class_name: L1L2
-              config: {l1: 5e-6, l2: 5e-5}
-            bias_regularizer:
-              class_name: L1L2
-              config: {l1: 5e-6, l2: 5e-5}
-            units: 32
+            # kernel_regularizer:
+            #   class_name: L1L2
+            #   config: {l1: 5e-4, l2: 0}
+            # bias_regularizer:
+            #   class_name: L1L2
+            #   config: {l1: 5e-4, l2: 0}
+            units: 20
+        - class_name: Dropout
+          config:
+              rate: 0.25
         - class_name: Dense
           config:
             activation: sigmoid
@@ -128,11 +131,11 @@ mlp:
     early_stopping_params:
         monitor: loss
         min_delta: 0
-        patience: 10
+        patience: 5
         verbose: 1
         mode: auto
 
-    # Parameters passed to Keras' ReduceLROnPlateau
+    # Parameters passed to Keras' ReduceLROnPlateau()
     lr_reduction_params:
         monitor: loss
         factor: 0.2
@@ -144,9 +147,6 @@ root_out:
     # Whether output should be in the format for combine (true) or THETA (false)
     combine: true
 
-    # Whether NaN values should be dropped
-    drop_nan: true
-
     # What form the (pseudo)-data in the files should take
     # empty: Empty histograms
     # poisson: Sum the Monte Carlo histograms, and perform a Poisson jump on
@@ -154,10 +154,26 @@ root_out:
     # real: Use the real data
     data: empty
 
-    # Number of bins
-    bins: 5
+    # The stretegy used to bin the MVA response in the resulting root files
+    #   equal: specified number of equal-width bins in the (0, 1) range
+    #          (default).
+    #   quantile: specified number of equally-populated bins, achieved by
+    #             placing bin edges at quantiles. Bin population does not take
+    #             event weight into account.
+    #   recursive_median: response is recursively bisected at the median
+    #   recursive_kmeans: response is recursively split into two clusters using
+    #                     the k-means (Jenks) algorithm
+    strategy: recursive_median
 
-    quantile_bins: False
+    # Set the number of bins for the equal or quantile binning stategies
+    bins: 20
+
+    # The recursive binning strategies will stop splitting once these limits
+    # are reached
+    min_signal_events: 0
+    min_background_events: 1
+    max_signal_error: 0.3
+    max_background_error: 0.3
 
 features:
     - bTagDisc
@@ -167,13 +183,13 @@ features:
     # - fourthJetbTag
     # - jetHt
     - jetMass
-    - jetMass3
+    # - jetMass3
     # - jjdelPhi
     - jjdelR
-    - leadJetEta
+    # - leadJetEta
     # - leadJetPhi
     - leadJetPt
-    - leadJetbTag
+    # - leadJetbTag
     # - lep1D0
     # - lep1Eta
     # - lep1Phi
@@ -192,7 +208,7 @@ features:
     # - nJets
     # - secJetEta
     # - secJetPhi
-    # - secJetPt
+    - secJetPt
     # - secJetbTag
     # - thirdJetEta
     # - thirdJetPhi
@@ -212,7 +228,7 @@ features:
     # - w1TopDelPhi
     # - w1TopDelR
     # - w2TopDelPhi
-    - w2TopDelR
+    # - w2TopDelR
     # - wPairEta
     - wPairMass
     # - wPairPhi
@@ -222,7 +238,7 @@ features:
     # - wQuark1Pt
     # - wQuark2Eta
     # - wQuark2Phi
-    - wQuark2Pt
+    # - wQuark2Pt
     # - wQuarkHt
     # - wTopDelPhi
     # - wTopDelR
@@ -231,7 +247,7 @@ features:
     # - wzdelPhi
     # - wzdelR
     # - zEta
-    # - zLepdelPhi
+    - zLepdelPhi
     # - zLepdelR
     - zMass
     # - zPhi

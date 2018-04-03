@@ -1,4 +1,4 @@
-# Configuration file for ee channel classifier using multi-layer perceptron
+# Configuration file for ee channel classifier using XGBoost
 
 # Directory containing input files for the classifier. Each file should contain
 # Monte Carlo for a process, along with a separate file for the data.
@@ -13,14 +13,14 @@ selection: >-
     chi2 < 40 &&
     Channel == 1
 
-# channel - whether to run on the ee or mumu channel
+# channel - prefix for output filenames
 channel: ee
 
-# List of channels which should be considered signal
+# List of processes which should be considered signal
 signals:
     - tZq
 
-# List of channels which should be considered background
+# List of processes which should be considered background
 backgrounds:
     - DYToLL_M10To50_aMCatNLO
     - DYToLL_M50_aMCatNLO
@@ -55,7 +55,7 @@ root_dir: root/
 mva_dir: mva/
 
 # Fraction of data to be reserved in test sample
-test_fraction: 0.33
+test_fraction: 0.25
 
 # If true, the weights of the signal channels are linearly scaled so that the
 # overall normalisation for both the signal and background channels is the same
@@ -68,7 +68,7 @@ equalise_signal: true
 #             normalisation for each process is then restored by linearly
 #             scaling the resulting weights down. This will fail if any
 #             processes have an overall negative weight.
-negative_weight_treatment: reweight
+negative_weight_treatment: passthrough
 
 # Classifier selection
 #   bdt_ada: AdaBoosted Boosted Decision Tree
@@ -79,25 +79,28 @@ negative_weight_treatment: reweight
 #   load: load classfier specfied by classifer_path option
 classifier: bdt_xgb
 
-# BDT configuration. Passed to scikit-learn's GradientBoostingClassifier()
+# BDT configuration. Passed to XGBoost's XGBClassifier()
 bdt_xgb:
-    n_estimators: 200
+    # booster: dart
+    n_jobs: 20
+    n_estimators: 75
     silent: False
-    subsample: 0.5
-    learning_rate: 0.1
-    max_depth: 100
-    # min_child_weight: 0
-    gamma: 5
-    # reg_lambda: 5
-    # reg_alpha: 5
+    subsample: 0.67
+    learning_rate: 0.075
+    max_depth: 2
+    # colsample_bytree: 0.5
+    # min_child_weight: 100
+    # gamma: 15
+    # reg_lambda: 500
+    # reg_alpha: 10
+    # sample_type: uniform
+    # rate_drop: 0.1
+    # skip_drop: 0.75
 
 # Options governing the root file output
 root_out:
     # Whether output should be in the format for combine (true) or THETA (false)
     combine: true
-
-    # Whether NaN values should be dropped
-    drop_nan: true
 
     # What form the (pseudo)-data in the files should take
     # empty: Empty histograms
@@ -106,27 +109,43 @@ root_out:
     # real: Use the real data
     data: empty
 
-    # Number of bins
-    bins: 5
+    # The stretegy used to bin the MVA response in the resulting root files
+    #   equal: specified number of equal-width bins in the (0, 1) range
+    #          (default).
+    #   quantile: specified number of equally-populated bins, achieved by
+    #             placing bin edges at quantiles. Bin population does not take
+    #             event weight into account.
+    #   recursive_median: response is recursively bisected at the median
+    #   recursive_kmeans: response is recursively split into two clusters using
+    #                     the k-means (Jenks) algorithm
+    strategy: recursive_median
 
-    quantile_bins: False
+    # Set the number of bins for the equal or quantile binning stategies
+    bins: 20
+
+    # The recursive binning strategies will stop splitting once these limits
+    # are reached
+    min_signal_events: 0
+    min_background_events: 1
+    max_signal_error: 0.3
+    max_background_error: 0.3
 
 # Features to be included in the classifier training
 features:
     - bTagDisc
     # - fourthJetEta
     # - fourthJetPhi
-    - fourthJetPt
+    # - fourthJetPt
     # - fourthJetbTag
     # - jetHt
     - jetMass
-    - jetMass3
+    # - jetMass3
     # - jjdelPhi
     - jjdelR
     - leadJetEta
     # - leadJetPhi
     - leadJetPt
-    - leadJetbTag
+    # - leadJetbTag
     # - lep1D0
     # - lep1Eta
     # - lep1Phi
@@ -138,7 +157,7 @@ features:
     # - lep2Pt
     # - lep2RelIso
     # - lepEta
-    - lepHt
+    # - lepHt
     # - mTW
     - met
     # - nBjets
@@ -165,9 +184,9 @@ features:
     # - w1TopDelPhi
     # - w1TopDelR
     # - w2TopDelPhi
-    - w2TopDelR
+    # - w2TopDelR
     # - wPairEta
-    - wPairMass
+    # - wPairMass
     # - wPairPhi
     # - wPairPt
     # - wQuark1Eta
@@ -175,7 +194,7 @@ features:
     # - wQuark1Pt
     # - wQuark2Eta
     # - wQuark2Phi
-    - wQuark2Pt
+    # - wQuark2Pt
     # - wQuarkHt
     # - wTopDelPhi
     # - wTopDelR
@@ -196,7 +215,7 @@ features:
     # - zTopDelPhi
     # - zTopDelR
     # - zjminPhi
-    - zjminR
+    # - zjminR
     # - zl1Quark1DelPhi
     # - zl1Quark1DelR
     # - zl1Quark2DelPhi

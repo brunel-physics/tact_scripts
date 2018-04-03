@@ -1,16 +1,12 @@
-input_dir: /scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz50mw50/
+input_dir: /scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz20mw20/
 seed: 52
 selection: >-
-    zMass > 71.2 && zMass < 111.2 &&
-    wPairMass > 60.4 && wPairMass < 100.4 &&
     chi2 < 40 &&
     Channel == 1
 channel: ee
 signals:
     - tZq
 backgrounds:
-    - FakeEG
-    - FakeMu
     - TbartChan
     - TbartW
     - THQ
@@ -29,7 +25,7 @@ root_dir: root2/
 mva_dir: mva2/
 test_fraction: 0.33
 equalise_signal: true
-negative_weight_treatment: passthrough
+negative_weight_treatment: reweight
 preprocessors:
     - preprocessor: robust_scaler
       config: {}
@@ -41,11 +37,17 @@ mlp:
         config:
         - class_name: Dense
           config:
-            activation: sigmoid
-            activity_regularizer:
-              class_name: L1L2
-              config: {l1: 0.0, l2: 5e-3}
-            units: 8
+            activation: tanh
+            # activity_regularizer:
+            #   class_name: L1L2
+            #   config: {l1: 0.0, l2: 0.0}
+            # kernel_regularizer:
+            #   class_name: L1L2
+            #   config: {l1: 0, l2: 1e-4}
+            # bias_regularizer:
+            #   class_name: L1L2
+            #   config: {l1: 0, l2: 1e-3}
+            units: 32
         - class_name: Dense
           config:
             activation: sigmoid
@@ -56,13 +58,18 @@ mlp:
         batch_size: 256
     compile_params:
         loss: binary_crossentropy
-        optimizer: nadam
+        optimizer: adam
         metrics:
             - accuracy
+    lr_reduction_params:
+        monitor: loss
+        factor: 0.1
+        patience: 2
+        verbose: 1
     early_stopping_params:
         monitor: loss
         min_delta: 0
-        patience: 2
+        patience: 10
         verbose: 0
         mode: auto
 root_out:
@@ -77,31 +84,31 @@ features:
     # - fourthJetPt
     # - fourthJetbTag
     # - jetHt
-    - jetMass
-    # - jetMass3
+    # - jetMass
+    - jetMass3
     # - jjdelPhi
     - jjdelR
-    - leadJetEta
+    # - leadJetEta
     # - leadJetPhi
     # - leadJetPt
     # - leadJetbTag
     # - lep1D0
     # - lep1Eta
     # - lep1Phi
-    - lep1Pt
+    # - lep1Pt
     # - lep1RelIso
     # - lep2D0
     # - lep2Eta
     # - lep2Phi
-    - lep2Pt
+    # - lep2Pt
     # - lep2RelIso
-    # - lepEta
+    - lepEta
     # - lepHt
     # - mTW
-    # - met
-    # - nBjets
+    - met
+    - nBjets
     # - nJets
-    - secJetEta
+    # - secJetEta
     # - secJetPhi
     # - secJetPt
     # - secJetbTag
@@ -114,9 +121,9 @@ features:
     # - topPhi
     # - topPt
     # - totEta
-    # - totHt
-    # - totHtOverPt
-    - totPt
+    - totHt
+    - totHtOverPt
+    # - totPt
     # - totPt2Jet
     # - totPtVec
     # - totVecM
@@ -146,7 +153,7 @@ features:
     # - zLepdelR
     - zMass
     # - zPhi
-    # - zPt
+    - zPt
     # - zQuark1DelPhi
     # - zQuark1DelR
     # - zQuark2DelPhi
@@ -168,6 +175,6 @@ features:
     # - zl2TopDelPhi
     # - zl2TopDelR
     # - zlb1DelPhi
-    # - zlb1DelR
+    - zlb1DelR
     # - zlb2DelPhi
-    # - zlb2DelR
+    - zlb2DelR
