@@ -71,7 +71,6 @@ equalise_signal: true
 negative_weight_treatment: passthrough
 
 # Classifier selection
-#   bdt_ada: AdaBoosted Boosted Decision Tree
 #   bdt_grad: Gradient Boosted Decision Tree (scikit-learn)
 #   bdt_xgb: Gradient Boosted Decision Tree (XGBoost)
 #   random_forest: Random Forest
