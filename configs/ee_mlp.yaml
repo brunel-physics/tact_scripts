@@ -153,7 +153,7 @@ root_out:
     # real: Use the real data
     data: empty
 
-    # The stretegy used to bin the MVA response in the resulting root files
+    # The strategy used to bin the MVA response in the resulting root files
     #   equal: specified number of equal-width bins in the (0, 1) range
     #          (default).
     #   quantile: specified number of equally-populated bins, achieved by
