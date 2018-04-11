@@ -68,6 +68,7 @@ equalise_signal: true
 #             normalisation for each process is then restored by linearly
 #             scaling the resulting weights down. This will fail if any
 #             processes have an overall negative weight.
+#   zero: negative weights are set to 0
 negative_weight_treatment: passthrough
 
 # Preprocessing
