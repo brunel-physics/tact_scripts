@@ -77,7 +77,7 @@ negative_weight_treatment: reweight
 #   random_forest: Random Forest
 #   mlp: Multi-Layer Perceptron (Keras)
 #   load: load classfier specfied by classifer_path option
-classifier: load
+classifier: bdt_xgb
 classifier_path: mva/bdt_xgb_mumu.pkl
 
 # BDT configuration. Passed to XGBoost's XGBClassifier()
