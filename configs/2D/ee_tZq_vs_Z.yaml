@@ -22,69 +22,28 @@ data_process: DataEG
 plot_dir: plots1/
 root_dir: root1/
 mva_dir: mva1/
-test_fraction: 0.33
+test_fraction: 0.2
 equalise_signal: true
 negative_weight_treatment: passthrough
-preprocessors:
-    - preprocessor: robust_scaler
-      config: {}
-classifier: mlp
-mlp:
-    model:
-        backend: theano
-        class_name: Sequential
-        config:
-        - class_name: Dense
-          config:
-            activation: tanh
-            # activity_regularizer:
-            #   class_name: L1L2
-            #   config: {l1: 0.0, l2: 0.0}
-            # kernel_regularizer:
-            #   class_name: L1L2
-            #   config: {l1: 0, l2: 1e-3}
-            # bias_regularizer:
-            #   class_name: L1L2
-            #   config: {l1: 0, l2: 1e-3}
-            units: 32
-        - class_name: Dense
-          config:
-            activation: sigmoid
-            units: 1
-    model_params:
-        epochs: 10000
-        verbose: 1
-        batch_size: 256
-    compile_params:
-        loss: binary_crossentropy
-        optimizer: adam
-        metrics:
-            - accuracy
-    lr_reduction_params:
-        monitor: loss
-        factor: 0.2
-        patience: 2
-        verbose: 1
-    early_stopping_params:
-        monitor: loss
-        min_delta: 0
-        patience: 5
-        verbose: 0
-        mode: auto
+# preprocessors:
+#     - preprocessor: robust_scaler
+#       config: {}
+classifier: bdt_xgb
+bdt_xgb: {}
 root_out:
     combine: true
     drop_nan: true
     data: empty
     bins: 200
 features:
-    - bTagDisc
+    # - bTagDisc
     # - fourthJetEta
     # - fourthJetPhi
     # - fourthJetPt
     # - fourthJetbTag
     # - jetHt
     - jetMass
-    - jetMass3
+    # - jetMass3
     # - jjdelPhi
     - jjdelR
     - leadJetEta
@@ -129,7 +88,7 @@ features:
     # - w1TopDelPhi
     # - w1TopDelR
     # - w2TopDelPhi
-    - w2TopDelR
+    # - w2TopDelR
     # - wPairEta
     - wPairMass
     # - wPairPhi
