@@ -11,7 +11,7 @@ seed: 777
 # classifier training takes place.
 selection: >-
     chi2 < 40 &&
-    Channel == 1
+    Channel == 1.0
 
 # channel - prefix for output file names
 channel: ee
@@ -22,7 +22,7 @@ signals:
 
 # List of processes which should be considered background
 backgrounds:
-    - DYToLL_M10To50_aMCatNLO
+    # - DYToLL_M10To50_aMCatNLO
     - DYToLL_M50_aMCatNLO
     - FakeEG
     - FakeMu

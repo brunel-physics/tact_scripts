@@ -126,16 +126,16 @@ root_out:
     # The recursive binning strategies will stop splitting once these limits
     # are reached
     min_signal_events: 0
-    min_background_events: 1
-    max_signal_error: 0.3
-    max_background_error: 0.3
+    min_background_events: 0
+    max_signal_error: 0.1
+    max_background_error: 0.1
 
 # Features to be included in the classifier training
 features:
-    - bTagDisc
+    # - bTagDisc
     # - fourthJetEta
     # - fourthJetPhi
-    - fourthJetPt
+    # - fourthJetPt
     # - fourthJetbTag
     # - jetHt
     # - jetMass
@@ -149,7 +149,7 @@ features:
     - lep1D0
     # - lep1Eta
     # - lep1Phi
-    # - lep1Pt
+    - lep1Pt
     # - lep1RelIso
     - lep2D0
     # - lep2Eta
@@ -164,11 +164,11 @@ features:
     # - nJets
     # - secJetEta
     # - secJetPhi
-    - secJetPt
+    # - secJetPt
     # - secJetbTag
     # - thirdJetEta
     # - thirdJetPhi
-    # - thirdJetPt
+    - thirdJetPt
     # - thirdJetbTag
     # - topEta
     # - topMass
@@ -176,17 +176,17 @@ features:
     # - topPt
     # - totEta
     # - totHt
-    # - totHtOverPt
-    - totPt
+    - totHtOverPt
+    # - totPt
     # - totPt2Jet
     # - totPtVec
-    - totVecM
+    # - totVecM
     # - w1TopDelPhi
     # - w1TopDelR
     # - w2TopDelPhi
     # - w2TopDelR
-    # - wPairEta
-    # - wPairMass
+    - wPairEta
+    - wPairMass
     # - wPairPhi
     # - wPairPt
     # - wQuark1Eta
@@ -199,7 +199,7 @@ features:
     # - wTopDelPhi
     # - wTopDelR
     # - wwdelPhi
-    - wwdelR
+    # - wwdelR
     # - wzdelPhi
     # - wzdelR
     # - zEta
@@ -215,20 +215,20 @@ features:
     # - zTopDelPhi
     # - zTopDelR
     # - zjminPhi
-    - zjminR
+    # - zjminR
     # - zl1Quark1DelPhi
     # - zl1Quark1DelR
     # - zl1Quark2DelPhi
     # - zl1Quark2DelR
     # - zl1TopDelPhi
     # - zl1TopDelR
-    - zl2Quark1DelPhi
-    - zl2Quark1DelR
+    # - zl2Quark1DelPhi
+    # - zl2Quark1DelR
     # - zl2Quark2DelPhi
     # - zl2Quark2DelR
     # - zl2TopDelPhi
     # - zl2TopDelR
     # - zlb1DelPhi
-    # - zlb1DelR
+    - zlb1DelR
     # - zlb2DelPhi
-    # - zlb2DelR
+    - zlb2DelR

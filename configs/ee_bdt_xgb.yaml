@@ -26,7 +26,7 @@ backgrounds:
     - DYToLL_M50_aMCatNLO
     - FakeEG
     - FakeMu
-    - TbartChan
+    # - TbartChan
     - TbartW
     - THQ
     - TsChan
@@ -55,7 +55,7 @@ root_dir: root/
 mva_dir: mva/
 
 # Fraction of data to be reserved in test sample
-test_fraction: 0.25
+test_fraction: 0.2
 
 # If true, the weights of the signal channels are linearly scaled so that the
 # overall normalisation for both the signal and background channels is the same
@@ -78,24 +78,20 @@ negative_weight_treatment: passthrough
 #   mlp: Multi-Layer Perceptron (Keras)
 #   load: load classfier specfied by classifer_path option
 classifier: bdt_xgb
+# classifier_path: mva/bdt_xgb_ee.pkl
 
 # BDT configuration. Passed to XGBoost's XGBClassifier()
 bdt_xgb:
-    # booster: dart
     n_jobs: 20
-    n_estimators: 75
+    n_estimators: 5000
     silent: False
-    subsample: 0.67
-    learning_rate: 0.075
+    subsample: 0.7633908155402049
+    learning_rate: 0.0035780744128671225
     max_depth: 2
-    # colsample_bytree: 0.5
-    # min_child_weight: 100
-    # gamma: 15
-    # reg_lambda: 500
-    # reg_alpha: 10
-    # sample_type: uniform
-    # rate_drop: 0.1
-    # skip_drop: 0.75
+    min_child_weight: 5.187646557703793
+    gamma: 6.069385835375736
+    reg_lambda: 0.0052088659862697196
+    reg_alpha: 0.3680389189388204
 
 # Options governing the root file output
 root_out:
@@ -121,14 +117,14 @@ root_out:
     strategy: recursive_median
 
     # Set the number of bins for the equal or quantile binning stategies
-    bins: 20
+    bins: 25
 
     # The recursive binning strategies will stop splitting once these limits
     # are reached
     min_signal_events: 0
-    min_background_events: 1
-    max_signal_error: 0.3
-    max_background_error: 0.3
+    min_background_events: 0
+    max_signal_error: 0.1
+    max_background_error: 0.1
 
 # Features to be included in the classifier training
 features:
@@ -142,9 +138,9 @@ features:
     # - jetMass3
     # - jjdelPhi
     - jjdelR
-    - leadJetEta
+    # - leadJetEta
     # - leadJetPhi
-    - leadJetPt
+    # - leadJetPt
     # - leadJetbTag
     # - lep1D0
     # - lep1Eta
@@ -157,14 +153,14 @@ features:
     # - lep2Pt
     # - lep2RelIso
     # - lepEta
-    # - lepHt
+    - lepHt
     # - mTW
     - met
     # - nBjets
     # - nJets
     # - secJetEta
     # - secJetPhi
-    # - secJetPt
+    - secJetPt
     # - secJetbTag
     # - thirdJetEta
     # - thirdJetPhi
@@ -186,7 +182,7 @@ features:
     # - w2TopDelPhi
     # - w2TopDelR
     # - wPairEta
-    # - wPairMass
+    - wPairMass
     # - wPairPhi
     # - wPairPt
     # - wQuark1Eta
