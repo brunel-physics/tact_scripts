@@ -81,21 +81,16 @@ classifier: bdt_xgb
 
 # BDT configuration. Passed to XGBoost's XGBClassifier()
 bdt_xgb:
-    # booster: dart
     n_jobs: 20
-    # n_estimators: 195
-    # silent: False
-    # subsample: 0.76
-    # learning_rate: 0.1
-    # max_depth: 3
-    # colsample_bytree: 0.5
-    # min_child_weight: 100
-    # gamma: 15
-    # reg_lambda: 500
-    # reg_alpha: 10
-    # sample_type: uniform
-    # rate_drop: 0.1
-    # skip_drop: 0.75
+    n_estimators: 5000
+    silent: False
+    subsample: 0.7744848042718753
+    learning_rate: 0.004926596257071712
+    max_depth: 8
+    min_child_weight: 0.025622862232892882
+    gamma: 4.212730478883475
+    reg_lambda: 39.031000741275506
+    reg_alpha: 1.1791972290152864e-05
 
 # Options governing the root file output
 root_out:
