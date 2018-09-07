@@ -10,7 +10,6 @@ seed: 52
 # ROOT selection string specifying the cuts that should be made before
 # classifier training takes place.
 selection: >-
-    chi2 < 40 &&
     Channel == 1
 
 # channel - prefix for output filenames
@@ -85,13 +84,13 @@ bdt_xgb:
     n_jobs: 20
     n_estimators: 5000
     silent: False
-    subsample: 0.7633908155402049
-    learning_rate: 0.0035780744128671225
+    subsample: 0.5
+    learning_rate: 0.002815693352588695
     max_depth: 2
-    min_child_weight: 5.187646557703793
-    gamma: 6.069385835375736
-    reg_lambda: 0.0052088659862697196
-    reg_alpha: 0.3680389189388204
+    min_child_weight: 1.4962181762771598
+    gamma: 0.05616281233996916
+    reg_lambda: 0.6055791590336606
+    reg_alpha: 0.001626245530805544
 
 # Options governing the root file output
 root_out:
@@ -131,16 +130,16 @@ features:
     - bTagDisc
     # - fourthJetEta
     # - fourthJetPhi
-    # - fourthJetPt
+    - fourthJetPt
     # - fourthJetbTag
     # - jetHt
     - jetMass
     # - jetMass3
     # - jjdelPhi
     - jjdelR
-    # - leadJetEta
+    - leadJetEta
     # - leadJetPhi
-    # - leadJetPt
+    - leadJetPt
     # - leadJetbTag
     # - lep1D0
     # - lep1Eta
@@ -215,7 +214,7 @@ features:
     # - zl1Quark1DelPhi
     # - zl1Quark1DelR
     # - zl1Quark2DelPhi
-    # - zl1Quark2DelR
+    - zl1Quark2DelR
     # - zl1TopDelPhi
     # - zl1TopDelR
     # - zl2Quark1DelPhi
@@ -227,4 +226,4 @@ features:
     # - zlb1DelPhi
     # - zlb1DelR
     # - zlb2DelPhi
-    # - zlb2DelR
+    - zlb2DelR
