@@ -10,7 +10,6 @@ seed: 52
 # ROOT selection string specifying the cuts that should be made before
 # classifier training takes place.
 selection: >-
-    chi2 < 40 &&
     Channel == 0
 
 # channel - prefix for output filenames
@@ -47,7 +46,7 @@ backgrounds:
     - ZZZ
 
 # Name of process containing collision data
-data_process: DataEG
+data_process: DataMu
 
 # Directories plots, root files, and trained classifiers should be output into
 plot_dir: plots/
@@ -84,15 +83,15 @@ classifier_path: mva/bdt_xgb_mumu.pkl
 bdt_xgb:
     # booster: dart
     n_jobs: 20
-    n_estimators: 5000
+    n_estimators: 3282
     silent: False
     subsample: 1
-    learning_rate: 0.0030327930874431176
-    max_depth: 4
-    min_child_weight: 100
-    gamma: 0.1193120894493557
-    reg_lambda: 1e-05
-    reg_alpha: 0.0006429385059195104
+    learning_rate: 0.019553233510550067
+    max_depth: 2
+    min_child_weight: 1e-05
+    gamma: 5.403949948643187
+    reg_lambda: 1.4729961897772523
+    reg_alpha: 2.885205208040993e-05
 
 # Options governing the root file output
 root_out:
@@ -129,7 +128,7 @@ root_out:
 
 # Features to be included in the classifier training
 features:
-    # - bTagDisc
+    - bTagDisc
     # - fourthJetEta
     # - fourthJetPhi
     # - fourthJetPt
@@ -138,10 +137,10 @@ features:
     - jetMass
     # - jetMass3
     # - jjdelPhi
-    # - jjdelR
+    - jjdelR
     - leadJetEta
     # - leadJetPhi
-    # - leadJetPt
+    - leadJetPt
     # - leadJetbTag
     # - lep1D0
     # - lep1Eta
@@ -153,7 +152,7 @@ features:
     # - lep2Phi
     # - lep2Pt
     # - lep2RelIso
-    # - lepEta
+    - lepEta
     - lepHt
     # - mTW
     - met
@@ -165,7 +164,7 @@ features:
     # - secJetbTag
     # - thirdJetEta
     # - thirdJetPhi
-    # - thirdJetPt
+    - thirdJetPt
     # - thirdJetbTag
     # - topEta
     - topMass
@@ -173,7 +172,7 @@ features:
     # - topPt
     # - totEta
     # - totHt
-    # - totHtOverPt
+    - totHtOverPt
     # - totPt
     # - totPt2Jet
     # - totPtVec
@@ -182,8 +181,8 @@ features:
     # - w1TopDelR
     # - w2TopDelPhi
     # - w2TopDelR
-    - wPairEta
-    # - wPairMass
+    # - wPairEta
+    - wPairMass
     # - wPairPhi
     # - wPairPt
     # - wQuark1Eta
@@ -213,6 +212,7 @@ features:
     # - zTopDelR
     # - zjminPhi
     # - zjminR
+    # - thirdJetPt
     # - zl1Quark1DelPhi
     # - zl1Quark1DelR
     # - zl1Quark2DelPhi
@@ -226,6 +226,6 @@ features:
     # - zl2TopDelPhi
     # - zl2TopDelR
     # - zlb1DelPhi
-    # - zlb1DelR
+    - zlb1DelR
     # - zlb2DelPhi
     # - zlb2DelR
