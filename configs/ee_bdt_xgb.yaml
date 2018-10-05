@@ -21,8 +21,10 @@ signals:
 
 # List of processes which should be considered background
 backgrounds:
-    - DYToLL_M10To50_aMCatNLO
-    - DYToLL_M50_aMCatNLO
+    # - DYToLL_M10To50_aMCatNLO
+    # - DYToLL_M50_aMCatNLO
+    - DYToLL_M10To50
+    - DYToLL_M50
     - FakeEG
     - FakeMu
     # - TbartChan
@@ -102,7 +104,7 @@ root_out:
     # poisson: Sum the Monte Carlo histograms, and perform a Poisson jump on
     #          each bin
     # real: Use the real data
-    data: empty
+    data: real
 
     # The strategy used to bin the MVA response in the resulting root files
     #   equal: specified number of equal-width bins in the (0, 1) range
@@ -130,9 +132,9 @@ features:
     - bTagDisc
     # - fourthJetEta
     # - fourthJetPhi
-    - fourthJetPt
+    # - fourthJetPt
     # - fourthJetbTag
-    # - jetHt
+    - jetHt
     - jetMass
     # - jetMass3
     # - jjdelPhi
@@ -159,7 +161,7 @@ features:
     # - nJets
     # - secJetEta
     # - secJetPhi
-    - secJetPt
+    # - secJetPt
     # - secJetbTag
     # - thirdJetEta
     # - thirdJetPhi
@@ -190,7 +192,7 @@ features:
     # - wQuark2Eta
     # - wQuark2Phi
     # - wQuark2Pt
-    # - wQuarkHt
+    - wQuarkHt
     # - wTopDelPhi
     # - wTopDelR
     # - wwdelPhi
@@ -198,7 +200,7 @@ features:
     # - wzdelPhi
     # - wzdelR
     # - zEta
-    # - zLepdelPhi
+    - zLepdelPhi
     # - zLepdelR
     - zMass
     # - zPhi
