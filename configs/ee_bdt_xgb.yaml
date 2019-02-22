@@ -23,8 +23,9 @@ signals:
 backgrounds:
     # - DYToLL_M10To50_aMCatNLO
     # - DYToLL_M50_aMCatNLO
-    - DYToLL_M10To50
-    - DYToLL_M50
+    # - DYToLL_M10To50
+    # - DYToLL_M50
+    - DYToLL_PtBinned
     - FakeEG
     - FakeMu
     # - TbartChan
@@ -84,11 +85,11 @@ classifier: bdt_xgb
 # BDT configuration. Passed to XGBoost's XGBClassifier()
 bdt_xgb:
     n_jobs: 20
-    n_estimators: 5000
+    n_estimators: 300
     silent: False
     subsample: 0.5
-    learning_rate: 0.002815693352588695
-    max_depth: 2
+    learning_rate: 0.02815693352588695
+    max_depth: 4
     min_child_weight: 1.4962181762771598
     gamma: 0.05616281233996916
     reg_lambda: 0.6055791590336606
@@ -132,16 +133,16 @@ features:
     - bTagDisc
     # - fourthJetEta
     # - fourthJetPhi
-    # - fourthJetPt
+    - fourthJetPt
     # - fourthJetbTag
-    - jetHt
+    # - jetHt
     - jetMass
     # - jetMass3
     # - jjdelPhi
     - jjdelR
     - leadJetEta
     # - leadJetPhi
-    - leadJetPt
+    # - leadJetPt
     # - leadJetbTag
     # - lep1D0
     # - lep1Eta
@@ -154,26 +155,26 @@ features:
     # - lep2Pt
     # - lep2RelIso
     # - lepEta
-    - lepHt
+    # - lepHt
     # - mTW
-    - met
+    # - met
     # - nBjets
-    # - nJets
+    - nJets
     # - secJetEta
     # - secJetPhi
     # - secJetPt
     # - secJetbTag
     # - thirdJetEta
     # - thirdJetPhi
-    - thirdJetPt
+    # - thirdJetPt
     # - thirdJetbTag
     # - topEta
-    - topMass
+    # - topMass
     # - topPhi
-    # - topPt
+    - topPt
     # - totEta
     # - totHt
-    - totHtOverPt
+    # - totHtOverPt
     # - totPt
     # - totPt2Jet
     # - totPtVec
@@ -182,7 +183,7 @@ features:
     # - w1TopDelR
     # - w2TopDelPhi
     # - w2TopDelR
-    # - wPairEta
+    - wPairEta
     - wPairMass
     # - wPairPhi
     # - wPairPt
@@ -192,15 +193,15 @@ features:
     # - wQuark2Eta
     # - wQuark2Phi
     # - wQuark2Pt
-    - wQuarkHt
+    # - wQuarkHt
     # - wTopDelPhi
-    # - wTopDelR
+    - wTopDelR
     # - wwdelPhi
     # - wwdelR
     # - wzdelPhi
     # - wzdelR
     # - zEta
-    - zLepdelPhi
+    # - zLepdelPhi
     # - zLepdelR
     - zMass
     # - zPhi
@@ -216,7 +217,7 @@ features:
     # - zl1Quark1DelPhi
     # - zl1Quark1DelR
     # - zl1Quark2DelPhi
-    - zl1Quark2DelR
+    # - zl1Quark2DelR
     # - zl1TopDelPhi
     # - zl1TopDelR
     # - zl2Quark1DelPhi
@@ -228,4 +229,4 @@ features:
     # - zlb1DelPhi
     # - zlb1DelR
     # - zlb2DelPhi
-    - zlb2DelR
+    # - zlb2DelR

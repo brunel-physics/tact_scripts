@@ -10,7 +10,6 @@ seed: 777
 # ROOT selection string specifying the cuts that should be made before
 # classifier training takes place.
 selection: >-
-    chi2 < 40 &&
     Channel == 1.0
 
 # channel - prefix for output file names
@@ -23,10 +22,10 @@ signals:
 # List of processes which should be considered background
 backgrounds:
     # - DYToLL_M10To50_aMCatNLO
-    - DYToLL_M50_aMCatNLO
+    - DYToLL_PtBinned
     - FakeEG
     - FakeMu
-    - TbartChan
+    # - TbartChan
     - TbartW
     - THQ
     - TsChan
@@ -55,7 +54,7 @@ root_dir: root/
 mva_dir: mva/
 
 # Fraction of data to be reserved in test sample
-test_fraction: 0.33
+test_fraction: 0.2
 
 # If true, the weights of the signal channels are linearly scaled so that the
 # overall normalisation for both the signal and background channels is the same
@@ -90,28 +89,39 @@ classifier: mlp
 mlp:
     # YAML describing model, see Keras documentation for details
     model:
-        backend: theano
+        backend: tensorflow
         class_name: Sequential
         config:
         - class_name: Dense
           config:
-            activation: tanh
-            # activity_regularizer:
-            #   class_name: L1L2
-            #   config: {l1: 5e-6, l2: 1e-5}
-            # kernel_regularizer:
-            #   class_name: L1L2
-            #   config: {l1: 5e-4, l2: 0}
-            # bias_regularizer:
-            #   class_name: L1L2
-            #   config: {l1: 5e-4, l2: 0}
-            units: 20
+            activation: linear
+            kernel_initializer: "glorot_normal"
+            kernel_regularizer:
+              class_name: L1L2
+              config: {l1: 1e-5, l2: 1e-4}
+            units: 64
+        - class_name: ELU
+          config: {}
         - class_name: Dropout
           config:
-              rate: 0.25
+              rate: 0.33
+        - class_name: Dense
+          config:
+            activation: linear
+            kernel_initializer: "glorot_normal"
+            kernel_regularizer:
+              class_name: L1L2
+              config: {l1: 1e-4, l2: 1e-3}
+            units: 16
+        - class_name: ELU
+          config: {}
+        - class_name: Dropout
+          config:
+              rate: 0.33
         - class_name: Dense
           config:
             activation: sigmoid
+            kernel_initializer: "glorot_normal"
             units: 1
 
     # Keyword arguments to be passed to Keras' KerasClassifier() function
@@ -131,15 +141,15 @@ mlp:
     early_stopping_params:
         monitor: loss
         min_delta: 0
-        patience: 5
+        patience: 50
         verbose: 1
         mode: auto
 
     # Parameters passed to Keras' ReduceLROnPlateau()
     lr_reduction_params:
         monitor: loss
-        factor: 0.2
-        patience: 2
+        factor: 0.1
+        patience: 20
         verbose: 1
 
 # Options governing the root file output
@@ -181,31 +191,31 @@ features:
     # - fourthJetPhi
     - fourthJetPt
     # - fourthJetbTag
-    # - jetHt
+    - jetHt
     - jetMass
-    # - jetMass3
+    - jetMass3
     # - jjdelPhi
     - jjdelR
-    # - leadJetEta
+    - leadJetEta
     # - leadJetPhi
     - leadJetPt
-    # - leadJetbTag
+    - leadJetbTag
     # - lep1D0
-    # - lep1Eta
+    - lep1Eta
     # - lep1Phi
-    # - lep1Pt
+    - lep1Pt
     # - lep1RelIso
     # - lep2D0
     # - lep2Eta
     # - lep2Phi
     # - lep2Pt
     # - lep2RelIso
-    # - lepEta
+    - lepEta
     - lepHt
     # - mTW
     - met
-    # - nBjets
-    # - nJets
+    - nBjets
+    - nJets
     # - secJetEta
     # - secJetPhi
     - secJetPt
@@ -219,12 +229,12 @@ features:
     # - topPhi
     # - topPt
     # - totEta
-    # - totHt
+    - totHt
     - totHtOverPt
-    # - totPt
+    - totPt
     # - totPt2Jet
     # - totPtVec
-    # - totVecM
+    - totVecM
     # - w1TopDelPhi
     # - w1TopDelR
     # - w2TopDelPhi
@@ -236,43 +246,43 @@ features:
     # - wQuark1Eta
     # - wQuark1Phi
     # - wQuark1Pt
-    # - wQuark2Eta
+    - wQuark2Eta
     # - wQuark2Phi
     # - wQuark2Pt
-    # - wQuarkHt
+    - wQuarkHt
     # - wTopDelPhi
     # - wTopDelR
     # - wwdelPhi
     # - wwdelR
     # - wzdelPhi
-    # - wzdelR
+    - wzdelR
     # - zEta
     - zLepdelPhi
     # - zLepdelR
     - zMass
     # - zPhi
-    # - zPt
+    - zPt
     # - zQuark1DelPhi
     # - zQuark1DelR
     # - zQuark2DelPhi
     # - zQuark2DelR
     # - zTopDelPhi
-    # - zTopDelR
-    # - zjminPhi
-    - zjminR
+    - zTopDelR
+    - zjminPhi
+    # - zjminR
     # - zl1Quark1DelPhi
-    # - zl1Quark1DelR
+    - zl1Quark1DelR
     # - zl1Quark2DelPhi
-    # - zl1Quark2DelR
+    - zl1Quark2DelR
     # - zl1TopDelPhi
     # - zl1TopDelR
     # - zl2Quark1DelPhi
-    # - zl2Quark1DelR
+    - zl2Quark1DelR
     # - zl2Quark2DelPhi
-    # - zl2Quark2DelR
+    - zl2Quark2DelR
     # - zl2TopDelPhi
     # - zl2TopDelR
     # - zlb1DelPhi
     # - zlb1DelR
     # - zlb2DelPhi
-    # - zlb2DelR
+    - zlb2DelR
