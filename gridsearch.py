@@ -108,18 +108,18 @@ def main():
     from skopt import gp_minimize, gbrt_minimize
     from sklearn.externals.joblib import Parallel, delayed
 
-    skf = StratifiedKFold(n_splits=4, shuffle=True)
+    skf = StratifiedKFold(n_splits=4, shuffle=False)
     bdt = XGBClassifier(silent=True)
     pipe = make_pipeline(*(pre + [bdt]))
 
-    space = [Real(1e-5, 10, "log-uniform", name="learning_rate"),
-             Integer(25, 5000, name="n_estimators"),
-             Integer(2, 10, name="max_depth"),
-             Real(0.5, 1, name="subsample"),
+    space = [Real(1e-5, 0.1, "log-uniform", name="learning_rate"),
+             Integer(32, 2500, name="n_estimators"),
+             Integer(3, 8, name="max_depth"),
+             Real(0.5, 0.8, name="subsample"),
              Real(1e-5, 1e3, "log-uniform", name="reg_alpha"),
              Real(1e-5, 1e3, "log-uniform", name="reg_lambda"),
-             Real(1e-5, 100, "log-uniform", name="min_child_weight"),
-             Real(1e-5, 100, "log-uniform", name="gamma")]
+             Real(1e-5, 1e3, "log-uniform", name="min_child_weight"),
+             Real(1e-5, 10, "log-uniform", name="gamma")]
 
     from sklearn.model_selection import cross_val_score
 
@@ -140,7 +140,7 @@ def main():
         return -np.mean(scores)
 
     res_gp = gp_minimize(objective, space, n_calls=150,
-                         n_random_starts=15, n_jobs=1, verbose=True, noise="gaussian")
+                         n_random_starts=50, n_jobs=1, verbose=True, noise=1e-10)
 
     from skopt.plots import plot_convergence, plot_evaluations, plot_objective
 
@@ -163,7 +163,8 @@ def main():
                         reg_alpha=res_gp.x[4],
                         reg_lambda=res_gp.x[5],
                         min_child_weight=res_gp.x[6],
-                        gamma=res_gp.x[7], n_jobs=18)
+                        gamma=res_gp.x[7],
+                        n_jobs=18)
     print(mva)
     mva.fit(df_train[features], df_train.Signal,
             sample_weight=df_train.MVAWeight)
