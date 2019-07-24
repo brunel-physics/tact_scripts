@@ -21,29 +21,40 @@ signals:
 
 # List of processes which should be considered background
 backgrounds:
-    # - DYToLL_M10To50_aMCatNLO
-    - DYToLL_PtBinned
-    - FakeEG
-    - FakeMu
-    # - TbartChan
-    - TbartW
-    - THQ
-    - TsChan
-    - TT
-    - TtChan
-    - ttH
-    - TTW
-    - TtW
-    - TTZ
-    - TWZ
-    - Wjets
-    - WW
-    - WWW
-    - WWZ
-    - WZ
-    - WZZ
-    - ZZ
-    - ZZZ
+    - "TTHbb"
+    - "TTHnonbb"
+    - "WWW"
+    - "WWZ"
+    - "WZZ"
+    - "ZZZ"
+    - "WW1l1nu2q"
+    - "WW2l2nu"
+    - "ZZ4l"
+    - "ZZ2l2nu"
+    - "ZZ2l2q"
+    - "WZjets"
+    - "WZ2l2q"
+    - "WZ1l1nu2q"
+    - "TsChan"
+    - "TtChan"
+    - "TbartChan"
+    - "TW"
+    - "TbarW"
+    - "TZQ"
+    - "THQ"
+    - "TTWlnu"
+    - "TTW2q"
+    - "TTZ2l2nu"
+    - "TTZ2q"
+    - "TT"
+    - "TWZ"
+    - "Wjets"
+    - "DYJetsLLPt-0To50"
+    - "DYJetsLLPt-50To100"
+    - "DYJetsLLPt-100To250"
+    - "DYJetsLLPt-250To400"
+    - "DYJetsLLPt-400To650"
+    - "DYJetsLLPt-650ToInf"
 
 # Name of process containing collision data
 data_process: DataEG
