@@ -97,7 +97,7 @@ def main():
 
     # Classify
     from xgboost import XGBClassifier
-    from lightgbm import LGBMClassifier
+    # from lightgbm import LGBMClassifier
     from sklearn.pipeline import make_pipeline
     from sklearn.model_selection import StratifiedKFold
 
