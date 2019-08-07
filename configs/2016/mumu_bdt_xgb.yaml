@@ -17,7 +17,7 @@ channel: mumu
 
 # List of processes which should be considered signal
 signals:
-    - tZq
+    - "TZQ"
 
 # List of processes which should be considered background
 backgrounds:
@@ -49,12 +49,13 @@ backgrounds:
     - "TT"
     - "TWZ"
     - "Wjets"
-    - "DYJetsLLPt-0To50"
-    - "DYJetsLLPt-50To100"
-    - "DYJetsLLPt-100To250"
-    - "DYJetsLLPt-250To400"
-    - "DYJetsLLPt-400To650"
-    - "DYJetsLLPt-650ToInf"
+    - "DYJetsLLPt0To50"
+    - "DYJetsLLPt50To100"
+    - "DYJetsLLPt100To250"
+    - "DYJetsLLPt250To400"
+    - "DYJetsLLPt400To650"
+    - "DYJetsLLPt650ToInf"
+    - "FakeMu"
 
 # Name of process containing collision data
 data_process: DataMu
@@ -94,15 +95,15 @@ classifier: bdt_xgb
 bdt_xgb:
     # booster: dart
     n_jobs: 20
-    n_estimators: 3282
+    n_estimators: 2001
     silent: False
-    subsample: 1
-    learning_rate: 0.019553233510550067
-    max_depth: 2
-    min_child_weight: 1e-05
-    gamma: 5.403949948643187
-    reg_lambda: 1.4729961897772523
-    reg_alpha: 2.885205208040993e-05
+    subsample: 0.5
+    learning_rate: 0.012374070195479576
+    max_depth: 5
+    min_child_weight: 51.08040090285776
+    gamma: 10
+    reg_lambda: 0.062041094146288854
+    reg_alpha: 0.06543433360190888
 
 # Options governing the root file output
 root_out:
@@ -134,24 +135,28 @@ root_out:
     # are reached
     min_signal_events: 0
     min_background_events: 1
-    max_signal_error: 0.1
-    max_background_error: 0.1
+    max_signal_error: 0.3
+    max_background_error: 0.3
+
+    # Suffix to be added to bin and systematic names
+    suffix: "_2016"
 
 # Features to be included in the classifier training
 features:
     - bTagDisc
+    - chi2
     # - fourthJetEta
     # - fourthJetPhi
-    # - fourthJetPt
+    - fourthJetPt
     # - fourthJetbTag
-    - jetHt
+    # - jetHt
     - jetMass
     # - jetMass3
     # - jjdelPhi
-    # - jjdelR
+    - jjdelR
     - leadJetEta
     # - leadJetPhi
-    - leadJetPt
+    # - leadJetPt
     # - leadJetbTag
     # - lep1D0
     # - lep1Eta
@@ -163,7 +168,7 @@ features:
     # - lep2Phi
     # - lep2Pt
     # - lep2RelIso
-    - lepEta
+    # - lepEta
     - lepHt
     # - mTW
     - met
@@ -171,14 +176,14 @@ features:
     # - nJets
     # - secJetEta
     # - secJetPhi
-    # - secJetPt
+    - secJetPt
     # - secJetbTag
     # - thirdJetEta
     # - thirdJetPhi
-    - thirdJetPt
+    # - thirdJetPt
     # - thirdJetbTag
     # - topEta
-    - topMass
+    # - topMass
     # - topPhi
     # - topPt
     # - totEta
@@ -199,7 +204,7 @@ features:
     # - wQuark1Eta
     # - wQuark1Phi
     # - wQuark1Pt
-    # - wQuark2Eta
+    - wQuark2Eta
     # - wQuark2Phi
     # - wQuark2Pt
     # - wQuarkHt
@@ -209,7 +214,7 @@ features:
     # - wwdelR
     # - wzdelPhi
     # - wzdelR
-    # - zEta
+    - zEta
     # - zLepdelPhi
     # - zLepdelR
     - zMass
@@ -222,7 +227,7 @@ features:
     # - zTopDelPhi
     # - zTopDelR
     # - zjminPhi
-    - zjminR
+    # - zjminR
     # - zl1Quark1DelPhi
     # - zl1Quark1DelR
     # - zl1Quark2DelPhi
@@ -236,6 +241,6 @@ features:
     # - zl2TopDelPhi
     # - zl2TopDelR
     # - zlb1DelPhi
-    - zlb1DelR
+    # - zlb1DelR
     # - zlb2DelPhi
     # - zlb2DelR
