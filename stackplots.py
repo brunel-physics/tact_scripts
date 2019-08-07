@@ -7,6 +7,7 @@ import warnings
 from collections import defaultdict
 
 import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -14,9 +15,24 @@ import scipy.stats
 from root_numpy import list_trees
 from root_pandas import read_root
 
-# plt.style.use('seaborn')
-mpl.rcParams.update({"pgf.texsystem": "pdflatex"})
+plt.style.use('seaborn-whitegrid')
+mpl.rcParams.update({"font.family": "serif",
+                     "pgf.texsystem": "pdflatex",
+                     "pgf.rcfonts": False})
 
+indir = "/scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz20mw20_zPlus/"
+selection = "chi2 > 4 && chi2 < 150 && Channel == 1"
+
+outdir = "plots_ee_zPlus"
+
+colours = {"Z+jets": "#006699",
+           "VV": "#ff9933",
+           "VVV": "#993399",
+           "Single top": "#ff99cc",
+           "tZq": "#999999",
+           "ttV": "#339933",
+           "tt": "#cc0000",
+           "NPL": "#003300"}
 
 def read_tree(*args, **kwargs):
     # Read ROOT trees into data frames
@@ -33,18 +49,54 @@ def read_trees(input_dir):
 
     root_files = glob.iglob(input_dir + r"*.root")
 
+    processes = {
+        "TTHbb": "ttV",
+        "TTHnonbb": "ttV",
+        "WWW": "VVV",
+        "WWZ": "VVV",
+        "WZZ": "VVV",
+        "ZZZ": "VVV",
+        "WW1l1nu2q": "VV",
+        "WW2l2nu": "VV",
+        "ZZ4l": "VV",
+        "ZZ2l2nu": "VV",
+        "ZZ2l2q": "VV",
+        "WZjets": "VV",
+        "WZ2l2q": "VV",
+        "WZ1l1nu2q": "VV",
+        "TsChan": "Single top",
+        "TtChan": "Single top",
+        "TbartChan": "Single top",
+        "TW": "Single top",
+        "TbarW": "Single top",
+        "TZQ": "tZq",
+        "THQ": "Single top",
+        "TTWlnu": "ttV",
+        "TTW2q": "ttV",
+        "TTZ2l2nu": "ttV",
+        "TTZ2q": "ttV",
+        "TT" : "tt",
+        "TWZ": "Single top",
+        "Wjets": "W+jets",
+        "DYJetsLLPt0To50": "Z+jets",
+        "DYJetsLLPt50To100": "Z+jets",
+        "DYJetsLLPt100To250": "Z+jets",
+        "DYJetsLLPt250To400": "Z+jets",
+        "DYJetsLLPt400To650": "Z+jets",
+        "DYJetsLLPt650ToInf": "Z+jets",
+        "FakeEG": "NPL",
+        "FakeMu": "NPL",
+        "DataEG": "Data",
+        "DataMu": "Data",
+        "MuonEG": "Data",
+    }
+
     for root_file in root_files:
         for tree in list_trees(root_file):
             # Parse tree name
             split_tree = tree.split("__")
             process = split_tree[0].split("Ttree_", 1)[-1]
-
-            if process not in {
-                    "tZq", "DYToLL_M10To50_aMCatNLO", "DYToLL_M50_aMCatNLO",
-                    "FakeEG", "FakeMu", "TbartChan", "TbartW", "THQ", "TsChan",
-                    "TT", "TtChan", "ttH", "TTW", "TtW", "TTZ", "TWZ", "Wjets",
-                    "WW", "WWW", "WWZ", "WZ", "WZZ", "ZZ", "ZZZ", "DataEG",
-                    "DataMu"}:
+            if process not in processes.keys():
                 continue
 
             try:
@@ -66,27 +118,31 @@ def read_trees(input_dir):
             with warnings.catch_warnings():
                 warnings.simplefilter('ignore', RuntimeWarning)
                 df = read_tree(
-                    root_file, tree, where="chi2 > 40 && chi2 < 150 && Channel == 1")
+                    root_file, tree, where=selection)
 
             if df.empty:
-                # print("Skipped (empty)")
+                print(process+systematic , "skipped (empty)")
                 continue
             print(process + systematic)
 
             # Label $PROCESS__$SYSTEMATIC
+            df = df.assign(Group=processes[process] + systematic)
             df = df.assign(Category=process + systematic)
 
             dfs.append(df)
 
     df = pd.concat(dfs)
     df.Category = df.Category.astype('category')
+    df.Group = df.Group.astype('category')
 
     return df.reset_index(drop=True)
 
 
 def bin_data(df, column, pattern, **kwargs):
-    return np.histogram(
-        df[df.Category.str.match(pattern)][column], bins="auto", **kwargs)
+    data = df[df.Category.str.match(pattern)][column]
+    xmin = max(data.min(), data.quantile(0.25) - 2 * scipy.stats.iqr(data))
+    xmax = min(data.max(), data.quantile(0.75) + 2 * scipy.stats.iqr(data))
+    return np.histogram(data, bins="doane", range=(xmin, xmax), **kwargs)
 
 
 def bin_mc(df, column, **kwargs):
@@ -149,10 +205,13 @@ def total_systematics(shape_systematics, rate_systematics, category_bin_counts,
 
     for key, val in s_bin_counts.iteritems():
         val = val - mc_bin_count
-        val.sort(axis=0)
+        # val.sort(axis=0)
         val[0] = val[0].clip(max=0)
         val[1] = val[1].clip(min=0)
         s_bin_counts[key] = val
+
+    # for k, v in s_bin_counts.iteritems():
+    #     print(k, np.sum(v, axis=1))
 
     syst_error = np.sqrt(
         sum(np.square(a) for _, a in s_bin_counts.iteritems()))
@@ -168,14 +227,19 @@ def mask_empty_bins(*bin_counts):
 
 
 def main(argv):
-    indir = ("/scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz20mw20/")
     df = read_trees(indir)
 
     # Get list of processes (don't get data or systematics) and sort by size
     processes = [
         p for p in df.Category.unique()
-        if not re.search(r"^Data", p) and len(p.split("__")) == 1]
+        if not re.search(r"^Data|^MuonEG$", p) and len(p.split("__")) == 1]
     processes.sort(key=lambda x: df[df.Category == x].EvtWeight.sum())
+
+    groups = [
+        g for g in df.Group.unique()
+        if not g == "Data" and len(g.split("__")) == 1]
+    groups.sort(key=lambda x: df[df.Group == x].EvtWeight.sum())
+    groups.insert(0, groups.pop(groups.index('tZq')))
 
     # Get list of systematics
     shape_systematics = list({
@@ -184,9 +248,30 @@ def main(argv):
         if "__" in p})
 
     rate_systematcs = {
-        "lumi": (re.compile(r"^(?!Fake).+"), 0.025),
+        "lumi": (re.compile(r".+"), 0.025),
         "fake_ee": (re.compile(r"^FakeEG$"), 0.3),
-        "fake_mumu": (re.compile(r"^FakeMu$"), 0.3)}
+        "fake_mumu": (re.compile(r"^FakeMu$"), 0.3),
+        "DY_rate": (re.compile(r"^DYJetsLL"), 0.1),
+        "TT_rate": (re.compile(r"^TT[0-9a-z]?"), 0.1),
+        "TtChan_rate": (re.compile(r"^TtChan$"), 0.1),
+        "TbartChan_rate": (re.compile(r"^TbartChan$"), 0.1),
+        "TTH_rate": (re.compile(r"^TTH"), 0.1),
+        "WWW_rate": (re.compile(r"^WWW$"), 0.1),
+        "WWZ_rate": (re.compile(r"^WWZ$"), 0.1),
+        "WZZ_rate": (re.compile(r"^WZZ$"), 0.1),
+        "ZZZ_rate": (re.compile(r"^ZZZ$"), 0.1),
+        "WW_rate": (re.compile(r"^WW[0-9a-z]"), 0.1),
+        "WZ_rate": (re.compile(r"^WZ[0-9a-z]"), 0.1),
+        "ZZ_rate": (re.compile(r"^ZZ[0-9a-z]"), 0.1),
+        "TsChan_rate": (re.compile(r"^TsChan$"), 0.1),
+        "TW_rate": (re.compile(r"^TW$"), 0.1),
+        "TbarW_rate": (re.compile(r"^TbarW$"), 0.1),
+        "THQ_rate": (re.compile(r"^THQ$"), 0.1),
+        "TTW_rate": (re.compile(r"^TTW[0-9a-z]"), 0.1),
+        "TTZ_rate": (re.compile(r"^TTZ[0-9a-z]"), 0.1),
+        "TWZ_rate": (re.compile(r"^TWZ$"), 0.1),
+        "Wjets_rate": (re.compile(r"^Wjets$"), 0.1),
+    }
 
     for column in list(df):
         print(column)
@@ -195,18 +280,14 @@ def main(argv):
         if column == "EvtWeight":
             continue
 
-        # Clip data to form overflow bins
         try:
-            df[column] = df[column].clip(
-                lower=df[column].quantile(0.25) -
-                1.5 * scipy.stats.iqr(df[column]),
-                upper=df[column].quantile(0.75) +
-                1.5 * scipy.stats.iqr(df[column]))
-        except TypeError:  # not numeric
+            if not np.issubdtype(df[column].dtype, np.number):
+                continue
+        except TypeError:  # happens
             continue
 
         # Bin everything
-        data_bin_count, bins = bin_data(df, column, "^Data")
+        data_bin_count, bins = bin_data(df, column, r"^Data|^MuonEG$")
         data_bin_count_error = np.sqrt(data_bin_count)
         category_bin_counts = bin_mc(df, column, bins=bins)
         mc_bin_count = sum(
@@ -224,17 +305,18 @@ def main(argv):
             nrows=2, gridspec_kw={"height_ratios": [4, 1]}, sharex=True)
 
         # Stackplot
-        ax1.set_prop_cycle("color", [plt.cm.tab20(i)
-                                     for i in np.linspace(0, 1, len(processes))])
+        # ax1.set_prop_cycle("color", [plt.cm.tab10(i)
+        #                              for i in np.linspace(0, 1, len(groups))])
         ax1.hist(
-            [df[df.Category == p][column] for p in processes],
+            [df[df.Group == g][column] for g in groups],
             stacked=True,
-            label=processes,
-            weights=[df[df.Category == p].EvtWeight for p in processes],
+            label=groups,
+            weights=[df[df.Group == g].EvtWeight for g in groups],
             bins=bins,
+            color=[colours[g] for g in groups],
             edgecolor='black',
             histtype="stepfilled")[0][-1]
-
+        
         # Rate plot
         bin_centres = (bins[:-1] + bins[1:]) / 2
         ax1.bar(
@@ -258,11 +340,17 @@ def main(argv):
                 fmt="k.",
                 label="Data")
         ax1.legend(
-            prop={'size': 5},
-            bbox_to_anchor=(1.05, 1),
-            loc=2,
-            borderaxespad=0.)
+            prop={'size': 6},
+            # bbox_to_anchor=(1.05, 1),
+            loc="best",
+            # borderaxespad=0.,
+            frameon=True,
+            fancybox=True,
+            facecolor="w",
+            framealpha=0.8,
+        )
 
+        ax1.set_title("CMS Preliminary", loc="left")
         ax1.set_ylabel("Events")
 
         ax2.errorbar(
@@ -288,15 +376,19 @@ def main(argv):
         ax2.set_ylabel("Data/MC ratio")
         ax2.set_xlabel(column)
 
+        # Set axis limits
+        ax1.set_ylim(bottom=0)
+
         plt.tight_layout()
 
-        fig.savefig("plots/{}.pdf".format(column))
-        fig.savefig("plots/{}.pgf".format(column))
+        fig.savefig("{}/{}.pdf".format(outdir, column))
+        fig.savefig("{}/{}.pgf".format(outdir, column))
 
+        ax1.set_ylim(bottom=1)
         ax1.set_yscale("log")
 
-        fig.savefig("plots/{}_log.pdf".format(column))
-        fig.savefig("plots/{}_log.pgf".format(column))
+        fig.savefig("{}/{}_log.pdf".format(outdir, column))
+        fig.savefig("{}/{}_log.pgf".format(outdir, column))
 
         plt.close(fig)
 
