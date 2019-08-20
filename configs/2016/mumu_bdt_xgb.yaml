@@ -35,12 +35,11 @@ backgrounds:
     - "WZjets"
     - "WZ2l2q"
     - "WZ1l1nu2q"
-    - "TsChan"
+    # - "TsChan"
     - "TtChan"
     - "TbartChan"
     - "TW"
     - "TbarW"
-    - "TZQ"
     - "THQ"
     - "TTWlnu"
     - "TTW2q"
@@ -95,15 +94,15 @@ classifier: bdt_xgb
 bdt_xgb:
     # booster: dart
     n_jobs: 20
-    n_estimators: 2001
+    n_estimators: 1225
     silent: False
-    subsample: 0.5
-    learning_rate: 0.012374070195479576
-    max_depth: 5
-    min_child_weight: 51.08040090285776
+    subsample: 0.8
+    learning_rate: 0.035729355649649554
+    max_depth: 3
+    min_child_weight: 57.70239165371276
     gamma: 10
-    reg_lambda: 0.062041094146288854
-    reg_alpha: 0.06543433360190888
+    reg_lambda: 5.957708754273649
+    reg_alpha: 0.00664460246782605
 
 # Options governing the root file output
 root_out:
@@ -149,12 +148,11 @@ features:
     # - fourthJetPhi
     - fourthJetPt
     # - fourthJetbTag
-    # - jetHt
     - jetMass
     # - jetMass3
     # - jjdelPhi
     - jjdelR
-    - leadJetEta
+    # - leadJetEta
     # - leadJetPhi
     # - leadJetPt
     # - leadJetbTag
@@ -169,7 +167,6 @@ features:
     # - lep2Pt
     # - lep2RelIso
     # - lepEta
-    - lepHt
     # - mTW
     - met
     # - nBjets
@@ -188,7 +185,6 @@ features:
     # - topPt
     # - totEta
     # - totHt
-    - totHtOverPt
     # - totPt
     # - totPt2Jet
     # - totPtVec
@@ -197,14 +193,14 @@ features:
     # - w1TopDelR
     # - w2TopDelPhi
     # - w2TopDelR
-    # - wPairEta
+    - wPairEta
     # - wPairMass
     # - wPairPhi
     # - wPairPt
     # - wQuark1Eta
     # - wQuark1Phi
     # - wQuark1Pt
-    - wQuark2Eta
+    # - wQuark2Eta
     # - wQuark2Phi
     # - wQuark2Pt
     # - wQuarkHt
@@ -213,13 +209,13 @@ features:
     # - wwdelPhi
     # - wwdelR
     # - wzdelPhi
-    # - wzdelR
+    - wzdelR
     - zEta
     # - zLepdelPhi
     # - zLepdelR
     - zMass
     # - zPhi
-    # - zPt
+    - zPt
     # - zQuark1DelPhi
     # - zQuark1DelR
     # - zQuark2DelPhi

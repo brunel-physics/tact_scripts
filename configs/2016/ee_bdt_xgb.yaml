@@ -40,7 +40,6 @@ backgrounds:
     # - "TbartChan"
     - "TW"
     - "TbarW"
-    - "TZQ"
     - "THQ"
     - "TTWlnu"
     - "TTW2q"
@@ -94,15 +93,15 @@ classifier: bdt_xgb
 # BDT configuration. Passed to XGBoost's XGBClassifier()
 bdt_xgb:
     n_jobs: 20
-    n_estimators: 2582
+    n_estimators: 1252
     silent: False
-    subsample: 0.8
-    learning_rate: 0.009097565996935286
+    subsample: 0.740427776167674
+    learning_rate: 0.01061200709444861
     max_depth: 3
-    min_child_weight: 258.5301659036214
+    min_child_weight: 87.15221045294473
     gamma: 10
-    reg_lambda: 1.2163739546444285e-05
-    reg_alpha: 0.0007828234575149712
+    reg_lambda: 1e-05
+    reg_alpha: 0.0005260417938612894
 
 # Options governing the root file output
 root_out:
@@ -146,7 +145,7 @@ features:
     - chi2
     # - fourthJetEta
     # - fourthJetPhi
-    # - fourthJetPt
+    - fourthJetPt
     # - fourthJetbTag
     # - jetHt
     - jetMass
@@ -168,7 +167,6 @@ features:
     # - lep2Pt
     # - lep2RelIso
     # - lepEta
-    - lepHt
     # - mTW
     - met
     # - nBjets
@@ -187,7 +185,6 @@ features:
     # - topPt
     # - totEta
     # - totHt
-    # - totHtOverPt
     # - totPt
     # - totPt2Jet
     # - totPtVec
@@ -196,11 +193,11 @@ features:
     # - w1TopDelR
     # - w2TopDelPhi
     # - w2TopDelR
-    # - wPairEta
+    - wPairEta
     # - wPairMass
     # - wPairPhi
     # - wPairPt
-    - wQuark1Eta
+    # - wQuark1Eta
     # - wQuark1Phi
     # - wQuark1Pt
     # - wQuark2Eta
@@ -213,20 +210,20 @@ features:
     # - wwdelR
     # - wzdelPhi
     # - wzdelR
-    - zEta
-    - zLepdelPhi
+    # - zEta
+    # - zLepdelPhi
     # - zLepdelR
     - zMass
     # - zPhi
-    # - zPt
+    - zPt
     # - zQuark1DelPhi
     # - zQuark1DelR
     # - zQuark2DelPhi
-    # - zQuark2DelR
+    - zQuark2DelR
     # - zTopDelPhi
     # - zTopDelR
     # - zjminPhi
-    - zjminR
+    # - zjminR
     # - zl1Quark1DelPhi
     # - zl1Quark1DelR
     # - zl1Quark2DelPhi
@@ -236,7 +233,7 @@ features:
     # - zl2Quark1DelPhi
     # - zl2Quark1DelR
     # - zl2Quark2DelPhi
-    - zl2Quark2DelR
+    # - zl2Quark2DelR
     # - zl2TopDelPhi
     # - zl2TopDelR
     # - zlb1DelPhi
