@@ -20,10 +20,12 @@ mpl.rcParams.update({"font.family": "serif",
                      "pgf.texsystem": "pdflatex",
                      "pgf.rcfonts": False})
 
-indir = "/scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz20mw20_zPlus/"
-selection = "chi2 > 4 && chi2 < 150 && Channel == 1"
+indir = "/scratch/data/TopPhysics/mvaDirs/inputs/2017/all/mz20mw20/"
+selection = "chi2 > 4 && chi2 < 150 && Channel == 0"
 
-outdir = "plots_ee_zPlus"
+outdir = "plots_mumu_2017"
+
+era = 2017
 
 colours = {"Z+jets": "#006699",
            "VV": "#ff9933",
@@ -62,8 +64,10 @@ def read_trees(input_dir):
         "ZZ2l2nu": "VV",
         "ZZ2l2q": "VV",
         "WZjets": "VV",
+        "WZ3lnu": "VV",
         "WZ2l2q": "VV",
         "WZ1l1nu2q": "VV",
+        "ZG2l1g": "VV",
         "TsChan": "Single top",
         "TtChan": "Single top",
         "TbartChan": "Single top",
@@ -75,7 +79,11 @@ def read_trees(input_dir):
         "TTW2q": "ttV",
         "TTZ2l2nu": "ttV",
         "TTZ2q": "ttV",
+        "TTG": "ttV",
         "TT" : "tt",
+        "TTjets" : "tt",
+        "TT2l2v" : "tt",
+        "TT1l1v2q" : "tt",
         "TWZ": "Single top",
         "Wjets": "W+jets",
         "DYJetsLLPt0To50": "Z+jets",
@@ -84,6 +92,7 @@ def read_trees(input_dir):
         "DYJetsLLPt250To400": "Z+jets",
         "DYJetsLLPt400To650": "Z+jets",
         "DYJetsLLPt650ToInf": "Z+jets",
+        "DYJetsToLLM50": "Z+jets",
         "FakeEG": "NPL",
         "FakeMu": "NPL",
         "DataEG": "Data",
@@ -159,13 +168,28 @@ def total_shape_systematics(shape_systematics, category_bin_counts, processes):
     s_bin_counts = defaultdict(lambda: np.zeros((
         2, len(category_bin_counts.itervalues().next()))))
 
+    blacklist = ("THQ__ME",
+                 "TWZ__pdf",
+                 "TWZ__ME",
+                 "TTG__pdf",
+                 "TTG__ME",
+                 "TTG__isr",
+                 "TTG__fsr",
+                 "DYJetsToLLM50__isr",
+                 "DYJetsToLLM50__fsr",
+                 )
+
     for ss in shape_systematics:
         for p in processes:
 
             ps = p + "__" + ss
 
-            # If the histogram associated with the systematic exists, add it
-            # to the total, else use the nominal histogram
+            if ps in blacklist and era == 2017:
+                # print("Skipped", ps, "(blacklist)")
+                s_bin_counts[ss][0] += category_bin_counts[p]
+                s_bin_counts[ss][1] += category_bin_counts[p]
+                continue
+
             try:
                 s_bin_counts[ss][0] += category_bin_counts[ps + "Down"]
             except KeyError:
@@ -251,11 +275,12 @@ def main(argv):
         "lumi": (re.compile(r".+"), 0.025),
         "fake_ee": (re.compile(r"^FakeEG$"), 0.3),
         "fake_mumu": (re.compile(r"^FakeMu$"), 0.3),
-        "DY_rate": (re.compile(r"^DYJetsLL"), 0.1),
-        "TT_rate": (re.compile(r"^TT[0-9a-z]?"), 0.1),
+        "DY_rate": (re.compile(r"^DYJets(?:To)?LL"), 0.1),
+        "TT_rate": (re.compile(r"^TT(?:$|[0-9a-z])"), 0.1),
         "TtChan_rate": (re.compile(r"^TtChan$"), 0.1),
         "TbartChan_rate": (re.compile(r"^TbartChan$"), 0.1),
         "TTH_rate": (re.compile(r"^TTH"), 0.1),
+        "TTG_rate": (re.compile(r"^TTG"), 0.1),
         "WWW_rate": (re.compile(r"^WWW$"), 0.1),
         "WWZ_rate": (re.compile(r"^WWZ$"), 0.1),
         "WZZ_rate": (re.compile(r"^WZZ$"), 0.1),
@@ -263,6 +288,7 @@ def main(argv):
         "WW_rate": (re.compile(r"^WW[0-9a-z]"), 0.1),
         "WZ_rate": (re.compile(r"^WZ[0-9a-z]"), 0.1),
         "ZZ_rate": (re.compile(r"^ZZ[0-9a-z]"), 0.1),
+        "ZG_rate": (re.compile(r"^ZG[0-9a-z]"), 0.1),
         "TsChan_rate": (re.compile(r"^TsChan$"), 0.1),
         "TW_rate": (re.compile(r"^TW$"), 0.1),
         "TbarW_rate": (re.compile(r"^TbarW$"), 0.1),
