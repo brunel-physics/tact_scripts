@@ -55,7 +55,7 @@ backgrounds:
     - "WG11nu1g"
     - "DYJetsToLLM10to50"
     - "DYJetsToLLM50"
-    # - "FakeMu"
+    - "FakeMu"
 
 # Name of process containing collision data
 data_process: DataMu
@@ -80,7 +80,7 @@ equalise_signal: true
 #             scaling the resulting weights down. This will fail if any
 #             processes have an overall negative weight.
 #   zero: negative weights are set to 0
-negative_weight_treatment: reweight
+negative_weight_treatment: passthrough
 
 # Classifier selection
 #   bdt_grad: Gradient Boosted Decision Tree (scikit-learn)
@@ -95,15 +95,15 @@ classifier: bdt_xgb
 bdt_xgb:
     # booster: dart
     n_jobs: 20
-    n_estimators: 2096
+    n_estimators: 4923
     silent: False
-    subsample: 0.728725829715869
-    learning_rate: 0.027358540799083373
-    max_depth: 3
-    min_child_weight: 1e-05
-    gamma: 7.453275876588985
-    reg_lambda: 1.2073820068677528
-    reg_alpha: 0.009407038378314136
+    subsample: 0.5510744369716196
+    learning_rate: 0.0027023861900297747
+    max_depth: 4
+    min_child_weight: 190.47105796226552
+    gamma: 10
+    reg_lambda: 8.210820849820589
+    reg_alpha: 16.52177530838254
 
 # Options governing the root file output
 root_out:
@@ -143,103 +143,130 @@ root_out:
 
 # Features to be included in the classifier training
 features:
-    - bTagDisc
-    - chi2
-    # - fourthJetEta
-    # - fourthJetPhi
-    # - fourthJetPt
-    # - fourthJetbTag
-    # - jetHt
-    - jetMass
-    # - jetMass3
-    # - jjdelPhi
-    - jjdelR
-    - leadJetEta
-    # - leadJetPhi
-    # - leadJetPt
-    # - leadJetbTag
-    # - lep1D0
-    # - lep1Eta
-    # - lep1Phi
-    # - lep1Pt
-    # - lep1RelIso
-    # - lep2D0
-    # - lep2Eta
-    # - lep2Phi
-    # - lep2Pt
-    # - lep2RelIso
-    # - lepEta
-    # - mTW
-    - met
-    # - nBjets
-    # - nJets
-    # - secJetEta
-    # - secJetPhi
-    - secJetPt
-    # - secJetbTag
-    # - thirdJetEta
-    # - thirdJetPhi
-    # - thirdJetPt
-    # - thirdJetbTag
-    # - topEta
-    # - topMass
-    # - topPhi
-    # - topPt
-    # - totEta
-    # - totHt
-    # # - totHtOverPt
-    # - totPt
-    # - totPt2Jet
-    # - totPtVec
-    # - totVecM
-    # - w1TopDelPhi
-    # - w1TopDelR
-    # - w2TopDelPhi
-    # - w2TopDelR
-    # - wPairEta
-    # - wPairMass
-    # - wPairPhi
-    # - wPairPt
-    # - wQuark1Eta
-    # - wQuark1Phi
-    # - wQuark1Pt
-    # - wQuark2Eta
-    # - wQuark2Phi
-    # - wQuark2Pt
-    # - wQuarkHt
-    # - wTopDelPhi
-    # - wTopDelR
-    # - wwdelPhi
-    # - wwdelR
-    # - wzdelPhi
-    - wzdelR
-    # - zEta
-    # - zLepdelPhi
-    # - zLepdelR
-    - zMass
-    # - zPhi
-    - zPt
-    # - zQuark1DelPhi
-    # - zQuark1DelR
-    # - zQuark2DelPhi
-    # - zQuark2DelR
-    # - zTopDelPhi
-    # - zTopDelR
-    # - zjminPhi
-    # - zjminR
-    # - zl1Quark1DelPhi
-    # - zl1Quark1DelR
-    # - zl1Quark2DelPhi
-    # - zl1Quark2DelR
-    # - zl1TopDelPhi
-    # - zl1TopDelR
-    # - zl2Quark1DelPhi
-    # - zl2Quark1DelR
-    # - zl2Quark2DelPhi
-    # - zl2Quark2DelR
-    # - zl2TopDelPhi
-    # - zl2TopDelR
-    # - zlb1DelPhi
-    # - zlb1DelR
-    # - zlb2DelPhi
-    # - zlb2DelR
+    # - "bEta"
+    # - "bPhi"
+    # - "bPt"
+    - "bbTag"
+    - "chi2"
+    - "j1Eta"
+    # - "j1Phi"
+    # - "j1Pt"
+    # - "j1bDelR"
+    # - "j1bTag"
+    # - "j1j2DelR"
+    # - "j1j3DelR"
+    # - "j1j4DelR"
+    # - "j1l1DelR"
+    # - "j1l2DelR"
+    # - "j1tDelR"
+    # - "j1wDelR"
+    # - "j1wj1DelR"
+    # - "j1wj2DelR"
+    # - "j1zDelR"
+    # - "j2Eta"
+    # - "j2Phi"
+    - "j2Pt"
+    # - "j2bDelR"
+    # - "j2bTag"
+    # - "j2j3DelR"
+    # - "j2j4DelR"
+    # - "j2l1DelR"
+    # - "j2l2DelR"
+    # - "j2tDelR"
+    # - "j2wDelR"
+    # - "j2wj1DelR"
+    # - "j2wj2DelR"
+    # - "j2zDelR"
+    # - "j3Eta"
+    # - "j3Phi"
+    # - "j3Pt"
+    # - "j3bDelR"
+    # - "j3bTag"
+    # - "j3j4DelR"
+    # - "j3l1DelR"
+    # - "j3l2DelR"
+    # - "j3tDelR"
+    # - "j3wDelR"
+    # - "j3wj1DelR"
+    # - "j3wj2DelR"
+    # - "j3zDelR"
+    # - "j4Eta"
+    # - "j4Phi"
+    - "j4Pt"
+    # - "j4bDelR"
+    # - "j4bTag"
+    # - "j4l1DelR"
+    # - "j4l2DelR"
+    # - "j4tDelR"
+    # - "j4wDelR"
+    # - "j4wj1DelR"
+    # - "j4wj2DelR"
+    # - "j4zDelR"
+    - "jetMass"
+    # - "jetMass3"
+    # - "jetMt"
+    # - "jetPt"
+    # - "l1D0"
+    # - "l1Eta"
+    # - "l1Phi"
+    # - "l1Pt"
+    # - "l1RelIso"
+    # - "l1bDelR"
+    # - "l1tDelR"
+    # - "l1wj1DelR"
+    # - "l1wj2DelR"
+    # - "l2D0"
+    # - "l2DelR"
+    # - "l2Eta"
+    # - "l2Phi"
+    # - "l2Pt"
+    # - "l2RelIso"
+    # - "l2bDelR"
+    # - "l2tDelR"
+    # - "l2wj1DelR"
+    # - "l2wj2DelR"
+    - "met"
+    # - "nBjets"
+    # - "nJets"
+    # - "tEta"
+    # - "tMass"
+    # - "tMt"
+    # - "tPhi"
+    # - "tPt"
+    # - "tbDelR"
+    # - "totMass"
+    # - "totMt"
+    # - "totPt"
+    # - "wEta"
+    # - "wMass"
+    # - "wMt"
+    # - "wPhi"
+    # - "wPt"
+    # - "wbDelR"
+    # - "wj1DelR"
+    # - "wj1Eta"
+    # - "wj1Phi"
+    # - "wj1Pt"
+    # - "wj1bDelR"
+    # - "wj1tDelR"
+    # - "wj2DelR"
+    - "wj2Eta"
+    # - "wj2Phi"
+    # - "wj2Pt"
+    # - "wj2bDelR"
+    # - "wj2tDelR"
+    # - "wtDelR"
+    # - "wwDelR"
+    # - "wzDelR"
+    # - "zEta"
+    - "zMass"
+    # - "zMt"
+    # - "zPhi"
+    - "zPt"
+    - "zbDelR"
+    - "zjMaxR"
+    # - "zjMinR"
+    # - "ztDelR"
+    # - "zwj1DelR"
+    # - "zwj2DelR"
+    # - "zzDelR"
