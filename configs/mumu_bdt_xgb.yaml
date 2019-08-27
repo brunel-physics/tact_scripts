@@ -10,9 +10,7 @@ seed: 52
 # ROOT selection string specifying the cuts that should be made before
 # classifier training takes place.
 selection: >-
-    chi2 < 40 &&
     Channel == 0
-
 # channel - prefix for output filenames
 channel: mumu
 
@@ -22,8 +20,8 @@ signals:
 
 # List of processes which should be considered background
 backgrounds:
-    - DYToLL_M10To50_aMCatNLO
-    - DYToLL_M50_aMCatNLO
+    - DYToLL_M10To50
+    - DYToLL_M50
     - FakeEG
     - FakeMu
     - TbartChan
@@ -47,7 +45,7 @@ backgrounds:
     - ZZZ
 
 # Name of process containing collision data
-data_process: DataEG
+data_process: DataMu
 
 # Directories plots, root files, and trained classifiers should be output into
 plot_dir: plots/
@@ -84,19 +82,15 @@ classifier_path: mva/bdt_xgb_mumu.pkl
 bdt_xgb:
     # booster: dart
     n_jobs: 20
-    n_estimators: 200
+    n_estimators: 3282
     silent: False
-    subsample: 0.5
-    learning_rate: 0.1
-    max_depth: 3
-    # colsample_bytree: 0.5
-    # min_child_weight: 100
-    # gamma: 15
-    # reg_lambda: 500
-    # reg_alpha: 10
-    # sample_type: uniform
-    # rate_drop: 0.1
-    # skip_drop: 0.75
+    subsample: 1
+    learning_rate: 0.019553233510550067
+    max_depth: 2
+    min_child_weight: 1e-05
+    gamma: 5.403949948643187
+    reg_lambda: 1.4729961897772523
+    reg_alpha: 2.885205208040993e-05
 
 # Options governing the root file output
 root_out:
@@ -108,7 +102,7 @@ root_out:
     # poisson: Sum the Monte Carlo histograms, and perform a Poisson jump on
     #          each bin
     # real: Use the real data
-    data: empty
+    data: real
 
     # The strategy used to bin the MVA response in the resulting root files
     #   equal: specified number of equal-width bins in the (0, 1) range
@@ -122,21 +116,21 @@ root_out:
     strategy: recursive_median
 
     # Set the number of bins for the equal or quantile binning stategies
-    bins: 20
+    bins: 30
 
     # The recursive binning strategies will stop splitting once these limits
     # are reached
     min_signal_events: 0
-    min_background_events: 1
-    max_signal_error: 0.3
-    max_background_error: 0.3
+    min_background_events: 0
+    max_signal_error: 0.1
+    max_background_error: 0.1
 
 # Features to be included in the classifier training
 features:
     - bTagDisc
     # - fourthJetEta
     # - fourthJetPhi
-    - fourthJetPt
+    # - fourthJetPt
     # - fourthJetbTag
     - jetHt
     - jetMass
@@ -165,7 +159,7 @@ features:
     # - nJets
     # - secJetEta
     # - secJetPhi
-    - secJetPt
+    # - secJetPt
     # - secJetbTag
     # - thirdJetEta
     # - thirdJetPhi
@@ -193,7 +187,7 @@ features:
     # - wQuark1Eta
     # - wQuark1Phi
     # - wQuark1Pt
-    - wQuark2Eta
+    # - wQuark2Eta
     # - wQuark2Phi
     # - wQuark2Pt
     # - wQuarkHt
@@ -214,9 +208,10 @@ features:
     # - zQuark2DelPhi
     # - zQuark2DelR
     # - zTopDelPhi
-    - zTopDelR
+    # - zTopDelR
     # - zjminPhi
-    - zjminR
+    # - zjminR
+    # - thirdJetPt
     # - zl1Quark1DelPhi
     # - zl1Quark1DelR
     # - zl1Quark2DelPhi
@@ -230,6 +225,7 @@ features:
     # - zl2TopDelPhi
     # - zl2TopDelR
     # - zlb1DelPhi
-    # - zlb1DelR
+    - zlb1DelR
     # - zlb2DelPhi
     # - zlb2DelR
+
