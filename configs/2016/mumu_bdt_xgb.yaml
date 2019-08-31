@@ -128,14 +128,14 @@ root_out:
     strategy: recursive_median
 
     # Set the number of bins for the equal or quantile binning stategies
-    bins: 30
+    bins: 20
 
     # The recursive binning strategies will stop splitting once these limits
     # are reached
     min_signal_events: 0
     min_background_events: 1
-    max_signal_error: 0.3
-    max_background_error: 0.3
+    max_signal_error: 0.1
+    max_background_error: 0.1
 
     # Suffix to be added to bin and systematic names
     suffix: "_2016"

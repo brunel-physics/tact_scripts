@@ -93,7 +93,7 @@ classifier: bdt_xgb
 
 # BDT configuration. Passed to XGBoost's XGBClassifier()
 bdt_xgb:
-    n_jobs: 20
+    n_jobs: 15
     n_estimators: 1307
     silent: False
     subsample: 0.5
@@ -125,10 +125,10 @@ root_out:
     #   recursive_median: response is recursively bisected at the median
     #   recursive_kmeans: response is recursively split into two clusters using
     #                     the k-means (Jenks) algorithm
-    strategy: recursive_median
+    strategy: equal
 
     # Set the number of bins for the equal or quantile binning stategies
-    bins: 25
+    bins: 20
 
     # The recursive binning strategies will stop splitting once these limits
     # are reached

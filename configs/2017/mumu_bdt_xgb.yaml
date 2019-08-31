@@ -94,7 +94,7 @@ classifier: bdt_xgb
 # BDT configuration. Passed to XGBoost's XGBClassifier()
 bdt_xgb:
     # booster: dart
-    n_jobs: 20
+    n_jobs: 30
     n_estimators: 4923
     silent: False
     subsample: 0.5510744369716196
@@ -129,7 +129,7 @@ root_out:
     strategy: recursive_median
 
     # Set the number of bins for the equal or quantile binning stategies
-    bins: 30
+    # bins: 15
 
     # The recursive binning strategies will stop splitting once these limits
     # are reached
