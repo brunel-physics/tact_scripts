@@ -30,6 +30,55 @@ colours = {"Z+jets": "#006699",
            "tt": "#cc0000",
            "NPL": "#003300"}
 
+groups = {
+    "TTHbb": "ttV",
+    "TTHnonbb": "ttV",
+    "WWW": "VVV",
+    "WWZ": "VVV",
+    "WZZ": "VVV",
+    "ZZZ": "VVV",
+    "WW1l1nu2q": "VV",
+    "WW2l2nu": "VV",
+    "ZZ4l": "VV",
+    "ZZ2l2nu": "VV",
+    "ZZ2l2q": "VV",
+    "WZjets": "VV",
+    "WZ3lnu": "VV",
+    "WZ2l2q": "VV",
+    "WZ1l1nu2q": "VV",
+    "ZG2l1g": "VV",
+    "TsChan": "Single top",
+    "TtChan": "Single top",
+    "TbartChan": "Single top",
+    "TW": "Single top",
+    "TbarW": "Single top",
+    "TZQ": "tZq",
+    "THQ": "Single top",
+    "TTWlnu": "ttV",
+    "TTW2q": "ttV",
+    "TTZ2l2nu": "ttV",
+    "TTZ2q": "ttV",
+    "TTG": "ttV",
+    "TT" : "tt",
+    "TTjets" : "tt",
+    "TT2l2v" : "tt",
+    "TT1l1v2q" : "tt",
+    "TWZ": "Single top",
+    "Wjets": "W+jets",
+    "DYJetsLLPt0To50": "Z+jets",
+    "DYJetsLLPt50To100": "Z+jets",
+    "DYJetsLLPt100To250": "Z+jets",
+    "DYJetsLLPt250To400": "Z+jets",
+    "DYJetsLLPt400To650": "Z+jets",
+    "DYJetsLLPt650ToInf": "Z+jets",
+    "DYJetsToLLM50": "Z+jets",
+    "FakeEG": "NPL",
+    "FakeMu": "NPL",
+    "DataEG": "Data",
+    "DataMu": "Data",
+    "MuonEG": "Data",
+}
+
 def read_tree(*args, **kwargs):
     # Read ROOT trees into data frames
     try:
@@ -45,61 +94,12 @@ def read_trees(input_dir, selection):
 
     root_files = glob.iglob(input_dir + r"*.root")
 
-    processes = {
-        "TTHbb": "ttV",
-        "TTHnonbb": "ttV",
-        "WWW": "VVV",
-        "WWZ": "VVV",
-        "WZZ": "VVV",
-        "ZZZ": "VVV",
-        "WW1l1nu2q": "VV",
-        "WW2l2nu": "VV",
-        "ZZ4l": "VV",
-        "ZZ2l2nu": "VV",
-        "ZZ2l2q": "VV",
-        "WZjets": "VV",
-        "WZ3lnu": "VV",
-        "WZ2l2q": "VV",
-        "WZ1l1nu2q": "VV",
-        "ZG2l1g": "VV",
-        "TsChan": "Single top",
-        "TtChan": "Single top",
-        "TbartChan": "Single top",
-        "TW": "Single top",
-        "TbarW": "Single top",
-        "TZQ": "tZq",
-        "THQ": "Single top",
-        "TTWlnu": "ttV",
-        "TTW2q": "ttV",
-        "TTZ2l2nu": "ttV",
-        "TTZ2q": "ttV",
-        "TTG": "ttV",
-        "TT" : "tt",
-        "TTjets" : "tt",
-        "TT2l2v" : "tt",
-        "TT1l1v2q" : "tt",
-        "TWZ": "Single top",
-        "Wjets": "W+jets",
-        "DYJetsLLPt0To50": "Z+jets",
-        "DYJetsLLPt50To100": "Z+jets",
-        "DYJetsLLPt100To250": "Z+jets",
-        "DYJetsLLPt250To400": "Z+jets",
-        "DYJetsLLPt400To650": "Z+jets",
-        "DYJetsLLPt650ToInf": "Z+jets",
-        "DYJetsToLLM50": "Z+jets",
-        "FakeEG": "NPL",
-        "FakeMu": "NPL",
-        "DataEG": "Data",
-        "DataMu": "Data",
-        "MuonEG": "Data",
-    }
-
     for root_file in root_files:
         for tree in list_trees(root_file):
             # Parse tree name
             split_tree = tree.split("__")
             process = split_tree[0].split("Ttree_", 1)[-1]
-            if process not in processes.keys():
+            if process not in groups.keys():
                 continue
 
             try:
@@ -129,7 +129,7 @@ def read_trees(input_dir, selection):
             print(process + systematic)
 
             # Label $PROCESS__$SYSTEMATIC
-            df = df.assign(Group=processes[process] + systematic)
+            df = df.assign(Group=groups[process] + systematic)
             df = df.assign(Category=process + systematic)
 
             dfs.append(df)
@@ -148,14 +148,19 @@ def bin_data(df, column, pattern, **kwargs):
     return np.histogram(data, bins="doane", range=(xmin, xmax), **kwargs)
 
 
-def bin_mc(df, column, **kwargs):
+def bin_mc(df, column, bins):
     category_bin_counts = {}
     for p in df.Category.unique():
         mask = df.Category == p
         category_bin_counts[p] = np.histogram(
-            df[mask][column], weights=df[mask].EvtWeight, **kwargs)[0]
+            df[mask][column], weights=df[mask].EvtWeight, bins=bins)[0]
 
-    return category_bin_counts
+    group_bin_counts = defaultdict(lambda: np.zeros(len(bins) -1))
+    for k, v in category_bin_counts.iteritems():
+        if len(k.split("__")) == 1 and groups[k] != "Data":
+            group_bin_counts[groups[k]] += v
+
+    return category_bin_counts, dict(group_bin_counts)
 
 
 def total_shape_systematics(shape_systematics, category_bin_counts, processes,
@@ -321,9 +326,8 @@ def main(argv):
         # Bin everything
         data_bin_count, bins = bin_data(df, column, r"^Data|^MuonEG$")
         data_bin_count_error = np.sqrt(data_bin_count)
-        category_bin_counts = bin_mc(df, column, bins=bins)
-        mc_bin_count = sum(
-            v for k, v in category_bin_counts.iteritems() if k in processes)
+        category_bin_counts, group_bin_counts = bin_mc(df, column, bins)
+        mc_bin_count = sum(v for v in group_bin_counts.values())
         syst_error = total_systematics(shape_systematics, rate_systematcs,
                                        category_bin_counts, mc_bin_count,
                                        processes, args.era)
@@ -339,18 +343,21 @@ def main(argv):
         # Stackplot
         # ax1.set_prop_cycle("color", [plt.cm.tab10(i)
         #                              for i in np.linspace(0, 1, len(groups))])
+        bin_centres = (bins[:-1] + bins[1:]) / 2
+
+        # Use the pre-calculated bin counts by having one entry per bin with
+        # a weight of the bin count
         ax1.hist(
-            [df[df.Group == g][column] for g in groups],
+            [bin_centres] * len(groups),
             stacked=True,
             label=groups,
-            weights=[df[df.Group == g].EvtWeight for g in groups],
+            weights=[group_bin_counts[g] for g in groups],
             bins=bins,
             color=[colours[g] for g in groups],
             edgecolor='black',
             histtype="stepfilled")[0][-1]
         
         # Rate plot
-        bin_centres = (bins[:-1] + bins[1:]) / 2
         ax1.bar(
             bin_centres,
             np.sum(syst_error, axis=0),
