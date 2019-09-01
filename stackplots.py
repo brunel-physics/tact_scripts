@@ -4,6 +4,7 @@ import glob
 import re
 import sys
 import warnings
+import argparse
 from collections import defaultdict
 
 import matplotlib as mpl
@@ -19,13 +20,6 @@ plt.style.use('seaborn-whitegrid')
 mpl.rcParams.update({"font.family": "serif",
                      "pgf.texsystem": "pdflatex",
                      "pgf.rcfonts": False})
-
-indir = "/scratch/data/TopPhysics/mvaDirs/inputs/2017/all/mz20mw20/"
-selection = "chi2 > 4 && chi2 < 150 && Channel == 0"
-
-outdir = "plots_mumu_2017"
-
-era = 2017
 
 colours = {"Z+jets": "#006699",
            "VV": "#ff9933",
@@ -46,7 +40,7 @@ def read_tree(*args, **kwargs):
     return df
 
 
-def read_trees(input_dir):
+def read_trees(input_dir, selection):
     dfs = []
 
     root_files = glob.iglob(input_dir + r"*.root")
@@ -164,7 +158,8 @@ def bin_mc(df, column, **kwargs):
     return category_bin_counts
 
 
-def total_shape_systematics(shape_systematics, category_bin_counts, processes):
+def total_shape_systematics(shape_systematics, category_bin_counts, processes,
+                            era):
     s_bin_counts = defaultdict(lambda: np.zeros((
         2, len(category_bin_counts.itervalues().next()))))
 
@@ -219,10 +214,11 @@ def total_rate_systematics(rate_systematcs, category_bin_counts, processes):
 
 
 def total_systematics(shape_systematics, rate_systematics, category_bin_counts,
-                      mc_bin_count, processes):
+                      mc_bin_count, processes, era):
 
     s_bin_counts = total_shape_systematics(shape_systematics,
-                                           category_bin_counts, processes)
+                                           category_bin_counts, processes,
+                                           era)
     s_bin_counts.update(
         total_rate_systematics(rate_systematics, category_bin_counts,
                                processes))
@@ -251,7 +247,17 @@ def mask_empty_bins(*bin_counts):
 
 
 def main(argv):
-    df = read_trees(indir)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input", "-i", required=True)
+    parser.add_argument("--output", "-o", required=True)
+    parser.add_argument("--selection", "-s", required=True)
+    parser.add_argument("--era", "-e", type=int, choices=(2016, 2017),
+                        required=True)
+    args = parser.parse_args()
+
+    print(args.input)
+
+    df = read_trees(args.input, args.selection)
 
     # Get list of processes (don't get data or systematics) and sort by size
     processes = [
@@ -272,7 +278,7 @@ def main(argv):
         if "__" in p})
 
     rate_systematcs = {
-        "lumi": (re.compile(r".+"), 0.025),
+        "lumi": (re.compile(r".+"), 0.025 if args.era is 2016 else 0.023),
         "fake_ee": (re.compile(r"^FakeEG$"), 0.3),
         "fake_mumu": (re.compile(r"^FakeMu$"), 0.3),
         "DY_rate": (re.compile(r"^DYJets(?:To)?LL"), 0.1),
@@ -320,7 +326,7 @@ def main(argv):
             v for k, v in category_bin_counts.iteritems() if k in processes)
         syst_error = total_systematics(shape_systematics, rate_systematcs,
                                        category_bin_counts, mc_bin_count,
-                                       processes)
+                                       processes, args.era)
 
         # Mask bins where data and MC is 0
         data_bin_count, mc_bin_count = mask_empty_bins(data_bin_count,
@@ -410,16 +416,16 @@ def main(argv):
 
         plt.tight_layout()
 
-        fig.savefig("{}/{}.pdf".format(outdir, column), pad_inches=0,
+        fig.savefig("{}/{}.pdf".format(args.output, column), pad_inches=0,
                     bbox_inches="tight")
-        fig.savefig("{}/{}.pgf".format(outdir, column), pad_inches=0,
+        fig.savefig("{}/{}.pgf".format(args.output, column), pad_inches=0,
                     bbox_inches="tight")
 
         ax1.set_ylim(bottom=1)
         ax1.set_yscale("log")
 
-        fig.savefig("{}/{}_log.pdf".format(outdir, column))
-        fig.savefig("{}/{}_log.pgf".format(outdir, column))
+        fig.savefig("{}/{}_log.pdf".format(args.output, column))
+        fig.savefig("{}/{}_log.pgf".format(args.output, column))
 
         plt.close(fig)
 
