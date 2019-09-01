@@ -251,6 +251,116 @@ def mask_empty_bins(*bin_counts):
         for bin_count in bin_counts]
 
 
+def plot_histogram(groups, group_bin_counts, data_bin_count, syst_error, bins,
+                   xlabel, outdir):
+
+    mc_bin_count = sum(v for v in group_bin_counts.values())
+    # Mask bins where data and MC is 0
+    data_bin_count, mc_bin_count = mask_empty_bins(data_bin_count,
+                                                   mc_bin_count)
+    data_bin_count_error = np.sqrt(data_bin_count)
+
+    # Start plotting
+    fig, (ax1, ax2) = plt.subplots(
+        nrows=2, gridspec_kw={"height_ratios": [4, 1]}, sharex=True)
+
+    # Stackplot
+    # ax1.set_prop_cycle("color", [plt.cm.tab10(i)
+    #                              for i in np.linspace(0, 1, len(groups))])
+    bin_centres = (bins[:-1] + bins[1:]) / 2
+
+    # Use the pre-calculated bin counts by having one entry per bin with
+    # a weight of the bin count
+    ax1.hist(
+        [bin_centres] * len(groups),
+        stacked=True,
+        label=groups,
+        weights=[group_bin_counts[g] for g in groups],
+        bins=bins,
+        color=[colours[g] for g in groups],
+        edgecolor='black',
+        histtype="stepfilled")[0][-1]
+
+    # Rate plot
+    ax1.bar(
+        bin_centres,
+        np.sum(syst_error, axis=0),
+        width=np.diff(bins),
+        bottom=mc_bin_count - syst_error[0],
+        fill=False,
+        color="black",
+        linewidth=0,
+        label="Syst.",
+        hatch="////")
+
+    with np.warnings.catch_warnings():
+        np.warnings.filterwarnings(
+            "ignore", r"Warning: converting a masked element to nan.")
+        ax1.errorbar(
+            bin_centres,
+            data_bin_count,
+            yerr=data_bin_count_error,
+            fmt="k.",
+            label="Data")
+    ax1.legend(
+        prop={'size': 6},
+        # bbox_to_anchor=(1.05, 1),
+        loc="best",
+        # borderaxespad=0.,
+        frameon=True,
+        fancybox=True,
+        facecolor="w",
+        framealpha=0.8,
+        fontsize="x-large",
+    )
+
+    # ax1.set_title("CMS Preliminary", loc="left")
+    ax1.tick_params(axis='both', which='both', labelsize="large")
+    ax2.tick_params(axis='both', which='both', labelsize="large")
+    ax1.set_ylabel("Events", fontsize="x-large")
+
+    ax2.errorbar(
+        bin_centres,
+        data_bin_count / mc_bin_count,
+        yerr=data_bin_count_error / mc_bin_count,
+        fmt="k.")
+    ax2.bar(
+        bin_centres,
+        np.sum(syst_error, axis=0) / mc_bin_count,
+        width=np.diff(bins),
+        bottom=(mc_bin_count - syst_error[0]) / mc_bin_count,
+        fill=False,
+        color="black",
+        linewidth=0,
+        label="Syst.",
+        hatch="////")
+
+    ax2.set_axisbelow(True)
+    ax2.minorticks_on()
+    ax2.yaxis.grid(b=True, which='both')
+    ax2.set_ylim([0.5, 1.5])
+    ax2.set_ylabel("Data/MC", fontsize="x-large")
+    ax2.set_xlabel(xlabel, family="monospace", fontsize="x-large")
+
+    # Set axis limits
+    ax1.set_ylim(bottom=0)
+
+    plt.tight_layout()
+
+    fig.savefig("{}/{}.pdf".format(outdir, xlabel), pad_inches=0,
+                bbox_inches="tight")
+    fig.savefig("{}/{}.pgf".format(outdir, xlabel), pad_inches=0,
+                bbox_inches="tight")
+
+    ax1.set_ylim(bottom=1)
+    ax1.set_yscale("log")
+
+    fig.savefig("{}/{}_log.pdf".format(outdir, xlabel))
+    fig.savefig("{}/{}_log.pgf".format(outdir, xlabel))
+
+    plt.close(fig)
+
+
 def main(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", "-i", required=True)
@@ -259,8 +369,6 @@ def main(argv):
     parser.add_argument("--era", "-e", type=int, choices=(2016, 2017),
                         required=True)
     args = parser.parse_args()
-
-    print(args.input)
 
     df = read_trees(args.input, args.selection)
 
@@ -325,116 +433,15 @@ def main(argv):
 
         # Bin everything
         data_bin_count, bins = bin_data(df, column, r"^Data|^MuonEG$")
-        data_bin_count_error = np.sqrt(data_bin_count)
         category_bin_counts, group_bin_counts = bin_mc(df, column, bins)
         mc_bin_count = sum(v for v in group_bin_counts.values())
         syst_error = total_systematics(shape_systematics, rate_systematcs,
                                        category_bin_counts, mc_bin_count,
                                        processes, args.era)
 
-        # Mask bins where data and MC is 0
-        data_bin_count, mc_bin_count = mask_empty_bins(data_bin_count,
-                                                       mc_bin_count)
+        plot_histogram(groups, group_bin_counts, data_bin_count, syst_error,
+                       bins, column, args.output)
 
-        # Start plotting
-        fig, (ax1, ax2) = plt.subplots(
-            nrows=2, gridspec_kw={"height_ratios": [4, 1]}, sharex=True)
-
-        # Stackplot
-        # ax1.set_prop_cycle("color", [plt.cm.tab10(i)
-        #                              for i in np.linspace(0, 1, len(groups))])
-        bin_centres = (bins[:-1] + bins[1:]) / 2
-
-        # Use the pre-calculated bin counts by having one entry per bin with
-        # a weight of the bin count
-        ax1.hist(
-            [bin_centres] * len(groups),
-            stacked=True,
-            label=groups,
-            weights=[group_bin_counts[g] for g in groups],
-            bins=bins,
-            color=[colours[g] for g in groups],
-            edgecolor='black',
-            histtype="stepfilled")[0][-1]
-        
-        # Rate plot
-        ax1.bar(
-            bin_centres,
-            np.sum(syst_error, axis=0),
-            width=np.diff(bins),
-            bottom=mc_bin_count - syst_error[0],
-            fill=False,
-            color="black",
-            linewidth=0,
-            label="Syst.",
-            hatch="////")
-
-        with np.warnings.catch_warnings():
-            np.warnings.filterwarnings(
-                "ignore", r"Warning: converting a masked element to nan.")
-            ax1.errorbar(
-                bin_centres,
-                data_bin_count,
-                yerr=data_bin_count_error,
-                fmt="k.",
-                label="Data")
-        ax1.legend(
-            prop={'size': 6},
-            # bbox_to_anchor=(1.05, 1),
-            loc="best",
-            # borderaxespad=0.,
-            frameon=True,
-            fancybox=True,
-            facecolor="w",
-            framealpha=0.8,
-            fontsize="x-large",
-        )
-
-        # ax1.set_title("CMS Preliminary", loc="left")
-        ax1.tick_params(axis='both', which='both', labelsize="large")
-        ax2.tick_params(axis='both', which='both', labelsize="large")
-        ax1.set_ylabel("Events", fontsize="x-large")
-
-        ax2.errorbar(
-            bin_centres,
-            data_bin_count / mc_bin_count,
-            yerr=data_bin_count_error / mc_bin_count,
-            fmt="k.")
-        ax2.bar(
-            bin_centres,
-            np.sum(syst_error, axis=0) / mc_bin_count,
-            width=np.diff(bins),
-            bottom=(mc_bin_count - syst_error[0]) / mc_bin_count,
-            fill=False,
-            color="black",
-            linewidth=0,
-            label="Syst.",
-            hatch="////")
-
-        ax2.set_axisbelow(True)
-        ax2.minorticks_on()
-        ax2.yaxis.grid(b=True, which='both')
-        ax2.set_ylim([0.5, 1.5])
-        ax2.set_ylabel("Data/MC", fontsize="x-large")
-        ax2.set_xlabel(column, family="monospace", fontsize="x-large")
-
-        # Set axis limits
-        ax1.set_ylim(bottom=0)
-
-        plt.tight_layout()
-
-        fig.savefig("{}/{}.pdf".format(args.output, column), pad_inches=0,
-                    bbox_inches="tight")
-        fig.savefig("{}/{}.pgf".format(args.output, column), pad_inches=0,
-                    bbox_inches="tight")
-
-        ax1.set_ylim(bottom=1)
-        ax1.set_yscale("log")
-
-        fig.savefig("{}/{}_log.pdf".format(args.output, column))
-        fig.savefig("{}/{}_log.pgf".format(args.output, column))
-
-        plt.close(fig)
 
 
 if __name__ == "__main__":
