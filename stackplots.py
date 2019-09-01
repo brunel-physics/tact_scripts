@@ -374,10 +374,13 @@ def main(argv):
             fancybox=True,
             facecolor="w",
             framealpha=0.8,
+            fontsize="x-large",
         )
 
-        ax1.set_title("CMS Preliminary", loc="left")
-        ax1.set_ylabel("Events")
+        # ax1.set_title("CMS Preliminary", loc="left")
+        ax1.tick_params(axis='both', which='both', labelsize="large")
+        ax2.tick_params(axis='both', which='both', labelsize="large")
+        ax1.set_ylabel("Events", fontsize="x-large")
 
         ax2.errorbar(
             bin_centres,
@@ -399,16 +402,18 @@ def main(argv):
         ax2.minorticks_on()
         ax2.yaxis.grid(b=True, which='both')
         ax2.set_ylim([0.5, 1.5])
-        ax2.set_ylabel("Data/MC ratio")
-        ax2.set_xlabel(column)
+        ax2.set_ylabel("Data/MC", fontsize="x-large")
+        ax2.set_xlabel(column, family="monospace", fontsize="x-large")
 
         # Set axis limits
         ax1.set_ylim(bottom=0)
 
         plt.tight_layout()
 
-        fig.savefig("{}/{}.pdf".format(outdir, column))
-        fig.savefig("{}/{}.pgf".format(outdir, column))
+        fig.savefig("{}/{}.pdf".format(outdir, column), pad_inches=0,
+                    bbox_inches="tight")
+        fig.savefig("{}/{}.pgf".format(outdir, column), pad_inches=0,
+                    bbox_inches="tight")
 
         ax1.set_ylim(bottom=1)
         ax1.set_yscale("log")
