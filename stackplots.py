@@ -203,11 +203,11 @@ def total_shape_systematics(shape_systematics, category_bin_counts, processes,
     return s_bin_counts
 
 
-def total_rate_systematics(rate_systematcs, category_bin_counts, processes):
+def total_rate_systematics(rate_systematics, category_bin_counts, processes):
     s_bin_counts = defaultdict(lambda: np.zeros((
         2, len(category_bin_counts.itervalues().next()))))
 
-    for rs, (pattern, rate) in rate_systematcs.iteritems():
+    for rs, (pattern, rate) in rate_systematics.iteritems():
         for p in processes:
             # If rate not associated with process, set it to 0
             err = rate if re.search(pattern, p) else 0
@@ -361,15 +361,7 @@ def plot_histogram(groups, group_bin_counts, data_bin_count, syst_error, bins,
     plt.close(fig)
 
 
-def main(argv):
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--input", "-i", required=True)
-    parser.add_argument("--output", "-o", required=True)
-    parser.add_argument("--selection", "-s", required=True)
-    parser.add_argument("--era", "-e", type=int, choices=(2016, 2017),
-                        required=True)
-    args = parser.parse_args()
-
+def plot_features(args, rate_systematics):
     df = read_trees(args.input, args.selection)
 
     # Get list of processes (don't get data or systematics) and sort by size
@@ -390,7 +382,42 @@ def main(argv):
         for p in df.Category
         if "__" in p})
 
-    rate_systematcs = {
+
+    for column in list(df):
+        print(column)
+
+        # Don't modify event weights
+        if column == "EvtWeight":
+            continue
+
+        try:
+            if not np.issubdtype(df[column].dtype, np.number):
+                continue
+        except TypeError:  # happens
+            continue
+
+        # Bin everything
+        data_bin_count, bins = bin_data(df, column, r"^Data|^MuonEG$")
+        category_bin_counts, group_bin_counts = bin_mc(df, column, bins)
+        mc_bin_count = sum(v for v in group_bin_counts.values())
+        syst_error = total_systematics(shape_systematics, rate_systematics,
+                                       category_bin_counts, mc_bin_count,
+                                       processes, args.era)
+
+        plot_histogram(groups, group_bin_counts, data_bin_count, syst_error,
+                       bins, column, args.output)
+
+def main(argv):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input", "-i", required=True)
+    parser.add_argument("--output", "-o", required=True)
+    parser.add_argument("--selection", "-s", default=None, required=False)
+    parser.add_argument("--era", "-e", type=int, choices=(2016, 2017),
+                        required=True)
+    parser.add_argument("--response", action="store_true")
+    args = parser.parse_args()
+
+    rate_systematics = {
         "lumi": (re.compile(r".+"), 0.025 if args.era is 2016 else 0.023),
         "fake_ee": (re.compile(r"^FakeEG$"), 0.3),
         "fake_mumu": (re.compile(r"^FakeMu$"), 0.3),
@@ -418,29 +445,14 @@ def main(argv):
         "Wjets_rate": (re.compile(r"^Wjets$"), 0.1),
     }
 
-    for column in list(df):
-        print(column)
+    if args.response:
+        if parser.selection is not None:
+            print("WARN: -s argument is ignored when plotting response",
+                  file=syst.stderr)
+        pass
+    else:
+        plot_features(args, rate_systematics)
 
-        # Don't modify event weights
-        if column == "EvtWeight":
-            continue
-
-        try:
-            if not np.issubdtype(df[column].dtype, np.number):
-                continue
-        except TypeError:  # happens
-            continue
-
-        # Bin everything
-        data_bin_count, bins = bin_data(df, column, r"^Data|^MuonEG$")
-        category_bin_counts, group_bin_counts = bin_mc(df, column, bins)
-        mc_bin_count = sum(v for v in group_bin_counts.values())
-        syst_error = total_systematics(shape_systematics, rate_systematcs,
-                                       category_bin_counts, mc_bin_count,
-                                       processes, args.era)
-
-        plot_histogram(groups, group_bin_counts, data_bin_count, syst_error,
-                       bins, column, args.output)
 
 
 
