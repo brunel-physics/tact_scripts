@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import scipy.stats
-from root_numpy import list_trees
+from root_numpy import list_trees, hist2array
 from root_pandas import read_root
 
 plt.style.use('seaborn-whitegrid')
@@ -30,7 +30,7 @@ colours = {"Z+jets": "#006699",
            "tt": "#cc0000",
            "NPL": "#003300"}
 
-groups = {
+process_groups = {
     "TTHbb": "ttV",
     "TTHnonbb": "ttV",
     "WWW": "VVV",
@@ -44,6 +44,8 @@ groups = {
     "ZZ2l2q": "VV",
     "WZjets": "VV",
     "WZ3lnu": "VV",
+    "WZ3l3nu": "VV",
+    "WZ3l1nu": "VV",
     "WZ2l2q": "VV",
     "WZ1l1nu2q": "VV",
     "ZG2l1g": "VV",
@@ -99,7 +101,7 @@ def read_trees(input_dir, selection):
             # Parse tree name
             split_tree = tree.split("__")
             process = split_tree[0].split("Ttree_", 1)[-1]
-            if process not in groups.keys():
+            if process not in process_groups.keys():
                 continue
 
             try:
@@ -129,7 +131,7 @@ def read_trees(input_dir, selection):
             print(process + systematic)
 
             # Label $PROCESS__$SYSTEMATIC
-            df = df.assign(Group=groups[process] + systematic)
+            df = df.assign(Group=process_groups[process] + systematic)
             df = df.assign(Category=process + systematic)
 
             dfs.append(df)
@@ -157,8 +159,8 @@ def bin_mc(df, column, bins):
 
     group_bin_counts = defaultdict(lambda: np.zeros(len(bins) -1))
     for k, v in category_bin_counts.iteritems():
-        if len(k.split("__")) == 1 and groups[k] != "Data":
-            group_bin_counts[groups[k]] += v
+        if len(k.split("__")) == 1 and process_groups[k] != "Data":
+            group_bin_counts[process_groups[k]] += v
 
     return category_bin_counts, dict(group_bin_counts)
 
@@ -252,7 +254,7 @@ def mask_empty_bins(*bin_counts):
 
 
 def plot_histogram(groups, group_bin_counts, data_bin_count, syst_error, bins,
-                   xlabel, outdir):
+                   xlabel, outdir, blinded=False):
 
     mc_bin_count = sum(v for v in group_bin_counts.values())
     # Mask bins where data and MC is 0
@@ -261,8 +263,15 @@ def plot_histogram(groups, group_bin_counts, data_bin_count, syst_error, bins,
     data_bin_count_error = np.sqrt(data_bin_count)
 
     # Start plotting
-    fig, (ax1, ax2) = plt.subplots(
-        nrows=2, gridspec_kw={"height_ratios": [4, 1]}, sharex=True)
+    if blinded:
+        # Remove the bottom quarter usually taken by ratio plot
+        defaultsize = plt.rcParams.get('figure.figsize')
+        figsize = (defaultsize[0], defaultsize[1] * 0.75)
+
+        fig, ax1 = plt.subplots(figsize=figsize)
+    else:
+        fig, (ax1, ax2) = plt.subplots(
+            nrows=2, gridspec_kw={"height_ratios": [4, 1]}, sharex=True)
 
     # Stackplot
     # ax1.set_prop_cycle("color", [plt.cm.tab10(i)
@@ -293,15 +302,16 @@ def plot_histogram(groups, group_bin_counts, data_bin_count, syst_error, bins,
         label="Syst.",
         hatch="////")
 
-    with np.warnings.catch_warnings():
-        np.warnings.filterwarnings(
-            "ignore", r"Warning: converting a masked element to nan.")
-        ax1.errorbar(
-            bin_centres,
-            data_bin_count,
-            yerr=data_bin_count_error,
-            fmt="k.",
-            label="Data")
+    if not blinded:
+        with np.warnings.catch_warnings():
+            np.warnings.filterwarnings(
+                "ignore", r"Warning: converting a masked element to nan.")
+            ax1.errorbar(
+                bin_centres,
+                data_bin_count,
+                yerr=data_bin_count_error,
+                fmt="k.",
+                label="Data")
     ax1.legend(
         prop={'size': 6},
         # bbox_to_anchor=(1.05, 1),
@@ -316,31 +326,34 @@ def plot_histogram(groups, group_bin_counts, data_bin_count, syst_error, bins,
 
     # ax1.set_title("CMS Preliminary", loc="left")
     ax1.tick_params(axis='both', which='both', labelsize="large")
-    ax2.tick_params(axis='both', which='both', labelsize="large")
     ax1.set_ylabel("Events", fontsize="x-large")
 
-    ax2.errorbar(
-        bin_centres,
-        data_bin_count / mc_bin_count,
-        yerr=data_bin_count_error / mc_bin_count,
-        fmt="k.")
-    ax2.bar(
-        bin_centres,
-        np.sum(syst_error, axis=0) / mc_bin_count,
-        width=np.diff(bins),
-        bottom=(mc_bin_count - syst_error[0]) / mc_bin_count,
-        fill=False,
-        color="black",
-        linewidth=0,
-        label="Syst.",
-        hatch="////")
+    if not blinded:
+        ax2.errorbar(
+            bin_centres,
+            data_bin_count / mc_bin_count,
+            yerr=data_bin_count_error / mc_bin_count,
+            fmt="k.")
+        ax2.bar(
+            bin_centres,
+            np.sum(syst_error, axis=0) / mc_bin_count,
+            width=np.diff(bins),
+            bottom=(mc_bin_count - syst_error[0]) / mc_bin_count,
+            fill=False,
+            color="black",
+            linewidth=0,
+            label="Syst.",
+            hatch="////")
 
-    ax2.set_axisbelow(True)
-    ax2.minorticks_on()
-    ax2.yaxis.grid(b=True, which='both')
-    ax2.set_ylim([0.5, 1.5])
-    ax2.set_ylabel("Data/MC", fontsize="x-large")
-    ax2.set_xlabel(xlabel, family="monospace", fontsize="x-large")
+        ax2.tick_params(axis='both', which='both', labelsize="large")
+        ax2.set_axisbelow(True)
+        ax2.minorticks_on()
+        ax2.yaxis.grid(b=True, which='both')
+        ax2.set_ylim([0.5, 1.5])
+        ax2.set_ylabel("Data/MC", fontsize="x-large")
+        ax2.set_xlabel(xlabel, family="monospace", fontsize="x-large")
+    else:
+        ax1.set_xlabel(xlabel, fontsize="x-large")
 
     # Set axis limits
     ax1.set_ylim(bottom=0)
@@ -407,6 +420,72 @@ def plot_features(args, rate_systematics):
         plot_histogram(groups, group_bin_counts, data_bin_count, syst_error,
                        bins, column, args.output)
 
+
+def plot_response(args, rate_systematics):
+    import ROOT
+
+    def pop_suffix(s):
+        if s[-5:] in {"_2016", "_2017"}:
+            return s[:-5]
+        return s
+
+    fi = ROOT.TFile(args.input)
+
+    data_bin_count = None
+    processes = set()
+    shape_systematics = set()
+    category_bin_counts = {}
+    bins = []
+
+    for k in fi.GetListOfKeys():
+        name = k.GetName()
+        parsed_name = name.split("__")
+
+        process = pop_suffix(parsed_name[1])
+        try:
+            parsed_systematic = re.match(r"(.+?)(Up|Down)", parsed_name[2])
+            systematic = parsed_systematic.group(1)
+            systematic = pop_suffix(systematic)
+            shape_systematics.add(systematic)
+            updown = parsed_systematic.group(2)
+        except IndexError:
+            systematic = None
+            updown = None
+
+        if parsed_name[1] == "data_obs":
+            data_bin_count, bins = hist2array(k.ReadObj(), return_edges=True)
+            bins = bins[0]
+        elif process_groups[process] == "Data":
+            pass
+        else:  # not data
+            processes.add(process)
+
+            category = process if systematic is None \
+                       else "{}__{}{}".format(process, systematic, updown)
+            category_bin_counts[category] = hist2array(k.ReadObj())
+
+    groups = set()
+    group_bin_counts = defaultdict(lambda: np.zeros(len(bins) - 1))
+    mc_bin_count = np.zeros(len(bins) - 1)
+    for k, v in category_bin_counts.iteritems():
+        if len(k.split("__")) == 1:  # not a systematic variation
+            group = process_groups[k]
+            groups.add(group)
+            group_bin_counts[group] += v
+            mc_bin_count += v
+
+    syst_error = total_systematics(shape_systematics, {},
+                                   category_bin_counts, mc_bin_count,
+                                   processes, args.era)
+
+    groups = list(groups)
+    groups.sort(key=lambda x: group_bin_counts[x].sum())
+    groups.insert(0, groups.pop(groups.index('tZq')))
+
+    plot_histogram(groups, group_bin_counts, data_bin_count, syst_error, bins,
+                   "Response", args.output, blinded=False)
+
+
 def main(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", "-i", required=True)
@@ -446,10 +525,10 @@ def main(argv):
     }
 
     if args.response:
-        if parser.selection is not None:
+        if hasattr(args, "selection") and args.selection is not None:
             print("WARN: -s argument is ignored when plotting response",
-                  file=syst.stderr)
-        pass
+                  file=sys.stderr)
+        plot_response(args, rate_systematics)
     else:
         plot_features(args, rate_systematics)
 
