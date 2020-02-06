@@ -12,7 +12,9 @@ from __future__ import absolute_import, division, print_function
 
 import sys
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
+plt.style.use("seaborn-whitegrid")
 import numpy as np
 import pandas as pd
 from dask.diagnostics import ProgressBar
@@ -22,6 +24,9 @@ from tact import binning, classifiers, config, metrics
 from tact import plotting as pt
 from tact import preprocessing, rootIO
 
+mpl.rcParams.update({"font.family": "serif",
+                     "pgf.texsystem": "pdflatex",
+                     "pgf.rcfonts": False})
 
 def fit_and_score(estimator, X, y, train, test, sample_weight):
 
@@ -144,14 +149,14 @@ def main():
     from skopt.plots import plot_convergence, plot_evaluations, plot_objective
 
     plot_objective(res_gp)
-    plt.savefig("plots/objective_{}.pdf".format(cfg["channel"]))
+    plt.savefig("plots/objective_{}.pgf".format(cfg["channel"]))
 
     plot_evaluations(res_gp)
-    plt.savefig("plots/evaluations_{}.pdf".format(cfg["channel"]))
+    plt.savefig("plots/evaluations_{}.pgf".format(cfg["channel"]))
 
     fig, ax = plt.subplots()
     plot_convergence(res_gp, ax=ax)
-    fig.savefig("plots/convergence_{}.pdf".format(cfg["channel"]))
+    fig.savefig("plots/convergence_{}.pgf".format(cfg["channel"]))
 
     # print(mva.best_params_)
     # print(mva.best_estimator_)
