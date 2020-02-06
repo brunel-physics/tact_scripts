@@ -34,6 +34,7 @@ backgrounds:
     - "ZZ2l2q"
     - "WZjets"
     - "WZ2l2q"
+    - "WZ3l1nu"
     - "WZ1l1nu2q"
     - "TsChan"
     - "TtChan"
@@ -93,7 +94,7 @@ classifier: bdt_xgb
 # BDT configuration. Passed to XGBoost's XGBClassifier()
 bdt_xgb:
     n_jobs: 20
-    n_estimators: 457
+    n_estimators: 456
     silent: False
     subsample: 0.7197455604368401
     learning_rate: 0.1
@@ -120,6 +121,7 @@ root_out:
     #          (default).
     #   quantile: specified number of equally-populated bins, achieved by
     #             placing bin edges at quantiles. Bin population does not take
+    #
     #             event weight into account.
     #   recursive_median: response is recursively bisected at the median
     #   recursive_kmeans: response is recursively split into two clusters using

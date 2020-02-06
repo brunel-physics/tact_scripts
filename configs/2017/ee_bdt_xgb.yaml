@@ -125,7 +125,7 @@ root_out:
     #   recursive_median: response is recursively bisected at the median
     #   recursive_kmeans: response is recursively split into two clusters using
     #                     the k-means (Jenks) algorithm
-    strategy: equal
+    strategy: recursive_median
 
     # Set the number of bins for the equal or quantile binning stategies
     bins: 20

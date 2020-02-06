@@ -94,15 +94,15 @@ classifier: bdt_xgb
 bdt_xgb:
     # booster: dart
     n_jobs: 20
-    n_estimators: 5000
+    n_estimators: 3095
     silent: False
-    subsample: 0.5287567269236547
-    learning_rate: 0.004435305922614178
+    subsample: 0.5224134129584823
+    learning_rate: 0.00380818403604304
     max_depth: 2
-    min_child_weight: 125.04566269225755
-    gamma: 10
-    reg_lambda: 0.31084622069162743
-    reg_alpha: 0.001171203774597402
+    min_child_weight: 277.17986691007712
+    gamma: 7.80600474099944
+    reg_lambda: 427.4170085597634
+    reg_alpha: 1.661859059731681224
 
 # Options governing the root file output
 root_out:
