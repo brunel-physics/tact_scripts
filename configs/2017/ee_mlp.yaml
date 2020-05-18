@@ -2,7 +2,7 @@
 
 # Directory containing input files for the classifier. Each file should contain
 # Monte Carlo for a process, along with a separate file for the data.
-input_dir: /scratch/data/TopPhysics/mvaDirs/inputs/2016/all/mz20mw20/
+input_dir: /scratch/data/TopPhysics/mvaDirs/inputs/2017/all/mz20mw20/
 
 # Random number generation seed
 seed: 777
@@ -17,13 +17,13 @@ channel: ee
 
 # List of processes which should be considered signal
 signals:
-    - TZQ
+    - "TZQ"
 
 # List of processes which should be considered background
 backgrounds:
     - "TTHbb"
     - "TTHnonbb"
-    - "WWW"
+    # - "WWW"
     - "WWZ"
     - "WZZ"
     - "ZZZ"
@@ -32,7 +32,7 @@ backgrounds:
     - "ZZ4l"
     - "ZZ2l2nu"
     - "ZZ2l2q"
-    - "WZjets"
+    - "WZ3l3nu"
     - "WZ2l2q"
     - "WZ1l1nu2q"
     - "TsChan"
@@ -40,21 +40,22 @@ backgrounds:
     - "TbartChan"
     - "TW"
     - "TbarW"
-    - "TZQ"
     - "THQ"
     - "TTWlnu"
     - "TTW2q"
     - "TTZ2l2nu"
     - "TTZ2q"
-    - "TT"
+    - "TT2l2v"
+    - "TTjets"
+    - "TT1l1v2q"
+    - "TTG"
     - "TWZ"
     - "Wjets"
-    - "DYJetsLLPt0To50"
-    - "DYJetsLLPt50To100"
-    - "DYJetsLLPt100To250"
-    - "DYJetsLLPt250To400"
-    - "DYJetsLLPt400To650"
-    - "DYJetsLLPt650ToInf"
+    - "ZG2l1g"
+    - "WG11nu1g"
+    - "DYJetsToLLM10to50"
+    - "DYJetsToLLM50"
+    - "FakeEG"
 
 # Name of process containing collision data
 data_process: DataEG
@@ -85,7 +86,7 @@ negative_weight_treatment: passthrough
 # List of preprocessors in the order they should be applied, accompanied by
 # key-value pairs of keyword arguments under a config key
 preprocessors:
-    - preprocessor: robust_scaler
+    - preprocessor: standard_scaler
       config: {}
 
 # Classifier selection
@@ -104,28 +105,28 @@ mlp:
         config:
         - class_name: Dense
           config:
-            activation: "relu"
+            activation: "tanh"
             kernel_initializer: "glorot_normal"
             bias_initializer: "ones"
             kernel_regularizer:
               class_name: L1L2
-              config: {l1: 1e-5, l2: 1e-4}
-            units: 32
+              config: {l1: 5e-4, l2: 2e-2}
+            units: 16
         - class_name: Dropout
           config:
-              rate: 0.3
-        - class_name: Dense
-          config:
-            activation: "relu"
-            kernel_initializer: "glorot_normal"
-            bias_initializer: "ones"
-            kernel_regularizer:
-              class_name: L1L2
-              config: {l1: 1e-4, l2: 1e-3}
-            units: 32
-        - class_name: Dropout
-          config:
-              rate: 0.3
+              rate: 0.25
+        # - class_name: Dense
+        #   config:
+        #     activation: "relu"
+        #     kernel_initializer: "glorot_normal"
+        #     bias_initializer: "ones"
+        #     kernel_regularizer:
+        #       class_name: L1L2
+        #       config: {l1: 1e-4, l2: 1e-3}
+        #     units: 64
+        # - class_name: Dropout
+        #   config:
+        #       rate: 0.3333333333333333
         - class_name: Dense
           config:
             activation: sigmoid
@@ -137,7 +138,7 @@ mlp:
     model_params:
         epochs: 10000
         verbose: 1
-        batch_size: 256
+        batch_size: 4096
 
     # Keyword arguments to be sent to Keras' model.compile() function
     compile_params:
@@ -148,17 +149,17 @@ mlp:
 
     # Parameters passed to Keras' EarlyStopping()
     early_stopping_params:
-        monitor: loss
+        monitor: val_loss
         min_delta: 0
-        patience: 50
+        patience: 15
         verbose: 1
         mode: auto
 
     # Parameters passed to Keras' ReduceLROnPlateau()
     lr_reduction_params:
-        monitor: loss
+        monitor: val_loss
         factor: 0.1
-        patience: 20
+        patience: 9999
         verbose: 1
 
 # Options governing the root file output
@@ -171,7 +172,7 @@ root_out:
     # poisson: Sum the Monte Carlo histograms, and perform a Poisson jump on
     #          each bin
     # real: Use the real data
-    data: empty
+    data: real
 
     # The strategy used to bin the MVA response in the resulting root files
     #   equal: specified number of equal-width bins in the (0, 1) range
@@ -194,112 +195,133 @@ root_out:
     max_signal_error: 0.3
     max_background_error: 0.3
 
+    # Suffix to be added to bin and systematic names
+    suffix: "_2017"
+
 features:
-    # - bTagDisc
-    - fourthJetEta
-    - fourthJetPhi
-    - fourthJetPt
-    - fourthJetbTag
-    # - jetHt
-    # - jetMass
-    # - jetMass3
-    # - jjdelPhi
-    # - jjdelR
-    - leadJetEta
-    - leadJetPhi
-    - leadJetPt
-    # - leadJetbTag
-    # - lep1D0
-    - lep1Eta
-    - lep1Phi
-    - lep1Pt
-    # - lep1RelIso
-    # - lep2D0
-    # - lep2Eta
-    - lep2Phi
-    - lep2Pt
-    # - lep2RelIso
-    - lepEta
-    # - lepHt
-    # - mTW
-    # - met
-    # - nBjets
-    # - nJets
-    - secJetEta
-    - secJetPhi
-    - secJetPt
-    - secJetbTag
-    - thirdJetEta
-    - thirdJetPhi
-    - thirdJetPt
-    - thirdJetbTag
-    # - topEta
-    # - topMass
-    # - topPhi
-    # - topPt
-    # - totEta
-    # - totHt
-    # - totHtOverPt
-    # - totPt
-    # - totPt2Jet
-    # - totPtVec
-    # - totVecM
-    # - w1TopDelPhi
-    # - w1TopDelR
-    # - w2TopDelPhi
-    # - w2TopDelR
-    # - wPairEta
-    # - wPairMass
-    # - wPairPhi
-    # - wPairPt
-    # - wQuark1Eta
-    # - wQuark1Phi
-    # - wQuark1Pt
-    # - wQuark2Eta
-    # - wQuark2Phi
-    # - wQuark2Pt
-    # - wQuarkHt
-    # - wTopDelPhi
-    # - wTopDelR
-    # - wwdelPhi
-    # - wwdelR
-    # - wzdelPhi
-    # - wzdelR
-    # - zEta
-    # - zLepdelPhi
-    # - zLepdelR
-    # - zMass
-    # - zPhi
-    # - zPt
-    # - zQuark1DelPhi
-    # - zQuark1DelR
-    # - zQuark2DelPhi
-    # - zQuark2DelR
-    # - zTopDelPhi
-    # - zTopDelR
-    # - zjminPhi
-    # - zjminR
-    # - zl1Quark1DelPhi
-    # - zl1Quark1DelR
-    # - zl1Quark2DelPhi
-    # - zl1Quark2DelR
-    # - zl1TopDelPhi
-    # - zl1TopDelR
-    # - zl2Quark1DelPhi
-    # - zl2Quark1DelR
-    # - zl2Quark2DelPhi
-    # - zl2Quark2DelR
-    # - zl2TopDelPhi
-    # - zl2TopDelR
-    # - zlb1DelPhi
-    # - zlb1DelR
-    # - zlb2DelPhi
-    # - zlb2DelR
-    - fifthJetEta
-    - fifthJetPhi
-    - fifthJetPt
-    - fifthJetbTag
-    - sixthJetEta
-    - sixthJetPhi
-    - sixthJetPt
-    - sixthJetbTag
+    # - "bEta"
+    # - "bPhi"
+    # - "bPt"
+    - "bbTag"
+    # - "chi2"
+    - "j1Eta"
+    - "j1Phi"
+    - "j1Pt"
+    # - "j1bDelR"
+    - "j1bTag"
+    # - "j1j2DelR"
+    # - "j1j3DelR"
+    # - "j1j4DelR"
+    # - "j1l1DelR"
+    # - "j1l2DelR"
+    # - "j1tDelR"
+    # - "j1wDelR"
+    # - "j1wj1DelR"
+    # - "j1wj2DelR"
+    # - "j1zDelR"
+    - "j2Eta"
+    - "j2Phi"
+    - "j2Pt"
+    # - "j2bDelR"
+    - "j2bTag"
+    # - "j2j3DelR"
+    # - "j2j4DelR"
+    # - "j2l1DelR"
+    # - "j2l2DelR"
+    # - "j2tDelR"
+    # - "j2wDelR"
+    # - "j2wj1DelR"
+    # - "j2wj2DelR"
+    # - "j2zDelR"
+    - "j3Eta"
+    - "j3Phi"
+    - "j3Pt"
+    # - "j3bDelR"
+    - "j3bTag"
+    # - "j3j4DelR"
+    # - "j3l1DelR"
+    # - "j3l2DelR"
+    # - "j3tDelR"
+    # - "j3wDelR"
+    # - "j3wj1DelR"
+    # - "j3wj2DelR"
+    # - "j3zDelR"
+    - "j4Eta"
+    - "j4Phi"
+    - "j4Pt"
+    # - "j4bDelR"
+    - "j4bTag"
+    # - "j4l1DelR"
+    # - "j4l2DelR"
+    # - "j4tDelR"
+    # - "j4wDelR"
+    # - "j4wj1DelR"
+    # - "j4wj2DelR"
+    # - "j4zDelR"
+    - "jetMass"
+    # - "jetMass3"
+    # - "jetMt"
+    # - "jetPt"
+    # - "l1D0"
+    - "l1Eta"
+    - "l1Phi"
+    - "l1Pt"
+    - "l1RelIso"
+    # - "l1bDelR"
+    # - "l1tDelR"
+    # - "l1wj1DelR"
+    # - "l1wj2DelR"
+    # - "l2D0"
+    - "l2Eta"
+    - "l2Phi"
+    - "l2Pt"
+    - "l2RelIso"
+    # - "l2bDelR"
+    # - "l2tDelR"
+    # - "l2wj1DelR"
+    # - "l2wj2DelR"
+    - "met"
+    # - "nBjets"
+    # - "nJets"
+    # - "tEta"
+    - "tMass"
+    # - "tMt"
+    # - "tPhi"
+    # - "tPt"
+    # - "tbDelR"
+    # - "totMass"
+    # - "totMt"
+    # - "totPt"
+    # - "wEta"
+    # - "wMass"
+    # - "wMt"
+    # - "wPhi"
+    # - "wPt"
+    # - "wbDelR"
+    # - "wj1DelR"
+    # - "wj1Eta"
+    # - "wj1Phi"
+    # - "wj1Pt"
+    # - "wj1bDelR"
+    # - "wj1tDelR"
+    # - "wj2DelR"
+    # - "wj2Eta"
+    # - "wj2Phi"
+    # - "wj2Pt"
+    # - "wj2bDelR"
+    # - "wj2tDelR"
+    # - "wtDelR"
+    # - "wwDelR"
+    # - "wzDelR"
+    # - "zEta"
+    - "zMass"
+    # - "zMt"
+    # - "zPhi"
+    # - "zPt"
+    # - "zbDelR"
+    - "zjMaxR"
+    # - "zjMinR"
+    # - "ztDelR"
+    # - "zwj1DelR"
+    # - "zwj2DelR"
+    # - "zzDelR"

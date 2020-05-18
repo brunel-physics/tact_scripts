@@ -10,14 +10,14 @@ seed: 777
 # ROOT selection string specifying the cuts that should be made before
 # classifier training takes place.
 selection: >-
-    Channel == 1.0
+    Channel == 0.0
 
 # channel - prefix for output file names
-channel: ee
+channel: mumu
 
 # List of processes which should be considered signal
 signals:
-    - "TZQ"
+    - TZQ
 
 # List of processes which should be considered background
 backgrounds:
@@ -35,7 +35,7 @@ backgrounds:
     - "WZjets"
     - "WZ2l2q"
     - "WZ1l1nu2q"
-    - "TsChan"
+    # - "TsChan"
     - "TtChan"
     # - "TbartChan"
     - "TW"
@@ -54,10 +54,10 @@ backgrounds:
     - "DYJetsLLPt250To400"
     - "DYJetsLLPt400To650"
     - "DYJetsLLPt650ToInf"
-    - "FakeEG"
+    - "FakeMu"
 
 # Name of process containing collision data
-data_process: DataEG
+data_process: DataMu
 
 # Directories plots, root files, and trained classifiers should be output into
 plot_dir: plots/
@@ -85,7 +85,7 @@ negative_weight_treatment: passthrough
 # List of preprocessors in the order they should be applied, accompanied by
 # key-value pairs of keyword arguments under a config key
 preprocessors:
-    - preprocessor: standard_scaler
+    - preprocessor: robust_scaler
       config: {}
 
 # Classifier selection
@@ -104,25 +104,25 @@ mlp:
         config:
         - class_name: Dense
           config:
-            activation: "tanh"
+            activation: "relu"
             kernel_initializer: "glorot_normal"
             bias_initializer: "ones"
             kernel_regularizer:
               class_name: L1L2
-              config: {l1: 2e-4, l2: 1e-3}
+              config: {l1: 1e-4, l2: 5e-4}
             units: 32
         - class_name: Dropout
           config:
               rate: 0.2
-        # - class_name: Dense
-        #   config:
-        #     activation: "relu"
-        #     kernel_initializer: "glorot_normal"
-        #     bias_initializer: "ones"
-        #     kernel_regularizer:
-        #       class_name: L1L2
-        #       config: {l1: 1e-4, l2: 1e-3}
-        #     units: 64
+        - class_name: Dense
+          config:
+            activation: "relu"
+            kernel_initializer: "glorot_normal"
+            bias_initializer: "ones"
+            kernel_regularizer:
+              class_name: L1L2
+              config: {l1: 1e-4, l2: 5e-4}
+            units: 8
         # - class_name: Dropout
         #   config:
         #       rate: 0.3333333333333333
@@ -137,7 +137,7 @@ mlp:
     model_params:
         epochs: 10000
         verbose: 1
-        batch_size: 4096
+        batch_size: 2048
 
     # Keyword arguments to be sent to Keras' model.compile() function
     compile_params:
@@ -156,7 +156,7 @@ mlp:
 
     # Parameters passed to Keras' ReduceLROnPlateau()
     lr_reduction_params:
-        monitor: val_loss
+        monitor: loss
         factor: 0.1
         patience: 9999
         verbose: 1
@@ -171,7 +171,7 @@ root_out:
     # poisson: Sum the Monte Carlo histograms, and perform a Poisson jump on
     #          each bin
     # real: Use the real data
-    data: real
+    data: empty
 
     # The strategy used to bin the MVA response in the resulting root files
     #   equal: specified number of equal-width bins in the (0, 1) range
@@ -191,11 +191,8 @@ root_out:
     # are reached
     min_signal_events: 0
     min_background_events: 1
-    max_signal_error: 0.3
-    max_background_error: 0.3
-
-    # Suffix to be added to bin and systematic names
-    suffix: "_2016"
+    max_signal_error: 0.1
+    max_background_error: 0.1
 
 features:
     # - "bEta"
