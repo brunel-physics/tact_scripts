@@ -24,7 +24,7 @@ mpl.rcParams.update({"font.family": "serif",
 colours = {"Z+jets": "#006699",
            "VV": "#ff9933",
            "VVV": "#993399",
-           "Single top": "#ff99cc",
+           "Sgl. top": "#ff99cc",
            "tZq": "#999999",
            "ttV": "#339933",
            "tt": "#cc0000",
@@ -49,13 +49,13 @@ process_groups = {
     "WZ2l2q": "VV",
     "WZ1l1nu2q": "VV",
     "ZG2l1g": "VV",
-    "TsChan": "Single top",
-    "TtChan": "Single top",
-    "TbartChan": "Single top",
-    "TW": "Single top",
-    "TbarW": "Single top",
+    "TsChan": "Sgl. top",
+    "TtChan": "Sgl. top",
+    "TbartChan": "Sgl. top",
+    "TW": "Sgl. top",
+    "TbarW": "Sgl. top",
     "TZQ": "tZq",
-    "THQ": "Single top",
+    "THQ": "Sgl. top",
     "TTWlnu": "ttV",
     "TTW2q": "ttV",
     "TTZ2l2nu": "ttV",
@@ -65,7 +65,7 @@ process_groups = {
     "TTjets" : "tt",
     "TT2l2v" : "tt",
     "TT1l1v2q" : "tt",
-    "TWZ": "Single top",
+    "TWZ": "Sgl. top",
     "Wjets": "W+jets",
     "DYJetsLLPt0To50": "Z+jets",
     "DYJetsLLPt50To100": "Z+jets",
@@ -186,8 +186,13 @@ def total_shape_systematics(shape_systematics, category_bin_counts, processes,
 
             ps = p + "__" + ss
 
-            if ps in blacklist and era == 2017:
-                # print("Skipped", ps, "(blacklist)")
+            # if ps in blacklist and era == 2017:
+            #     # print("Skipped", ps, "(blacklist)")
+            #     s_bin_counts[ss][0] += category_bin_counts[p]
+            #     s_bin_counts[ss][1] += category_bin_counts[p]
+            #     continue
+
+            if "jer" not in ps:
                 s_bin_counts[ss][0] += category_bin_counts[p]
                 s_bin_counts[ss][1] += category_bin_counts[p]
                 continue
@@ -254,7 +259,7 @@ def mask_empty_bins(*bin_counts):
 
 
 def plot_histogram(groups, group_bin_counts, data_bin_count, syst_error, bins,
-                   xlabel, outdir, blinded=False):
+                   column, outdir, blinded=False):
 
     mc_bin_count = sum(v for v in group_bin_counts.values())
     # Mask bins where data and MC is 0
@@ -313,7 +318,7 @@ def plot_histogram(groups, group_bin_counts, data_bin_count, syst_error, bins,
                 fmt="k.",
                 label="Data")
     ax1.legend(
-        prop={'size': 6},
+        # prop={'size': 6},
         # bbox_to_anchor=(1.05, 1),
         loc="best",
         # borderaxespad=0.,
@@ -321,12 +326,17 @@ def plot_histogram(groups, group_bin_counts, data_bin_count, syst_error, bins,
         fancybox=True,
         facecolor="w",
         framealpha=0.8,
-        fontsize="x-large",
+        fontsize="large",
+        labelspacing=0.2,
+        columnspacing=2,
+        ncol=2,
     )
 
     # ax1.set_title("CMS Preliminary", loc="left")
-    ax1.tick_params(axis='both', which='both', labelsize="large")
-    ax1.set_ylabel("Events", fontsize="x-large")
+    ax1.tick_params(axis='both', which='both', labelsize="xx-large")
+    ax1.set_ylabel("Events", fontsize="xx-large")
+
+    xlabel = re.sub("(?:Pt|Mass|^met)$", "\g<0> (GeV)", column)
 
     if not blinded:
         ax2.errorbar(
@@ -345,31 +355,31 @@ def plot_histogram(groups, group_bin_counts, data_bin_count, syst_error, bins,
             label="Syst.",
             hatch="////")
 
-        ax2.tick_params(axis='both', which='both', labelsize="large")
+        ax2.tick_params(axis='both', which='both', labelsize="xx-large")
         ax2.set_axisbelow(True)
         ax2.minorticks_on()
         ax2.yaxis.grid(b=True, which='both')
         ax2.set_ylim([0.5, 1.5])
-        ax2.set_ylabel("Data/MC", fontsize="x-large")
-        ax2.set_xlabel(xlabel, family="monospace", fontsize="x-large")
+        ax2.set_ylabel("Data/MC", fontsize="xx-large")
+        ax2.set_xlabel(xlabel, family="monospace", fontsize="xx-large")
     else:
-        ax1.set_xlabel(xlabel, fontsize="x-large")
+        ax1.set_xlabel(xlabel, fontsize="xx-large")
 
     # Set axis limits
     ax1.set_ylim(bottom=0)
 
     plt.tight_layout()
 
-    fig.savefig("{}/{}.pdf".format(outdir, xlabel), pad_inches=0,
+    fig.savefig("{}/{}.pdf".format(outdir, column), pad_inches=0,
                 bbox_inches="tight")
-    fig.savefig("{}/{}.pgf".format(outdir, xlabel), pad_inches=0,
+    fig.savefig("{}/{}.pgf".format(outdir, column), pad_inches=0,
                 bbox_inches="tight")
 
     ax1.set_ylim(bottom=1)
     ax1.set_yscale("log")
 
-    fig.savefig("{}/{}_log.pdf".format(outdir, xlabel))
-    fig.savefig("{}/{}_log.pgf".format(outdir, xlabel))
+    fig.savefig("{}/{}_log.pdf".format(outdir, column))
+    fig.savefig("{}/{}_log.pgf".format(outdir, column))
 
     plt.close(fig)
 
